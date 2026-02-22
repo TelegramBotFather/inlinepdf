@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: oklch(0.9707 0.0027 286.35);
+  --background: oklch(0.98 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -11,15 +11,15 @@
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.145 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
+  --secondary: oklch(0.96 0 0);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.48 0 0);
+  --accent: oklch(0.96 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.145 0 0);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
+  --border: oklch(0.9 0 0);
   --input: var(--border);
   --ring: oklch(0.708 0 0);
   --radius: 0.7rem;
@@ -82,7 +82,7 @@
 
   html,
   body {
-    @apply min-h-screen w-full overflow-x-hidden;
+    @apply min-h-screen w-full;
   }
 
   body {

@@ -39,7 +39,7 @@ export function ThemePicker() {
   }
 
   return (
-    <div className="inline-flex items-center rounded-full border border-border bg-background/80 p-0.5 shadow-sm">
+    <div className="inline-flex items-center rounded-full border border-border bg-muted/40 p-0.5">
       {themePreferences.map((value) => (
         <button
           key={value}
@@ -49,10 +49,10 @@ export function ThemePicker() {
             handleThemeSelect(value);
           }}
           className={cn(
-            'rounded-full px-3 py-1 text-sm font-medium transition-colors',
+            'rounded-full px-2 py-0.5 text-xs font-medium transition-colors',
             theme === value
-              ? 'bg-secondary text-secondary-foreground'
-              : 'text-muted-foreground hover:text-foreground',
+              ? 'bg-foreground text-background shadow-sm'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground',
           )}
         >
           {themeOptionLabels[value]}

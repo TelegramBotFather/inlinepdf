@@ -4,13 +4,14 @@ import { type ChangeEvent, type DragEvent, useRef, useState } from 'react';
 
 import { cn } from '~/lib/utils';
 
-type SelectorVariant = 'dropzone' | 'inline';
+type SelectorVariant = 'dropzone' | 'inline' | 'tile';
 
 interface PdfFileSelectorProps {
   disabled?: boolean;
   multiple?: boolean;
   onSelect: (files: File[]) => void;
   ariaLabel: string;
+  accept?: string;
   variant?: SelectorVariant;
   title?: string;
   description?: string;
@@ -36,6 +37,7 @@ export function PdfFileSelector({
   multiple = false,
   onSelect,
   ariaLabel,
+  accept = 'application/pdf,.pdf',
   variant = 'dropzone',
   title,
   description,
@@ -78,7 +80,7 @@ export function PdfFileSelector({
       <input
         ref={inputRef}
         type="file"
-        accept="application/pdf,.pdf"
+        accept={accept}
         multiple={multiple}
         onChange={handleInputChange}
         disabled={disabled}
@@ -99,6 +101,24 @@ export function PdfFileSelector({
         >
           <HugeiconsIcon icon={Add01Icon} size={18} />
           {buttonLabel ?? 'Select more PDF files'}
+        </button>
+      ) : variant === 'tile' ? (
+        <button
+          type="button"
+          disabled={disabled}
+          className={cn(
+            'flex h-full min-h-[136px] w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-card px-4 py-6 text-center transition-colors sm:min-h-[156px] lg:min-h-[188px]',
+            !disabled && 'hover:border-primary/40 hover:bg-muted/50',
+            disabled && 'cursor-not-allowed opacity-70',
+          )}
+          onClick={openPicker}
+        >
+          <div className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-background">
+            <HugeiconsIcon icon={Add01Icon} size={20} />
+          </div>
+          <p className="text-sm font-semibold tracking-tight sm:text-base">
+            {buttonLabel ?? 'Add more files'}
+          </p>
         </button>
       ) : (
         <div

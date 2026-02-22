@@ -40,3 +40,24 @@ if (typeof window.matchMedia !== 'function') {
     })),
   });
 }
+
+if (typeof globalThis.ResizeObserver !== 'function') {
+  class ResizeObserverMock {
+    observe() {
+      return undefined;
+    }
+
+    unobserve() {
+      return undefined;
+    }
+
+    disconnect() {
+      return undefined;
+    }
+  }
+
+  Object.defineProperty(globalThis, 'ResizeObserver', {
+    writable: true,
+    value: ResizeObserverMock,
+  });
+}

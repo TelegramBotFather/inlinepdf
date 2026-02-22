@@ -13,8 +13,10 @@ InlinePDF is a local-first PDF toolkit and iLovePDF alternative.
 ## Current Pages
 
 - `/` Home (Header + Hero + Footer)
+- `/tools` Tool catalog
 - `/merge` Merge PDF (functional MVP)
 - `/info` PDF Info (metadata and font insights)
+- `/tools/:slug` legacy redirect to `/:slug`
 
 ## Tech Stack
 
@@ -56,5 +58,6 @@ pnpm run test
 1. Add a new tool entry in `app/features/tools/registry.ts`.
 2. Create a feature folder under `app/features/<tool-name>/`.
 3. Add a route under `app/routes/` and map it in `app/routes.ts` as `/<tool-name>`.
+   Canonical tool paths use direct slugs like `/merge`, `/split`, `/compress`.
 4. Reuse `SiteShell` and existing UI primitives.
 5. Keep processing local-only. If not possible yet, mark as `coming_soon`.

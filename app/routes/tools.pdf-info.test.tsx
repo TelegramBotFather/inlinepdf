@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router';
+import { RouterProvider, createMemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { PdfInfoResult } from '~/features/pdf-info/types';
-import PdfInfoRoute from '~/routes/tools.pdf-info';
+import ToolDetailRoute, { loader as toolLoader } from '~/routes/tools.$toolSlug';
 
 const extractPdfInfoMock = vi.hoisted(() => vi.fn());
 
@@ -40,12 +40,19 @@ const sampleResult: PdfInfoResult = {
 };
 
 function renderRoute() {
+  const router = createMemoryRouter(
+    [
+      {
+        path: '/:toolSlug',
+        loader: toolLoader,
+        element: <ToolDetailRoute />,
+      },
+    ],
+    { initialEntries: ['/info'] },
+  );
+
   return render(
-    <MemoryRouter initialEntries={['/info']}>
-      <Routes>
-        <Route path="/info" element={<PdfInfoRoute />} />
-      </Routes>
-    </MemoryRouter>,
+    <RouterProvider router={router} />,
   );
 }
 
@@ -53,11 +60,15 @@ function createFile() {
   return new File(['%PDF-1.4'], 'sample.pdf', { type: 'application/pdf' });
 }
 
+async function waitForPdfInfoToolReady() {
+  await screen.findByText('Drag and drop a PDF file', undefined, { timeout: 5000 });
+}
+
 afterEach(() => {
   extractPdfInfoMock.mockReset();
 });
 
-describe('PdfInfoRoute', () => {
+describe('PDF info tool route', () => {
   it('shows loading state while metadata extraction is pending', async () => {
     const user = userEvent.setup();
     let resolveExtraction: ((value: PdfInfoResult) => void) | undefined;
@@ -68,9 +79,12 @@ describe('PdfInfoRoute', () => {
     );
 
     renderRoute();
+    await waitForPdfInfoToolReady();
 
-    await user.upload(screen.getByLabelText('Select PDF file'), createFile());
-
+    await user.upload(
+      await screen.findByLabelText('Select PDF file'),
+      createFile(),
+    );
     expect(screen.getByText('Extracting PDF details...')).toBeInTheDocument();
 
     resolveExtraction?.(sampleResult);
@@ -82,8 +96,12 @@ describe('PdfInfoRoute', () => {
     extractPdfInfoMock.mockResolvedValue(sampleResult);
 
     renderRoute();
+    await waitForPdfInfoToolReady();
 
-    await user.upload(screen.getByLabelText('Select PDF file'), createFile());
+    await user.upload(
+      await screen.findByLabelText('Select PDF file'),
+      createFile(),
+    );
 
     expect(await screen.findByText('File name')).toBeInTheDocument();
     expect(screen.getByText('Raw XMP metadata')).toBeInTheDocument();
@@ -98,8 +116,12 @@ describe('PdfInfoRoute', () => {
     extractPdfInfoMock.mockRejectedValue(new Error('PDF parse failed'));
 
     renderRoute();
+    await waitForPdfInfoToolReady();
 
-    await user.upload(screen.getByLabelText('Select PDF file'), createFile());
+    await user.upload(
+      await screen.findByLabelText('Select PDF file'),
+      createFile(),
+    );
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'PDF parse failed',

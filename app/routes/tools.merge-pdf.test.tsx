@@ -1,10 +1,10 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PDFDocument } from 'pdf-lib';
-import { MemoryRouter, Route, Routes } from 'react-router';
+import { RouterProvider, createMemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 
-import MergePdfRoute from '~/routes/tools.merge-pdf';
+import ToolDetailRoute, { loader as toolLoader } from '~/routes/tools.$toolSlug';
 
 async function createPdfFile(name: string, pageWidth = 200): Promise<File> {
   const doc = await PDFDocument.create();
@@ -16,52 +16,75 @@ async function createPdfFile(name: string, pageWidth = 200): Promise<File> {
 }
 
 function renderMergeRoute() {
+  const router = createMemoryRouter(
+    [
+      {
+        path: '/:toolSlug',
+        loader: toolLoader,
+        element: <ToolDetailRoute />,
+      },
+    ],
+    { initialEntries: ['/merge'] },
+  );
+
   return render(
-    <MemoryRouter initialEntries={['/merge']}>
-      <Routes>
-        <Route path="/merge" element={<MergePdfRoute />} />
-      </Routes>
-    </MemoryRouter>,
+    <RouterProvider router={router} />,
   );
 }
 
-describe('MergePdfRoute', () => {
-  it('enables merge only when at least two files are selected', async () => {
+async function waitForMergeToolReady() {
+  await screen.findByLabelText('Select PDF files', undefined, {
+    timeout: 5000,
+  });
+}
+
+describe('Merge tool route', () => {
+  it('shows bottom actions after first file and enables merge at two files', async () => {
     const user = userEvent.setup();
     renderMergeRoute();
+    await waitForMergeToolReady();
 
-    const mergeButton = screen.getByRole('button', {
-      name: 'Merge and Download',
-    });
-    expect(mergeButton).toBeDisabled();
+    expect(
+      screen.queryByRole('button', { name: 'Merge and Download' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('No files selected yet.')).not.toBeInTheDocument();
 
-    const selectorInput = screen.getByLabelText('Select PDF files');
+    const selectorInput = await screen.findByLabelText('Select PDF files');
     const fileA = await createPdfFile('one.pdf');
+    await user.upload(selectorInput, fileA);
+
+    expect(await screen.findByRole('button', { name: 'Merge and Download' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Clear all' })).toBeEnabled();
+
+    const inlineSelector = await screen.findByLabelText('Select PDF files');
     const fileB = await createPdfFile('two.pdf');
+    await user.upload(inlineSelector, fileB);
 
-    await user.upload(selectorInput, [fileA, fileB]);
-
-    expect(mergeButton).toBeEnabled();
+    expect(
+      await screen.findByRole('button', { name: 'Merge and Download' }),
+    ).toBeEnabled();
   });
 
-  it('supports reorder and remove actions', async () => {
+  it('renders selected files in rows with remove action and page details', async () => {
     const user = userEvent.setup();
     renderMergeRoute();
+    await waitForMergeToolReady();
 
-    const selectorInput = screen.getByLabelText('Select PDF files');
+    const selectorInput = await screen.findByLabelText('Select PDF files');
     const firstFile = await createPdfFile('first.pdf', 111);
     const secondFile = await createPdfFile('second.pdf', 222);
 
     await user.upload(selectorInput, [firstFile, secondFile]);
 
-    await user.click(
-      screen.getByRole('button', { name: 'Move second.pdf up' }),
-    );
-
-    const itemsAfterMove = screen.getAllByTestId('merge-file-item');
-    const firstItem = itemsAfterMove[0];
-    expect(firstItem).toBeDefined();
-    expect(within(firstItem).getByText(/second\.pdf/)).toBeInTheDocument();
+    expect(screen.getByText(/first\.pdf/)).toBeInTheDocument();
+    expect(screen.getByText(/second\.pdf/)).toBeInTheDocument();
+    expect((await screen.findAllByText('1 page')).length).toBe(2);
+    expect(
+      screen.queryByRole('button', { name: 'Move second.pdf up' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Move second.pdf down' }),
+    ).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Remove second.pdf' }));
 
@@ -74,13 +97,13 @@ describe('MergePdfRoute', () => {
     const createObjectUrlSpy = vi.spyOn(URL, 'createObjectURL');
 
     renderMergeRoute();
+    await waitForMergeToolReady();
 
-    const selectorInput = screen.getByLabelText('Select PDF files');
+    const selectorInput = await screen.findByLabelText('Select PDF files');
     const alpha = await createPdfFile('alpha.pdf', 120);
     const beta = await createPdfFile('beta.pdf', 180);
 
     await user.upload(selectorInput, [alpha, beta]);
-    await user.click(screen.getByRole('button', { name: 'Move beta.pdf up' }));
     await user.click(
       screen.getByRole('button', { name: 'Merge and Download' }),
     );
