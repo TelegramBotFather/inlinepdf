@@ -3,6 +3,7 @@ import { Cancel01Icon, File01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import type { ReactNode } from 'react';
+import { Button } from '~/components/ui/button';
 import { Spinner } from '~/components/ui/spinner';
 
 import { cn } from '~/lib/utils';
@@ -100,10 +101,10 @@ function SortableFileRow({
       )}
     >
       <div className="flex items-center gap-3 lg:flex-col lg:items-stretch">
-        <div className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-lg border border-border bg-white lg:h-auto lg:w-full lg:aspect-[4/5]">
+        <div className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-lg border border-border/70 bg-white dark:border-white/15 lg:h-auto lg:w-full lg:aspect-[4/5]">
           {entry.previewStatus === 'loading' ? (
             <div className="flex h-full w-full items-center justify-center bg-background/80">
-              <Spinner className="h-6 w-6 border-2" />
+              <Spinner className="h-6 w-6" />
             </div>
           ) : entry.previewDataUrl ? (
             <img
@@ -117,8 +118,7 @@ function SortableFileRow({
               <HugeiconsIcon icon={File01Icon} size={30} />
             </div>
           )}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-black/20 to-transparent" />
-          <div className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.75),inset_0_-18px_24px_-20px_rgba(0,0,0,0.35)]" />
+          <div className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgba(15,23,42,0.08),inset_0_0_24px_-14px_rgba(15,23,42,0.28)] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08),inset_0_0_40px_-8px_rgba(0,0,0,0.78)]" />
         </div>
 
         <div className="grid min-w-0 flex-1 grid-cols-[2rem_minmax(0,1fr)] gap-x-2 lg:w-full">
@@ -137,17 +137,19 @@ function SortableFileRow({
         </div>
 
         {onRemove ? (
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="icon"
             aria-label={`Remove ${entry.file.name}`}
             onClick={() => {
               onRemove(entry.id);
             }}
             disabled={disabled}
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border/90 bg-card/90 text-foreground shadow-md backdrop-blur-xl transition-colors hover:bg-card disabled:cursor-not-allowed disabled:opacity-60 lg:absolute lg:right-4 lg:top-4 lg:z-20"
+            className="h-9 w-9 shrink-0 rounded-full border-border/90 bg-card/90 text-foreground shadow-md backdrop-blur-xl hover:bg-card lg:absolute lg:right-4 lg:top-4 lg:z-20"
           >
             <HugeiconsIcon icon={Cancel01Icon} size={20} />
-          </button>
+          </Button>
         ) : null}
       </div>
     </li>

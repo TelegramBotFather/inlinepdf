@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 
 import { Shell } from '~/components/layout/shell';
+import { buttonVariants } from '~/components/ui/button';
 
 export function meta() {
   return [
@@ -24,13 +25,13 @@ export default function CatchallRoute() {
         <div className="flex flex-wrap gap-3">
           <Link
             to="/"
-            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:brightness-95"
+            className={buttonVariants({ size: 'lg' })}
           >
             Go Home
           </Link>
           <Link
             to="/tools"
-            className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+            className={buttonVariants({ variant: 'outline', size: 'lg' })}
           >
             Open Tools
           </Link>

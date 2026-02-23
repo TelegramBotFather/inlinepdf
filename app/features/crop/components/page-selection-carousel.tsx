@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 
+import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
 import type { CropPagePreview } from '~/features/crop/types';
 
@@ -41,8 +42,9 @@ export function PageSelectionCarousel({
 
             return (
               <li key={String(page.pageNumber)}>
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   disabled={disabled}
                   aria-pressed={isSelected}
                   aria-label={`${isSelected ? 'Selected' : 'Select'} page ${String(page.pageNumber)}`}
@@ -50,10 +52,9 @@ export function PageSelectionCarousel({
                     onTogglePage(page.pageNumber);
                   }}
                   className={cn(
-                    'group w-full rounded-xl border bg-card text-left transition-colors',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-70',
+                    'group h-auto w-full justify-start whitespace-normal rounded-xl p-0 text-left transition-colors',
                     isSelected
-                      ? 'border-primary ring-1 ring-primary/40'
+                      ? 'border-primary bg-card ring-1 ring-primary/40'
                       : 'border-border hover:border-primary/40',
                   )}
                 >
@@ -89,7 +90,7 @@ export function PageSelectionCarousel({
                       {isSelected ? 'Selected' : 'Select'}
                     </span>
                   </div>
-                </button>
+                </Button>
               </li>
             );
           })}

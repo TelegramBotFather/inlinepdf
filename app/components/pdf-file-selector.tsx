@@ -2,6 +2,8 @@ import { Add01Icon, File01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { type ChangeEvent, type DragEvent, useRef, useState } from 'react';
 
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
 import { cn } from '~/lib/utils';
 
 type SelectorVariant = 'dropzone' | 'inline' | 'tile';
@@ -77,7 +79,7 @@ export function PdfFileSelector({
 
   return (
     <section>
-      <input
+      <Input
         ref={inputRef}
         type="file"
         accept={accept}
@@ -89,11 +91,12 @@ export function PdfFileSelector({
       />
 
       {variant === 'inline' ? (
-        <button
+        <Button
           type="button"
+          variant="outline"
           disabled={disabled}
           className={cn(
-            'flex w-full items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-card px-4 py-5 text-sm font-medium transition-colors',
+            'h-auto w-full items-center justify-center gap-3 rounded-xl border-dashed bg-card px-4 py-5 text-sm transition-colors',
             !disabled && 'hover:border-primary/40 hover:bg-muted/50',
             disabled && 'cursor-not-allowed opacity-70',
           )}
@@ -101,13 +104,14 @@ export function PdfFileSelector({
         >
           <HugeiconsIcon icon={Add01Icon} size={18} />
           {buttonLabel ?? 'Select more PDF files'}
-        </button>
+        </Button>
       ) : variant === 'tile' ? (
-        <button
+        <Button
           type="button"
+          variant="outline"
           disabled={disabled}
           className={cn(
-            'flex h-full min-h-[136px] w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-card px-4 py-6 text-center transition-colors sm:min-h-[156px] lg:min-h-[188px]',
+            'h-full min-h-[136px] w-full flex-col items-center justify-center gap-3 rounded-xl border-dashed bg-card px-4 py-6 text-center transition-colors sm:min-h-[156px] lg:min-h-[188px]',
             !disabled && 'hover:border-primary/40 hover:bg-muted/50',
             disabled && 'cursor-not-allowed opacity-70',
           )}
@@ -119,30 +123,19 @@ export function PdfFileSelector({
           <p className="text-sm font-semibold tracking-tight sm:text-base">
             {buttonLabel ?? 'Add more files'}
           </p>
-        </button>
+        </Button>
       ) : (
-        <div
-          role="button"
-          tabIndex={0}
-          aria-disabled={disabled}
+        <Button
+          type="button"
+          variant="outline"
+          disabled={disabled}
           className={cn(
-            'rounded-xl border border-dashed border-border bg-card px-6 py-12 text-center transition-colors',
-            !disabled &&
-              'cursor-pointer hover:border-primary/40 hover:bg-muted/50',
+            'h-auto w-full flex-col rounded-xl border-dashed bg-card px-6 py-12 text-center whitespace-normal transition-colors',
+            !disabled && 'hover:border-primary/40 hover:bg-muted/50',
             isDragActive && 'border-primary/60 bg-muted/60',
             disabled && 'cursor-not-allowed opacity-70',
           )}
           onClick={openPicker}
-          onKeyDown={(event) => {
-            if (disabled) {
-              return;
-            }
-
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault();
-              openPicker();
-            }
-          }}
           onDragEnter={(event) => {
             event.preventDefault();
             if (!disabled) {
@@ -156,7 +149,7 @@ export function PdfFileSelector({
             event.preventDefault();
             setIsDragActive(false);
           }}
-          onDrop={(event: DragEvent<HTMLDivElement>) => {
+          onDrop={(event: DragEvent<HTMLButtonElement>) => {
             event.preventDefault();
             setIsDragActive(false);
             commitSelection(event.dataTransfer.files);
@@ -171,7 +164,7 @@ export function PdfFileSelector({
           <p className="mt-2 text-muted-foreground">
             {description ?? defaultDescription}
           </p>
-        </div>
+        </Button>
       )}
     </section>
   );

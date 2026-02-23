@@ -410,7 +410,7 @@ export function PdfCropEditor({
         {isRendering ? (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background/65">
             <div className="flex items-center gap-2 text-sm font-medium">
-              <Spinner className="h-4 w-4 border-2" />
+              <Spinner className="h-4 w-4" />
               <p>Rendering page...</p>
             </div>
           </div>

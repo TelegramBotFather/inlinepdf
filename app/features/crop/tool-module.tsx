@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import { PdfFileSelector } from '~/components/pdf-file-selector';
 import { Button } from '~/components/ui/button';
+import { NativeSelect, NativeSelectOption } from '~/components/ui/native-select';
 import { Spinner } from '~/components/ui/spinner';
 import { PageSelectionCarousel } from '~/features/crop/components/page-selection-carousel';
 import { PdfCropEditor } from '~/features/crop/components/pdf-crop-editor';
@@ -361,7 +362,7 @@ function CropToolWorkspace() {
           inputPanel={fileInfoPanel}
           outputPanel={
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Spinner className="h-4 w-4 border-2" />
+              <Spinner className="h-4 w-4" />
               <span>Preparing page previews...</span>
             </div>
           }
@@ -413,20 +414,19 @@ function CropToolWorkspace() {
           <div className="h-6 w-px bg-border/80" />
           <label className="ml-1 flex items-center gap-2 text-sm">
             <span className="text-muted-foreground">Aspect</span>
-            <select
+            <NativeSelect
               value={preset}
               disabled={isExporting}
               onChange={(event) => {
                 setPreset(event.currentTarget.value as CropPreset);
               }}
-              className="h-9 rounded-md border border-input bg-background px-2 text-sm"
             >
               {PRESET_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
+                <NativeSelectOption key={option.value} value={option.value}>
                   {option.label}
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
+            </NativeSelect>
           </label>
           <div className="ml-auto flex items-center gap-2">
             <Button

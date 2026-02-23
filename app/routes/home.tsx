@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 
 import { Shell } from '~/components/layout/shell';
+import { buttonVariants } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { toolsRegistry } from '~/features/tools/registry';
 
@@ -32,7 +33,7 @@ export default function HomeRoute() {
           <Link
             to="/tools"
             prefetch="intent"
-            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:brightness-95"
+            className={buttonVariants({ size: 'lg' })}
           >
             Browse tools
           </Link>
@@ -54,7 +55,7 @@ export default function HomeRoute() {
                     <Link
                       to={tool.path}
                       prefetch="intent"
-                      className="inline-flex h-9 items-center justify-center rounded-md border border-border bg-card px-3 text-sm font-medium hover:bg-muted"
+                      className={buttonVariants({ variant: 'outline' })}
                     >
                       Open
                     </Link>

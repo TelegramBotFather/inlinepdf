@@ -41,6 +41,47 @@ export default defineConfig([
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'lucide-react',
+              message:
+                'Use @hugeicons/react with @hugeicons/core-free-icons instead.',
+            },
+            {
+              name: '@radix-ui/react-icons',
+              message:
+                'Use @hugeicons/react with @hugeicons/core-free-icons instead.',
+            },
+            {
+              name: '@heroicons/react',
+              message:
+                'Use @hugeicons/react with @hugeicons/core-free-icons instead.',
+            },
+            {
+              name: '@tabler/icons-react',
+              message:
+                'Use @hugeicons/react with @hugeicons/core-free-icons instead.',
+            },
+            {
+              name: '@fortawesome/react-fontawesome',
+              message:
+                'Use @hugeicons/react with @hugeicons/core-free-icons instead.',
+            },
+          ],
+          patterns: [
+            {
+              group: ['react-icons/*', '@heroicons/*'],
+              message:
+                'Use @hugeicons/react with @hugeicons/core-free-icons instead.',
+            },
+          ],
+        },
+      ],
+    },
   },
   {
     name: 'ts/tests',

@@ -17,6 +17,7 @@ import {
 } from '~/components/ui/alert-dialog';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
+import { NativeSelect, NativeSelectOption } from '~/components/ui/native-select';
 import { Spinner } from '~/components/ui/spinner';
 import { PdfCropEditor } from '~/features/crop/components/pdf-crop-editor';
 import { hasValidRect } from '~/features/crop/service/coordinate-math';
@@ -280,28 +281,27 @@ function CropNewToolWorkspace() {
             <p className="text-sm font-medium">{selectedFile.name}</p>
           </div>
           <div className="flex items-center justify-center pb-2 md:hidden">
-            <label className="flex items-center gap-2 text-sm whitespace-nowrap">
-              <span className="text-muted-foreground">Aspect</span>
-              <select
-                value={preset}
-                disabled={isReadingPdf || isExporting}
-                onChange={(event) => {
-                  setPreset(event.currentTarget.value as CropPreset);
-                }}
-                className="h-9 rounded-md border border-input bg-background px-2 text-sm"
-              >
-                {PRESET_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+              <label className="flex items-center gap-2 text-sm whitespace-nowrap">
+                <span className="text-muted-foreground">Aspect</span>
+                <NativeSelect
+                  value={preset}
+                  disabled={isReadingPdf || isExporting}
+                  onChange={(event) => {
+                    setPreset(event.currentTarget.value as CropPreset);
+                  }}
+                >
+                  {PRESET_OPTIONS.map((option) => (
+                    <NativeSelectOption key={option.value} value={option.value}>
+                      {option.label}
+                    </NativeSelectOption>
+                  ))}
+                </NativeSelect>
+              </label>
+            </div>
           {isReadingPdf || !documentPreview || !activePageNumber ? (
             <div className="flex h-full items-center justify-center">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Spinner className="h-4 w-4 border-2" />
+                <Spinner className="h-4 w-4" />
                 <p>Reading PDF and preparing crop preview...</p>
               </div>
             </div>
@@ -390,20 +390,19 @@ function CropNewToolWorkspace() {
             <div className="hidden items-center justify-end gap-2 md:flex">
               <label className="flex items-center gap-2 text-sm whitespace-nowrap">
                 <span className="text-muted-foreground">Aspect</span>
-                <select
+                <NativeSelect
                   value={preset}
                   disabled={isReadingPdf || isExporting}
                   onChange={(event) => {
                     setPreset(event.currentTarget.value as CropPreset);
                   }}
-                  className="h-9 rounded-md border border-input bg-background px-2 text-sm"
                 >
                   {PRESET_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
+                    <NativeSelectOption key={option.value} value={option.value}>
                       {option.label}
-                    </option>
+                    </NativeSelectOption>
                   ))}
-                </select>
+                </NativeSelect>
               </label>
 
               <Button

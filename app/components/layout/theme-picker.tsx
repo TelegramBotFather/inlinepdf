@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
 import {
   applyThemePreference,
@@ -39,24 +40,26 @@ export function ThemePicker() {
   }
 
   return (
-    <div className="inline-flex items-center rounded-full border border-border bg-muted/40 p-0.5">
+      <div className="inline-flex items-center rounded-full border border-border bg-muted/40 p-0.5">
       {themePreferences.map((value) => (
-        <button
+        <Button
           key={value}
           type="button"
+          size="xs"
+          variant={theme === value ? 'default' : 'ghost'}
           aria-pressed={theme === value}
           onClick={() => {
             handleThemeSelect(value);
           }}
           className={cn(
-            'rounded-full px-2 py-0.5 text-xs font-medium transition-colors',
+            'h-7 rounded-full px-2 text-xs',
             theme === value
-              ? 'bg-foreground text-background shadow-sm'
-              : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+              ? 'shadow-sm'
+              : 'text-muted-foreground hover:text-foreground',
           )}
         >
           {themeOptionLabels[value]}
-        </button>
+        </Button>
       ))}
     </div>
   );

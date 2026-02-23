@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from 'react-router';
 
 import { Shell } from '~/components/layout/shell';
+import { buttonVariants } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { toolsRegistry } from '~/features/tools/registry';
 import type { ToolCategory, ToolStatus } from '~/features/tools/types';
@@ -89,14 +90,14 @@ export default function ToolsIndexRoute() {
                       <Link
                         to={tool.path}
                         prefetch="intent"
-                        className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:brightness-95"
+                        className={buttonVariants({ size: 'lg' })}
                       >
                         Open tool
                       </Link>
                     ) : (
                       <Link
                         to={tool.path}
-                        className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-card px-4 text-sm font-medium text-muted-foreground"
+                        className={buttonVariants({ variant: 'outline', size: 'lg' })}
                       >
                         View details
                       </Link>
