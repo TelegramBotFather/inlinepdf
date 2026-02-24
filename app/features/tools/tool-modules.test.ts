@@ -10,8 +10,10 @@ describe('tool modules', () => {
     expect(Object.keys(toolModuleLoaders).sort()).toEqual([
       'crop',
       'cropnew',
+      'image-to-pdf',
       'info',
       'merge',
+      'pdf-to-images',
     ]);
   });
 

@@ -30,6 +30,8 @@ type ToolRenderer = (props: ToolModuleRenderProps) => React.ReactElement;
 export const toolModuleLoaders: Partial<Record<ToolSlug, ToolModuleLoader>> = {
   merge: async () => import('~/features/merge/tool-module'),
   info: async () => import('~/features/pdf-info/tool-module'),
+  'image-to-pdf': async () => import('~/features/image-to-pdf/tool-module'),
+  'pdf-to-images': async () => import('~/features/pdf-to-images/tool-module'),
   crop: async () => import('~/features/crop/tool-module'),
   cropnew: async () => import('~/features/crop-new/tool-module'),
 };
@@ -46,6 +48,20 @@ export const lazyToolRenderers: Partial<
   }),
   info: lazy(async () => {
     const module = await import('~/features/pdf-info/tool-module');
+    return {
+      default: (props: ToolModuleRenderProps) =>
+        module.default.renderWorkspaceContent(props),
+    };
+  }),
+  'image-to-pdf': lazy(async () => {
+    const module = await import('~/features/image-to-pdf/tool-module');
+    return {
+      default: (props: ToolModuleRenderProps) =>
+        module.default.renderWorkspaceContent(props),
+    };
+  }),
+  'pdf-to-images': lazy(async () => {
+    const module = await import('~/features/pdf-to-images/tool-module');
     return {
       default: (props: ToolModuleRenderProps) =>
         module.default.renderWorkspaceContent(props),

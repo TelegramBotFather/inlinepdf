@@ -14,6 +14,7 @@ export interface QueuedFile {
   pageCount: number | null;
   previewDataUrl: string | null;
   previewStatus: 'loading' | 'ready' | 'unavailable';
+  metadataText?: string;
 }
 
 interface FileQueueListProps {
@@ -129,9 +130,11 @@ function SortableFileRow({
             {entry.file.name}
           </p>
           <p className="text-xs text-muted-foreground">
-            {entry.pageCount === null
-              ? 'Pages unavailable'
-              : `${String(entry.pageCount)} page${entry.pageCount === 1 ? '' : 's'}`}
+            {entry.metadataText ?? (
+              entry.pageCount === null
+                ? 'Pages unavailable'
+                : `${String(entry.pageCount)} page${entry.pageCount === 1 ? '' : 's'}`
+            )}
           </p>
           <p className="text-xs text-muted-foreground">{formatBytes(entry.file.size)}</p>
         </div>

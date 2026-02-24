@@ -21,4 +21,12 @@ describe('tools registry', () => {
     expect(toolsRegistry.some((tool) => tool.status === 'ready')).toBe(true);
     expect(toolsRegistry.some((tool) => tool.status !== 'ready')).toBe(true);
   });
+
+  it('replaces planned JPG/PNG-to-PDF tools with unified Image-to-PDF', () => {
+    const slugs = toolsRegistry.map((tool) => tool.slug as string);
+
+    expect(slugs).toContain('image-to-pdf');
+    expect(slugs).not.toContain('jpg-to-pdf');
+    expect(slugs).not.toContain('png-to-pdf');
+  });
 });

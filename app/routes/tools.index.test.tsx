@@ -28,8 +28,8 @@ describe('tools index route', () => {
   it('supports category filters from search params', () => {
     renderRoute('/tools?category=convert');
 
-    expect(screen.getByText('JPG to PDF')).toBeInTheDocument();
-    expect(screen.getByText('PNG to PDF')).toBeInTheDocument();
+    expect(screen.getByText('Image to PDF')).toBeInTheDocument();
+    expect(screen.getByText('PDF to Images')).toBeInTheDocument();
     expect(screen.queryByText('Merge PDF')).not.toBeInTheDocument();
   });
 });
