@@ -8,11 +8,11 @@ import {
 describe('tool modules', () => {
   it('registers loaders for currently ready tools', () => {
     expect(Object.keys(toolModuleLoaders).sort()).toEqual([
-      'crop',
       'cropnew',
       'image-to-pdf',
       'info',
       'merge',
+      'organize',
       'pdf-to-images',
     ]);
   });

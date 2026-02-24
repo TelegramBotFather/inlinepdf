@@ -21,6 +21,7 @@ interface FileQueueListProps {
   title?: string;
   files: QueuedFile[];
   disabled?: boolean;
+  showIndexBadge?: boolean;
   onReorder?: (activeId: string, overId: string) => void;
   onRemove?: (id: string) => void;
   appendItem?: ReactNode;
@@ -44,6 +45,7 @@ interface SortableFileRowProps {
   entry: QueuedFile;
   index: number;
   disabled: boolean;
+  showIndexBadge: boolean;
   onRemove?: (id: string) => void;
 }
 
@@ -80,6 +82,7 @@ function SortableFileRow({
   entry,
   index,
   disabled,
+  showIndexBadge,
   onRemove,
 }: SortableFileRowProps) {
   const { ref, isDragging } = useSortable({
@@ -122,10 +125,17 @@ function SortableFileRow({
           <div className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgba(15,23,42,0.08),inset_0_0_24px_-14px_rgba(15,23,42,0.28)] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08),inset_0_0_40px_-8px_rgba(0,0,0,0.78)]" />
         </div>
 
-        <div className="grid min-w-0 flex-1 grid-cols-[2rem_minmax(0,1fr)] gap-x-2 lg:w-full">
-          <span className="row-span-3 inline-flex h-10 items-center justify-center rounded-md bg-muted text-xs font-semibold tabular-nums text-muted-foreground">
-            {index + 1}
-          </span>
+        <div
+          className={cn(
+            'grid min-w-0 flex-1 gap-x-2 lg:w-full',
+            showIndexBadge ? 'grid-cols-[2rem_minmax(0,1fr)]' : 'grid-cols-1',
+          )}
+        >
+          {showIndexBadge ? (
+            <span className="row-span-3 inline-flex h-10 items-center justify-center rounded-md bg-muted text-xs font-semibold tabular-nums text-muted-foreground">
+              {index + 1}
+            </span>
+          ) : null}
           <p className="text-sm font-semibold leading-tight break-all [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] overflow-hidden">
             {entry.file.name}
           </p>
@@ -163,6 +173,7 @@ export function FileQueueList({
   title = 'Selected files',
   files,
   disabled = false,
+  showIndexBadge = true,
   onReorder,
   onRemove,
   appendItem,
@@ -221,6 +232,7 @@ export function FileQueueList({
               entry={entry}
               index={index}
               disabled={disabled}
+              showIndexBadge={showIndexBadge}
               onRemove={onRemove}
             />
           ))}

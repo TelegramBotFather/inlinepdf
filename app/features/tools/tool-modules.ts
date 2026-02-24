@@ -32,8 +32,8 @@ export const toolModuleLoaders: Partial<Record<ToolSlug, ToolModuleLoader>> = {
   info: async () => import('~/features/pdf-info/tool-module'),
   'image-to-pdf': async () => import('~/features/image-to-pdf/tool-module'),
   'pdf-to-images': async () => import('~/features/pdf-to-images/tool-module'),
-  crop: async () => import('~/features/crop/tool-module'),
   cropnew: async () => import('~/features/crop-new/tool-module'),
+  organize: async () => import('~/features/organize/tool-module'),
 };
 
 export const lazyToolRenderers: Partial<
@@ -67,15 +67,15 @@ export const lazyToolRenderers: Partial<
         module.default.renderWorkspaceContent(props),
     };
   }),
-  crop: lazy(async () => {
-    const module = await import('~/features/crop/tool-module');
+  cropnew: lazy(async () => {
+    const module = await import('~/features/crop-new/tool-module');
     return {
       default: (props: ToolModuleRenderProps) =>
         module.default.renderWorkspaceContent(props),
     };
   }),
-  cropnew: lazy(async () => {
-    const module = await import('~/features/crop-new/tool-module');
+  organize: lazy(async () => {
+    const module = await import('~/features/organize/tool-module');
     return {
       default: (props: ToolModuleRenderProps) =>
         module.default.renderWorkspaceContent(props),
