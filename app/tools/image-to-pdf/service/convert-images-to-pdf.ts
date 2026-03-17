@@ -145,7 +145,9 @@ export function isSupportedImageFile(file: File): boolean {
   return resolveSupportedMimeType(file) !== null;
 }
 
-export async function readImageDimensions(file: File): Promise<ImageDimensions> {
+export async function readImageDimensions(
+  file: File,
+): Promise<ImageDimensions> {
   await detectSupportedImageMimeType(file);
   const image = await loadImageElement(file);
 
@@ -186,7 +188,9 @@ export async function prepareImageForPdf(
     alpha: mimeType === 'image/png',
   });
   if (!context) {
-    throw new Error('Failed to initialize canvas context for image conversion.');
+    throw new Error(
+      'Failed to initialize canvas context for image conversion.',
+    );
   }
 
   if (mimeType === 'image/jpeg') {

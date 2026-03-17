@@ -1,6 +1,6 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @font-face {
   font-family: 'Inter Variable';
@@ -150,6 +150,40 @@ html[data-resolved-theme='dark'] {
 body {
   background-color: var(--background);
   color: var(--foreground);
+}
+
+:root {
+  --depth-shadow-s:
+    inset 0 1px 2px #ffffff30, 0 1px 2px #00000030, 0 2px 4px #00000015;
+  --depth-shadow-m:
+    inset 0 1px 2px #ffffff50, 0 2px 4px #00000030, 0 4px 8px #00000015;
+  --depth-shadow-l:
+    inset 0 1px 2px #ffffff70, 0 4px 6px #00000030, 0 6px 10px #00000015;
+}
+
+.dark {
+  --depth-shadow-s:
+    inset 0 1px 2px #ffffff30, 0 1px 2px #00000030, 0 2px 4px #00000015;
+  --depth-shadow-m:
+    inset 0 1px 2px #ffffff50, 0 2px 4px #00000030, 0 4px 8px #00000015;
+  --depth-shadow-l:
+    inset 0 1px 2px #ffffff70, 0 4px 6px #00000030, 0 6px 10px #00000015;
+}
+
+.depth-shadow-none {
+  box-shadow: none;
+}
+
+.depth-shadow-s {
+  box-shadow: var(--depth-shadow-s);
+}
+
+.depth-shadow-m {
+  box-shadow: var(--depth-shadow-m);
+}
+
+.depth-shadow-l {
+  box-shadow: var(--depth-shadow-l);
 }
 
 .crop-mask-blue {

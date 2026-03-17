@@ -27,6 +27,11 @@ import {
 } from '~/components/ui/select';
 import { Spinner } from '~/components/ui/spinner';
 import { saveClientActionFallback } from '~/platform/files/client-action-fallback';
+import {
+  PageSizeOptionLabel,
+  STANDARD_PAGE_SIZE_IDS,
+  STANDARD_PAGE_SIZE_OPTIONS,
+} from '~/platform/pdf/page-size-options';
 import { PdfCropEditor } from '~/tools/crop/components/pdf-crop-editor';
 import { hasValidRect } from '~/tools/crop/domain/coordinate-math';
 import type {
@@ -43,8 +48,26 @@ import { readPdfPages } from './use-cases/read-pdf-pages';
 
 const PRESET_OPTIONS: { value: CropPreset; label: string }[] = [
   { value: 'free', label: 'Freeform' },
-  { value: 'a4', label: 'A4' },
-  { value: 'letter', label: 'Letter' },
+  { value: 'a3', label: STANDARD_PAGE_SIZE_OPTIONS.a3.label },
+  { value: 'a4', label: STANDARD_PAGE_SIZE_OPTIONS.a4.label },
+  { value: 'a5', label: STANDARD_PAGE_SIZE_OPTIONS.a5.label },
+  { value: 'b5', label: STANDARD_PAGE_SIZE_OPTIONS.b5.label },
+  { value: 'envelope10', label: STANDARD_PAGE_SIZE_OPTIONS.envelope10.label },
+  {
+    value: 'envelopeChoukei3',
+    label: STANDARD_PAGE_SIZE_OPTIONS.envelopeChoukei3.label,
+  },
+  { value: 'envelopeDl', label: STANDARD_PAGE_SIZE_OPTIONS.envelopeDl.label },
+  { value: 'jisB5', label: STANDARD_PAGE_SIZE_OPTIONS.jisB5.label },
+  { value: 'roc16k', label: STANDARD_PAGE_SIZE_OPTIONS.roc16k.label },
+  { value: 'superBA3', label: STANDARD_PAGE_SIZE_OPTIONS.superBA3.label },
+  { value: 'tabloid', label: STANDARD_PAGE_SIZE_OPTIONS.tabloid.label },
+  {
+    value: 'tabloidOversize',
+    label: STANDARD_PAGE_SIZE_OPTIONS.tabloidOversize.label,
+  },
+  { value: 'legal', label: STANDARD_PAGE_SIZE_OPTIONS.legal.label },
+  { value: 'letter', label: STANDARD_PAGE_SIZE_OPTIONS.letter.label },
   { value: '1:1', label: '1:1' },
   { value: '4:3', label: '4:3' },
   { value: '16:9', label: '16:9' },
@@ -52,6 +75,24 @@ const PRESET_OPTIONS: { value: CropPreset; label: string }[] = [
 
 function isCropPreset(value: string): value is CropPreset {
   return PRESET_OPTIONS.some((option) => option.value === value);
+}
+
+function renderCropPresetLabel(value: CropPreset) {
+  if (
+    STANDARD_PAGE_SIZE_IDS.includes(
+      value as (typeof STANDARD_PAGE_SIZE_IDS)[number],
+    )
+  ) {
+    return PageSizeOptionLabel(
+      STANDARD_PAGE_SIZE_OPTIONS[
+        value as (typeof STANDARD_PAGE_SIZE_IDS)[number]
+      ],
+    );
+  }
+
+  return (
+    PRESET_OPTIONS.find((option) => option.value === value)?.label ?? value
+  );
 }
 
 const DEFAULT_CROP_RECT: NormalizedRect = {
@@ -234,27 +275,38 @@ function CropAspectField({
   className?: string;
   onPresetChange: (preset: CropPreset) => void;
 }) {
+  const selectedPresetOption = PRESET_OPTIONS.find(
+    (option) => option.value === preset,
+  );
+
   return (
     <FieldContent className={className}>
-      <FieldLabel htmlFor={id} className="whitespace-nowrap text-muted-foreground">
+      <FieldLabel
+        htmlFor={id}
+        className="whitespace-nowrap text-muted-foreground"
+      >
         Aspect
       </FieldLabel>
       <Select
         value={preset}
         onValueChange={(value) => {
-          if (isCropPreset(value)) {
+          if (typeof value === 'string' && isCropPreset(value)) {
             onPresetChange(value);
           }
         }}
         disabled={disabled}
       >
-        <SelectTrigger id={id} aria-label="Aspect" className="min-w-32">
-          <SelectValue placeholder="Select aspect" />
+        <SelectTrigger id={id} aria-label="Aspect" className="min-w-48">
+          <SelectValue placeholder="Select aspect">
+            {selectedPresetOption
+              ? renderCropPresetLabel(selectedPresetOption.value)
+              : null}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent align="end">
           {PRESET_OPTIONS.map((option) => (
             <SelectItem key={option.value} value={option.value}>
-              {option.label}
+              {renderCropPresetLabel(option.value)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -311,7 +363,9 @@ function CropNavigationBar({
             className="h-8 w-12 border-primary-foreground/30 bg-primary-foreground/15 px-2 text-center text-base font-medium text-primary-foreground placeholder:text-primary-foreground/70 focus-visible:ring-primary-foreground/70"
             disabled={isBusy || totalPages < 1}
           />
-          <span className="text-lg leading-none text-primary-foreground/95">/</span>
+          <span className="text-lg leading-none text-primary-foreground/95">
+            /
+          </span>
           <span className="min-w-6 text-center text-xl leading-none text-primary-foreground/95">
             {String(totalPages)}
           </span>
@@ -485,7 +539,10 @@ export function CropToolScreen() {
     !state.isReadingPdf &&
     !isExporting;
   const canOpenExportDialog =
-    !!state.selectedFile && hasActivePage && !state.isReadingPdf && !isExporting;
+    !!state.selectedFile &&
+    hasActivePage &&
+    !state.isReadingPdf &&
+    !isExporting;
   const actionErrorMessage =
     fetcher.data && !fetcher.data.ok ? fetcher.data.message : null;
   const errorMessage = state.localErrorMessage ?? actionErrorMessage;
@@ -538,7 +595,11 @@ export function CropToolScreen() {
   }
 
   function handleExport(mode: 'current' | 'allWithOriginalOthers') {
-    if (!state.selectedFile || !state.activePageNumber || !state.documentPreview) {
+    if (
+      !state.selectedFile ||
+      !state.activePageNumber ||
+      !state.documentPreview
+    ) {
       return;
     }
 
@@ -586,7 +647,6 @@ export function CropToolScreen() {
               void handleFileSelected(files[0]);
             }}
             disabled={isBusy}
-            title="Drag and drop a PDF to crop"
           />
         }
         errorMessage={errorMessage}
@@ -595,7 +655,7 @@ export function CropToolScreen() {
   }
 
   return (
-    <div className="fixed inset-0 z-[80] bg-background">
+    <div className="fixed inset-0 z-80 bg-background">
       <div className="flex h-full flex-col">
         <main className="min-h-0 flex flex-1 flex-col overflow-hidden px-2 py-2 md:px-4 md:py-3">
           <div className="pb-2 text-center">

@@ -1,6 +1,9 @@
 import type { MetaFunction } from 'react-router';
 
-import { getActionErrorMessage, type ToolActionResult } from '~/shared/tool-ui/action-result';
+import {
+  getActionErrorMessage,
+  type ToolActionResult,
+} from '~/shared/tool-ui/action-result';
 import { getFiles, getString } from '~/platform/files/read-form-data';
 import { takeClientActionFallback } from '~/platform/files/client-action-fallback';
 import {
@@ -30,7 +33,11 @@ export const meta: MetaFunction = () => [
 ];
 
 export function HydrateFallback() {
-  return <p className="text-sm text-muted-foreground">Loading image-to-PDF tool...</p>;
+  return (
+    <p className="text-sm text-muted-foreground">
+      Loading image-to-PDF tool...
+    </p>
+  );
 }
 
 export async function clientAction({
@@ -44,15 +51,23 @@ export async function clientAction({
     ? (takeClientActionFallback(submissionId) as ImageToPdfActionPayload | null)
     : null;
   const files = getFiles(formData, 'files[]');
-  const resolvedFiles = files.length > 0 ? files : (fallbackPayload?.files ?? []);
-  const quality = getString(formData, 'quality') ?? fallbackPayload?.quality ?? '';
+  const resolvedFiles =
+    files.length > 0 ? files : (fallbackPayload?.files ?? []);
+  const quality =
+    getString(formData, 'quality') ?? fallbackPayload?.quality ?? '';
 
   if (resolvedFiles.length < 1) {
-    return { ok: false, message: 'Select at least one image before converting.' };
+    return {
+      ok: false,
+      message: 'Select at least one image before converting.',
+    };
   }
 
   if (!isImageToPdfQuality(quality)) {
-    return { ok: false, message: 'Select an output quality before converting.' };
+    return {
+      ok: false,
+      message: 'Select an output quality before converting.',
+    };
   }
 
   try {

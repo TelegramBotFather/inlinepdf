@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useFetcher } from 'react-router';
 
 import { PdfFileSelector } from '~/components/pdf-file-selector';
-import { Card, CardContent } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
 import { saveClientActionFallback } from '~/platform/files/client-action-fallback';
 import { readPdfDetails } from '~/platform/pdf/read-pdf-details';
@@ -11,7 +10,6 @@ import {
   type QueuedFile,
 } from '~/shared/tool-ui/file-queue-list';
 import { ToolWorkspace } from '~/shared/tool-ui/tool-workspace';
-import { useSuccessToast } from '~/shared/tool-ui/use-success-toast';
 import { createFileEntryId } from '~/shared/tool-ui/create-file-entry-id';
 import type { ToolActionResult } from '~/shared/tool-ui/action-result';
 import type { PdfInfoResult } from '~/tools/info/models';
@@ -47,18 +45,21 @@ function formatBytes(bytes: number): string {
 
 export function PdfInfoToolScreen() {
   const fetcher = useFetcher<ToolActionResult<PdfInfoResult>>();
-  const [localErrorMessage, setLocalErrorMessage] = useState<string | null>(null);
-  const [selectedFileEntry, setSelectedFileEntry] = useState<QueuedFile | null>(null);
+  const [localErrorMessage, setLocalErrorMessage] = useState<string | null>(
+    null,
+  );
+  const [selectedFileEntry, setSelectedFileEntry] = useState<QueuedFile | null>(
+    null,
+  );
 
   const isLoading = fetcher.state !== 'idle';
   const actionErrorMessage =
     fetcher.data && !fetcher.data.ok ? fetcher.data.message : null;
   const errorMessage = localErrorMessage ?? actionErrorMessage;
-  const successMessage = fetcher.data?.ok ? fetcher.data.message : null;
   const result =
-    selectedFileEntry && fetcher.data?.ok ? (fetcher.data.result ?? null) : null;
-
-  useSuccessToast(successMessage);
+    selectedFileEntry && fetcher.data?.ok
+      ? (fetcher.data.result ?? null)
+      : null;
 
   function handleFileSelection(file: File) {
     const entryId = createFileEntryId(file);
@@ -153,6 +154,7 @@ export function PdfInfoToolScreen() {
           <FileQueueList
             files={[selectedFileEntry]}
             disabled={isLoading}
+            showIndexBadge={false}
             onRemove={() => {
               handleClearSelection();
             }}
@@ -164,55 +166,51 @@ export function PdfInfoToolScreen() {
               handleFileSelection(files[0]);
             }}
             disabled={isLoading}
-            title="Drag and drop a PDF file"
           />
         )
       }
       helperText={isLoading ? 'Extracting PDF details...' : undefined}
       outputPanel={
         isLoading ? (
-            <div className="space-y-3">
-              <p className="text-sm font-medium">Metadata</p>
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                {Array.from({ length: 8 }, (_, rowIndex) => (
-                  <Card key={String(rowIndex)} className="border border-border py-4 shadow-none ring-0">
-                    <CardContent className="space-y-3">
-                      <Skeleton className="h-4 w-24" />
-                      <Skeleton className="h-5 w-full" />
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+          <div className="space-y-3">
+            <p className="text-sm font-medium">Metadata</p>
+            <div className="space-y-2">
+              {Array.from({ length: 8 }, (_, rowIndex) => (
+                <div
+                  key={String(rowIndex)}
+                  className="grid gap-2 rounded-md border border-border/60 bg-muted/20 p-3 sm:grid-cols-[12rem_1fr]"
+                >
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-5 w-full" />
+                </div>
+              ))}
+            </div>
           </div>
         ) : result ? (
           <div className="space-y-4">
             <p className="text-sm font-medium">Metadata</p>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="space-y-2">
               {metadataRows.map(([label, value]) => (
-                <Card
+                <div
                   key={label}
-                  className="border border-border bg-card/95 py-4 shadow-none ring-0"
+                  className="grid gap-1 border-b border-border pb-2 last:border-b-0 sm:grid-cols-[12rem_1fr]"
                 >
-                  <CardContent className="space-y-2">
-                    <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                      {label}
-                    </p>
-                    <p className="text-sm font-medium break-words">{value}</p>
-                  </CardContent>
-                </Card>
+                  <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    {label}
+                  </p>
+                  <p className="text-sm font-medium wrap-break-word">{value}</p>
+                </div>
               ))}
               {additionalInfoEntries.map(([key, value]) => (
-                <Card
+                <div
                   key={key}
-                  className="border border-border bg-card/95 py-4 shadow-none ring-0"
+                  className="grid gap-1 border-b border-border pb-2 last:border-b-0 sm:grid-cols-[12rem_1fr]"
                 >
-                  <CardContent className="space-y-2">
-                    <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                      {`Info: ${key}`}
-                    </p>
-                    <p className="text-sm font-medium break-words">{value}</p>
-                  </CardContent>
-                </Card>
+                  <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    {`Info: ${key}`}
+                  </p>
+                  <p className="text-sm font-medium wrap-break-word">{value}</p>
+                </div>
               ))}
             </div>
 

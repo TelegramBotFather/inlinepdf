@@ -1,5 +1,6 @@
 import {
   CropIcon,
+  File01Icon,
   GitMergeIcon,
   ImageDownloadIcon,
   ImageUploadIcon,
@@ -13,8 +14,17 @@ import { infoToolDefinition } from '~/tools/info/definition';
 import { mergeToolDefinition } from '~/tools/merge/definition';
 import { organizeToolDefinition } from '~/tools/organize/definition';
 import { pdfToImagesToolDefinition } from '~/tools/pdf-to-images/definition';
+import {
+  amazonShippingLabelsToolDefinition,
+  flipkartShippingLabelsToolDefinition,
+  meeshoShippingLabelsToolDefinition,
+} from '~/tools/shipping-labels/definitions';
 
-export type ToolNavigationGroup = 'Organize' | 'Convert' | 'Inspect';
+export type ToolNavigationGroup =
+  | 'Organize'
+  | 'Convert'
+  | 'Extract'
+  | 'Inspect';
 
 export interface ToolDefinition {
   id: string;
@@ -33,12 +43,16 @@ export const implementedToolDefinitions = [
   cropToolDefinition,
   imageToPdfToolDefinition,
   pdfToImagesToolDefinition,
+  meeshoShippingLabelsToolDefinition,
+  amazonShippingLabelsToolDefinition,
+  flipkartShippingLabelsToolDefinition,
   infoToolDefinition,
 ] satisfies readonly ToolDefinition[];
 
 export const toolNavigationGroups: readonly ToolNavigationGroup[] = [
   'Organize',
   'Convert',
+  'Extract',
   'Inspect',
 ];
 
@@ -48,6 +62,9 @@ export const toolIconFallbacks = {
   merge: GitMergeIcon,
   'image-to-pdf': ImageUploadIcon,
   'pdf-to-images': ImageDownloadIcon,
+  'meesho-shipping-labels': File01Icon,
+  'amazon-shipping-labels': File01Icon,
+  'flipkart-shipping-labels': File01Icon,
   info: InformationCircleIcon,
 } as const;
 

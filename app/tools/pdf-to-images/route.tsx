@@ -1,6 +1,9 @@
 import type { MetaFunction } from 'react-router';
 
-import { getActionErrorMessage, type ToolActionResult } from '~/shared/tool-ui/action-result';
+import {
+  getActionErrorMessage,
+  type ToolActionResult,
+} from '~/shared/tool-ui/action-result';
 import { getFile, getJson, getString } from '~/platform/files/read-form-data';
 import { takeClientActionFallback } from '~/platform/files/client-action-fallback';
 import { validatePdfFile } from '~/platform/files/security/file-validation';
@@ -50,7 +53,11 @@ export const meta: MetaFunction = () => [
 ];
 
 export function HydrateFallback() {
-  return <p className="text-sm text-muted-foreground">Loading PDF-to-images tool...</p>;
+  return (
+    <p className="text-sm text-muted-foreground">
+      Loading PDF-to-images tool...
+    </p>
+  );
 }
 
 export async function clientAction({
@@ -61,7 +68,9 @@ export async function clientAction({
   const formData = await request.formData();
   const submissionId = getString(formData, 'submissionId');
   const fallbackPayload = submissionId
-    ? (takeClientActionFallback(submissionId) as PdfToImagesActionPayload | null)
+    ? (takeClientActionFallback(
+        submissionId,
+      ) as PdfToImagesActionPayload | null)
     : null;
   const file = getFile(formData, 'file') ?? fallbackPayload?.file;
   const format = getString(formData, 'format') ?? fallbackPayload?.format;
@@ -70,7 +79,8 @@ export async function clientAction({
     fallbackPayload?.maxDimensionCap ??
     null;
   const pageNumbers =
-    parsePageNumbers(getJson(formData, 'pageNumbers')) ?? fallbackPayload?.pageNumbers;
+    parsePageNumbers(getJson(formData, 'pageNumbers')) ??
+    fallbackPayload?.pageNumbers;
 
   if (!file) {
     return { ok: false, message: 'Select a PDF file before converting.' };
@@ -81,7 +91,10 @@ export async function clientAction({
   }
 
   if (!isMaxDimensionCap(maxDimensionCap)) {
-    return { ok: false, message: 'Select a valid max dimension cap before converting.' };
+    return {
+      ok: false,
+      message: 'Select a valid max dimension cap before converting.',
+    };
   }
 
   try {

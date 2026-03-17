@@ -24,10 +24,10 @@ describe('tool definitions', () => {
   });
 
   it('only contains available tools across the expected navigation groups', () => {
-    expect(implementedToolDefinitions).toHaveLength(6);
-    expect(new Set(implementedToolDefinitions.map((tool) => tool.availability))).toEqual(
-      new Set(['available']),
-    );
+    expect(implementedToolDefinitions).toHaveLength(9);
+    expect(
+      new Set(implementedToolDefinitions.map((tool) => tool.availability)),
+    ).toEqual(new Set(['available']));
     expect(
       new Set(implementedToolDefinitions.map((tool) => tool.navGroup)),
     ).toEqual(new Set(toolNavigationGroups));

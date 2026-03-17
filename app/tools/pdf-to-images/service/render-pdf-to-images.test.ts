@@ -23,7 +23,10 @@ interface PdfJsLoadingTaskBundle {
     promise: Promise<{
       numPages: number;
       getPage: (pageNumber: number) => Promise<{
-        getViewport: (input: { scale: number }) => { width: number; height: number };
+        getViewport: (input: { scale: number }) => {
+          width: number;
+          height: number;
+        };
         render: (input: unknown) => { promise: Promise<void> };
       }>;
       destroy: () => Promise<void>;
@@ -89,11 +92,7 @@ function installCanvasMocks(
     .mockImplementation((tagName: string): HTMLElement => {
       if (tagName === 'canvas') {
         const defaultToBlob = vi.fn(
-          (
-            callback: BlobCallback,
-            mimeType?: string,
-            quality?: number,
-          ) => {
+          (callback: BlobCallback, mimeType?: string, quality?: number) => {
             callback(
               new Blob(
                 [
@@ -269,7 +268,9 @@ describe('render-pdf-to-images service', () => {
 
   it('limits output by max dimension cap', async () => {
     const file = createPdfFile('cap.pdf');
-    const { loadingTask } = createPdfJsLoadingTask([{ width: 200, height: 100 }]);
+    const { loadingTask } = createPdfJsLoadingTask([
+      { width: 200, height: 100 },
+    ]);
     getDocumentMock.mockReturnValueOnce(loadingTask);
 
     const canvasHarness = installCanvasMocks();
@@ -319,7 +320,9 @@ describe('render-pdf-to-images service', () => {
   it('rejects requests above the render page cap', async () => {
     const file = createPdfFile('pages.pdf');
     const { loadingTask, loadingTaskDestroy, documentDestroy } =
-      createPdfJsLoadingTask(Array.from({ length: 201 }, () => ({ width: 200, height: 100 })));
+      createPdfJsLoadingTask(
+        Array.from({ length: 201 }, () => ({ width: 200, height: 100 })),
+      );
     getDocumentMock.mockReturnValueOnce(loadingTask);
 
     await expect(
@@ -328,7 +331,9 @@ describe('render-pdf-to-images service', () => {
         format: 'png',
         maxDimensionCap: 5000,
       }),
-    ).rejects.toThrow('PDF to images supports converting up to 200 pages at a time.');
+    ).rejects.toThrow(
+      'PDF to images supports converting up to 200 pages at a time.',
+    );
     expect(documentDestroy).toHaveBeenCalledTimes(1);
     expect(loadingTaskDestroy).toHaveBeenCalledTimes(1);
   });

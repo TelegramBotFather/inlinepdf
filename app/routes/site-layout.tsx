@@ -1,4 +1,4 @@
-import { Outlet, useFetchers, useNavigation } from 'react-router';
+import { Outlet, useFetchers, useLocation, useNavigation } from 'react-router';
 
 import { Shell } from '~/components/layout/shell';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
@@ -20,23 +20,24 @@ export function HydrateFallback() {
 
 export default function SiteLayout() {
   const navigation = useNavigation();
+  const location = useLocation();
   const fetchers = useFetchers();
   const isPending =
     navigation.state !== 'idle' || isAnyFetcherPending(fetchers);
+  const isPdfInfoRoute = /^\/info(\/|$)/.test(location.pathname);
+  const showGlobalPending = isPending && !isPdfInfoRoute;
 
   return (
     <Shell>
-      <div aria-live="polite" className="min-h-14">
-        {isPending ? (
+      {showGlobalPending ? (
+        <div aria-live="polite" className="min-h-14">
           <Alert className="mb-6">
             <Spinner className="h-4 w-4" />
             <AlertTitle>Working</AlertTitle>
-            <AlertDescription>
-              Processing your latest action.
-            </AlertDescription>
+            <AlertDescription>Processing your latest action.</AlertDescription>
           </Alert>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
       <Outlet />
     </Shell>
   );

@@ -1,6 +1,9 @@
 import type { MetaFunction } from 'react-router';
 
-import { getActionErrorMessage, type ToolActionResult } from '~/shared/tool-ui/action-result';
+import {
+  getActionErrorMessage,
+  type ToolActionResult,
+} from '~/shared/tool-ui/action-result';
 import { getFile, getJson, getString } from '~/platform/files/read-form-data';
 import { takeClientActionFallback } from '~/platform/files/client-action-fallback';
 import { validatePdfFile } from '~/platform/files/security/file-validation';
@@ -75,7 +78,10 @@ export async function clientAction({
     ? (takeClientActionFallback(submissionId) as CropActionPayload | null)
     : null;
   const file = getFile(formData, 'file') ?? fallbackPayload?.file;
-  const cropRect = parseCropRect(getJson(formData, 'cropRect')) ?? fallbackPayload?.cropRect ?? null;
+  const cropRect =
+    parseCropRect(getJson(formData, 'cropRect')) ??
+    fallbackPayload?.cropRect ??
+    null;
   const modeValue = getString(formData, 'mode');
   const mode =
     modeValue === 'current' || modeValue === 'allWithOriginalOthers'
@@ -108,7 +114,10 @@ export async function clientAction({
       mode === 'allWithOriginalOthers'
         ? await exportCroppedPdf({
             file,
-            selectedPages: Array.from({ length: totalPages }, (_, index) => index + 1),
+            selectedPages: Array.from(
+              { length: totalPages },
+              (_, index) => index + 1,
+            ),
             pageCrops: { [pageNumber]: cropRect },
             keepUncroppedPages: true,
           })
@@ -119,7 +128,10 @@ export async function clientAction({
           });
 
     triggerFileDownload(result.blob, result.fileName);
-    return { ok: true, message: 'Cropped PDF is ready and download has started.' };
+    return {
+      ok: true,
+      message: 'Cropped PDF is ready and download has started.',
+    };
   } catch (error: unknown) {
     return getActionErrorMessage(error, 'Failed to crop this page.');
   }

@@ -70,7 +70,9 @@ describe('convert-images-to-pdf service', () => {
       { prepareImage },
     );
 
-    const outputDocument = await PDFDocument.load(await result.blob.arrayBuffer());
+    const outputDocument = await PDFDocument.load(
+      await result.blob.arrayBuffer(),
+    );
     expect(outputDocument.getPageCount()).toBe(2);
     expect(prepareImage).toHaveBeenCalledTimes(2);
     expect(prepareImage).toHaveBeenNthCalledWith(1, first, 'low');

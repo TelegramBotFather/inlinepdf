@@ -34,7 +34,9 @@ export function PrimaryActionFooter({
           {progressText}
         </p>
       ) : null}
-      {helperText ? <p className="text-sm text-muted-foreground">{helperText}</p> : null}
+      {helperText ? (
+        <p className="text-sm text-muted-foreground">{helperText}</p>
+      ) : null}
     </div>
   );
 }

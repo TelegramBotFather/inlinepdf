@@ -46,7 +46,9 @@ export function ImageToPdfToolScreen() {
   const filesRef = useRef<QueuedFile[]>([]);
   const [files, setFiles] = useState<QueuedFile[]>([]);
   const [quality, setQuality] = useState<ImageToPdfQuality>('medium');
-  const [localErrorMessage, setLocalErrorMessage] = useState<string | null>(null);
+  const [localErrorMessage, setLocalErrorMessage] = useState<string | null>(
+    null,
+  );
 
   const isConverting = fetcher.state !== 'idle';
   const canConvert = files.length > 0 && !isConverting;
@@ -71,8 +73,12 @@ export function ImageToPdfToolScreen() {
   );
 
   function handleFilesAdded(newFiles: File[]) {
-    const supportedFiles = newFiles.filter((file) => isSupportedImageFile(file));
-    const unsupportedFiles = newFiles.filter((file) => !isSupportedImageFile(file));
+    const supportedFiles = newFiles.filter((file) =>
+      isSupportedImageFile(file),
+    );
+    const unsupportedFiles = newFiles.filter(
+      (file) => !isSupportedImageFile(file),
+    );
 
     if (supportedFiles.length < 1) {
       if (unsupportedFiles.length > 0) {
@@ -200,8 +206,6 @@ export function ImageToPdfToolScreen() {
             ariaLabel="Select image files"
             onSelect={handleFilesAdded}
             disabled={isConverting}
-            title="Drag and drop image files"
-            description="Select JPG or PNG images by dragging and dropping, or choose from your device."
           />
         ) : (
           <div className="space-y-4">
@@ -223,7 +227,11 @@ export function ImageToPdfToolScreen() {
                 </li>
               }
             />
-            <Button variant="outline" disabled={isConverting} onClick={handleClearAll}>
+            <Button
+              variant="outline"
+              disabled={isConverting}
+              onClick={handleClearAll}
+            >
               Clear all
             </Button>
           </div>
@@ -264,9 +272,9 @@ export function ImageToPdfToolScreen() {
               })}
             </RadioGroup>
             <FieldDescription>
-              PNG files stay PNG in the PDF (lossless format). Medium and Low reduce
-              image dimensions for smaller output. JPEG files also use stronger lossy
-              compression at Medium and Low.
+              PNG files stay PNG in the PDF (lossless format). Medium and Low
+              reduce image dimensions for smaller output. JPEG files also use
+              stronger lossy compression at Medium and Low.
             </FieldDescription>
           </FieldSet>
         ) : null

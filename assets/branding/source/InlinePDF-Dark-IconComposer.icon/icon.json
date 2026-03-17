@@ -1,114 +1,94 @@
 {
-  "fill" : {
-    "automatic-gradient" : "display-p3:0.00000,0.00000,0.00000,1.00000"
+  "fill": {
+    "automatic-gradient": "display-p3:0.00000,0.00000,0.00000,1.00000"
   },
-  "groups" : [
+  "groups": [
     {
-      "layers" : [
+      "layers": [
         {
-          "fill" : {
-            "automatic-gradient" : "display-p3:0.83742,0.83742,0.83742,1.00000"
+          "fill": {
+            "automatic-gradient": "display-p3:0.83742,0.83742,0.83742,1.00000"
           },
-          "hidden" : false,
-          "image-name" : "layer3 2.svg",
-          "name" : "Text",
-          "position" : {
-            "scale" : 1,
-            "translation-in-points" : [
-              -13,
-              0
-            ]
+          "hidden": false,
+          "image-name": "layer3 2.svg",
+          "name": "Text",
+          "position": {
+            "scale": 1,
+            "translation-in-points": [-13, 0]
           }
         }
       ],
-      "position" : {
-        "scale" : 0.94,
-        "translation-in-points" : [
-          -13,
-          0
-        ]
+      "position": {
+        "scale": 0.94,
+        "translation-in-points": [-13, 0]
       },
-      "shadow" : {
-        "kind" : "neutral",
-        "opacity" : 0.5
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
       },
-      "translucency" : {
-        "enabled" : true,
-        "value" : 0.5
+      "translucency": {
+        "enabled": true,
+        "value": 0.5
       }
     },
     {
-      "layers" : [
+      "layers": [
         {
-          "fill" : {
-            "automatic-gradient" : "display-p3:0.00000,0.00000,0.00000,1.00000"
+          "fill": {
+            "automatic-gradient": "display-p3:0.00000,0.00000,0.00000,1.00000"
           },
-          "hidden" : false,
-          "image-name" : "layer2.svg",
-          "name" : "Border",
-          "position" : {
-            "scale" : 0.94,
-            "translation-in-points" : [
-              17,
-              0
-            ]
+          "hidden": false,
+          "image-name": "layer2.svg",
+          "name": "Border",
+          "position": {
+            "scale": 0.94,
+            "translation-in-points": [17, 0]
           }
         }
       ],
-      "position" : {
-        "scale" : 0.94,
-        "translation-in-points" : [
-          -13,
-          0
-        ]
+      "position": {
+        "scale": 0.94,
+        "translation-in-points": [-13, 0]
       },
-      "shadow" : {
-        "kind" : "neutral",
-        "opacity" : 0.5
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
       },
-      "translucency" : {
-        "enabled" : true,
-        "value" : 0.5
+      "translucency": {
+        "enabled": true,
+        "value": 0.5
       }
     },
     {
-      "layers" : [
+      "layers": [
         {
-          "fill" : {
-            "automatic-gradient" : "display-p3:0.83742,0.83742,0.83742,1.00000"
+          "fill": {
+            "automatic-gradient": "display-p3:0.83742,0.83742,0.83742,1.00000"
           },
-          "image-name" : "layer1.svg",
-          "name" : "Base",
-          "position" : {
-            "scale" : 0.94,
-            "translation-in-points" : [
-              -13,
-              0
-            ]
+          "image-name": "layer1.svg",
+          "name": "Base",
+          "position": {
+            "scale": 0.94,
+            "translation-in-points": [-13, 0]
           }
         }
       ],
-      "position" : {
-        "scale" : 0.94,
-        "translation-in-points" : [
-          -13,
-          0
-        ]
+      "position": {
+        "scale": 0.94,
+        "translation-in-points": [-13, 0]
       },
-      "shadow" : {
-        "kind" : "neutral",
-        "opacity" : 0.5
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
       },
-      "translucency" : {
-        "enabled" : true,
-        "value" : 0.5
+      "translucency": {
+        "enabled": true,
+        "value": 0.5
       }
     }
   ],
-  "supported-platforms" : {
-    "circles" : [
-      "watchOS"
-    ],
-    "squares" : "shared"
+  "supported-platforms": {
+    "circles": ["watchOS"],
+    "squares": "shared"
   }
 }

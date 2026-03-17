@@ -6,8 +6,6 @@ interface ImageFileSelectorProps {
   onSelect: (files: File[]) => void;
   ariaLabel: string;
   variant?: 'dropzone' | 'inline' | 'tile';
-  title?: string;
-  description?: string;
   buttonLabel?: string;
 }
 
@@ -17,8 +15,6 @@ export function ImageFileSelector({
   onSelect,
   ariaLabel,
   variant,
-  title,
-  description,
   buttonLabel,
 }: ImageFileSelectorProps) {
   return (
@@ -29,8 +25,6 @@ export function ImageFileSelector({
       ariaLabel={ariaLabel}
       accept="image/jpeg,.jpg,.jpeg,image/png,.png"
       variant={variant}
-      title={title}
-      description={description}
       buttonLabel={buttonLabel}
     />
   );

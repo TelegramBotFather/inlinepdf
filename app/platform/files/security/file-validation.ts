@@ -26,7 +26,9 @@ export class SecurityValidationError extends Error {
   }
 }
 
-function detectImageMimeType(file: File): SupportedImageSignatureMimeType | null {
+function detectImageMimeType(
+  file: File,
+): SupportedImageSignatureMimeType | null {
   const mimeType = file.type.toLowerCase();
   if (mimeType === 'image/png') {
     return 'image/png';

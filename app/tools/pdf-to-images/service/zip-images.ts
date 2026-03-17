@@ -1,6 +1,9 @@
 import JSZip from 'jszip';
 
-import type { ImageOutputFormat, RenderedImageFile } from '~/tools/pdf-to-images/models';
+import type {
+  ImageOutputFormat,
+  RenderedImageFile,
+} from '~/tools/pdf-to-images/models';
 
 interface ZipImagesInput {
   images: RenderedImageFile[];

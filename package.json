@@ -18,7 +18,7 @@
     "verify": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "npm run cf-typegen && react-router typegen && tsc -b",
+    "typecheck": "pnpm run cf-typegen && react-router typegen && tsc -b",
     "typecheck:beta": "pnpm --package=typescript@beta dlx tsc -b",
     "typegen": "pnpm run typegen:cf && pnpm run typegen:router",
     "typegen:cf": "wrangler types",
@@ -40,7 +40,7 @@
     "input-otp": "^1.4.2",
     "isbot": "^5.1.36",
     "jszip": "^3.10.1",
-    "motion": "^12.36.0",
+    "motion": "^12.38.0",
     "next-themes": "^0.4.6",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^5.5.207",
@@ -48,11 +48,11 @@
     "react-day-picker": "^9.14.0",
     "react-dom": "^19.2.4",
     "react-image-crop": "^11.0.10",
-    "react-resizable-panels": "^4.7.2",
+    "react-resizable-panels": "^4.7.3",
     "react-router": "^7.13.1",
     "react-zoom-pan-pinch": "^3.7.0",
     "recharts": "2.15.4",
-    "shadcn": "^4.0.5",
+    "shadcn": "^4.0.8",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.1",
@@ -60,7 +60,7 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.27.0",
+    "@cloudflare/vite-plugin": "^1.29.0",
     "@eslint/js": "^9.39.4",
     "@react-router/dev": "^7.13.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -79,10 +79,10 @@
     "prettier": "3.8.1",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.57.0",
+    "typescript-eslint": "^8.57.1",
     "vite": "^7.3.1",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.0",
-    "wrangler": "^4.72.0"
+    "wrangler": "^4.74.0"
   }
 }

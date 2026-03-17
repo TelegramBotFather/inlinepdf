@@ -67,7 +67,12 @@ function createPdfJsLoadingTask() {
             width: (pageNumber === 1 ? 200 : 300) * scale,
             height: (pageNumber === 1 ? 100 : 150) * scale,
             rotation: 0,
-            viewBox: [0, 0, pageNumber === 1 ? 200 : 300, pageNumber === 1 ? 100 : 150],
+            viewBox: [
+              0,
+              0,
+              pageNumber === 1 ? 200 : 300,
+              pageNumber === 1 ? 100 : 150,
+            ],
             convertToPdfPoint: (x: number, y: number) => [
               x,
               (pageNumber === 1 ? 100 : 150) - y,

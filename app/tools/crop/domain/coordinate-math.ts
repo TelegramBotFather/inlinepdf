@@ -24,7 +24,11 @@ export function normalizeRectInput(rect: NormalizedRect): NormalizedRect {
   const x = clamp(Number.isFinite(rect.x) ? rect.x : 0, 0, 1);
   const y = clamp(Number.isFinite(rect.y) ? rect.y : 0, 0, 1);
   const width = clamp(Number.isFinite(rect.width) ? rect.width : 0, 0, 1 - x);
-  const height = clamp(Number.isFinite(rect.height) ? rect.height : 0, 0, 1 - y);
+  const height = clamp(
+    Number.isFinite(rect.height) ? rect.height : 0,
+    0,
+    1 - y,
+  );
 
   return { x, y, width, height };
 }

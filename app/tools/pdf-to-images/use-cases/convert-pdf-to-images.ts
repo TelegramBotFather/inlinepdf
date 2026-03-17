@@ -27,7 +27,9 @@ export interface PdfToImagesResult {
   pageCount: number;
 }
 
-export function isImageOutputFormat(value: unknown): value is ImageOutputFormat {
+export function isImageOutputFormat(
+  value: unknown,
+): value is ImageOutputFormat {
   return value === 'png' || value === 'jpeg' || value === 'webp';
 }
 
@@ -50,7 +52,9 @@ function parsePageRangeToken(token: string, totalPages: number): number[] {
   if (/^\d+$/.test(normalized)) {
     const pageNumber = Number.parseInt(normalized, 10);
     if (pageNumber < 1 || pageNumber > totalPages) {
-      throw new Error(`Page ${String(pageNumber)} is outside the document range.`);
+      throw new Error(
+        `Page ${String(pageNumber)} is outside the document range.`,
+      );
     }
 
     return [pageNumber];
@@ -58,13 +62,17 @@ function parsePageRangeToken(token: string, totalPages: number): number[] {
 
   const rangeMatch = /^(\d+)\s*-\s*(\d+)$/.exec(normalized);
   if (!rangeMatch) {
-    throw new Error(`Invalid range token "${normalized}". Use formats like 1, 3-5, 8.`);
+    throw new Error(
+      `Invalid range token "${normalized}". Use formats like 1, 3-5, 8.`,
+    );
   }
 
   const start = Number.parseInt(rangeMatch[1], 10);
   const end = Number.parseInt(rangeMatch[2], 10);
   if (start > end) {
-    throw new Error(`Invalid range "${normalized}". Start page must be before end page.`);
+    throw new Error(
+      `Invalid range "${normalized}". Start page must be before end page.`,
+    );
   }
 
   if (start < 1 || end > totalPages) {
@@ -74,7 +82,10 @@ function parsePageRangeToken(token: string, totalPages: number): number[] {
   return Array.from({ length: end - start + 1 }, (_, index) => start + index);
 }
 
-export function parsePageRangeInput(value: string, totalPages: number): number[] {
+export function parsePageRangeInput(
+  value: string,
+  totalPages: number,
+): number[] {
   const pageNumbers = value
     .split(',')
     .flatMap((token) => parsePageRangeToken(token, totalPages));
@@ -87,14 +98,17 @@ export function parsePageRangeInput(value: string, totalPages: number): number[]
   return uniqueSorted;
 }
 
-function isPdfToImagesRunOptions(value: unknown): value is PdfToImagesRunOptions {
+function isPdfToImagesRunOptions(
+  value: unknown,
+): value is PdfToImagesRunOptions {
   if (!value || typeof value !== 'object') {
     return false;
   }
 
   const options = value as Partial<PdfToImagesRunOptions>;
   const onProgressIsValid =
-    options.onProgress === undefined || typeof options.onProgress === 'function';
+    options.onProgress === undefined ||
+    typeof options.onProgress === 'function';
 
   return (
     isImageOutputFormat(options.format) &&

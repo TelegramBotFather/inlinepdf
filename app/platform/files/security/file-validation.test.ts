@@ -66,7 +66,9 @@ describe('file validation', () => {
   });
 
   it('accepts JPEG and PNG files by file hint', async () => {
-    await expect(validateImageFile(createJpegFile())).resolves.toBe('image/jpeg');
+    await expect(validateImageFile(createJpegFile())).resolves.toBe(
+      'image/jpeg',
+    );
     await expect(validateImageFile(createPngFile())).resolves.toBe('image/png');
   });
 
@@ -85,17 +87,29 @@ describe('file validation', () => {
   });
 
   it('allows oversized files and batches', async () => {
-    const oversizedPdf = setFileSize(createPdfFile('large.pdf'), 500 * 1024 * 1024);
-    const oversizedImage = setFileSize(createPngFile('large.png'), 300 * 1024 * 1024);
+    const oversizedPdf = setFileSize(
+      createPdfFile('large.pdf'),
+      500 * 1024 * 1024,
+    );
+    const oversizedImage = setFileSize(
+      createPngFile('large.png'),
+      300 * 1024 * 1024,
+    );
     const manyFiles = Array.from({ length: 50 }, (_, index) =>
       createPdfFile(`file-${String(index)}.pdf`),
     );
 
     await expect(validatePdfFile(oversizedPdf)).resolves.toBeUndefined();
     await expect(validateImageFile(oversizedImage)).resolves.toBe('image/png');
-    await expect(validateFiles([oversizedImage], { kind: 'image' })).resolves.toBeUndefined();
     await expect(
-      validateFiles(manyFiles, { kind: 'pdf', maxFiles: 20, maxBatchTotalBytes: 200 }),
+      validateFiles([oversizedImage], { kind: 'image' }),
+    ).resolves.toBeUndefined();
+    await expect(
+      validateFiles(manyFiles, {
+        kind: 'pdf',
+        maxFiles: 20,
+        maxBatchTotalBytes: 200,
+      }),
     ).resolves.toBeUndefined();
   });
 

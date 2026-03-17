@@ -1,7 +1,10 @@
 import { PDFDocument, degrees } from 'pdf-lib';
 
 import { validatePdfFile } from '~/platform/files/security/file-validation';
-import type { OrganizePageState, OrganizeResult } from '~/tools/organize/models';
+import type {
+  OrganizePageState,
+  OrganizeResult,
+} from '~/tools/organize/models';
 import { normalizeQuarterTurns } from '~/tools/organize/models';
 
 interface ExportOrganizedPdfInput {
@@ -24,9 +27,12 @@ function toNormalizedPageAngle(angle: number): number {
   return normalized;
 }
 
-function toValidSourcePageNumbers(pages: OrganizePageState[]): OrganizePageState[] {
+function toValidSourcePageNumbers(
+  pages: OrganizePageState[],
+): OrganizePageState[] {
   return pages.filter(
-    (page) => Number.isInteger(page.sourcePageNumber) && page.sourcePageNumber > 0,
+    (page) =>
+      Number.isInteger(page.sourcePageNumber) && page.sourcePageNumber > 0,
   );
 }
 
@@ -66,7 +72,8 @@ export async function exportOrganizedPdf({
     ]);
 
     const currentAngle = copiedPage.getRotation().angle;
-    const rotationDelta = normalizeQuarterTurns(pageState.rotationQuarterTurns) * 90;
+    const rotationDelta =
+      normalizeQuarterTurns(pageState.rotationQuarterTurns) * 90;
     const nextAngle = toNormalizedPageAngle(currentAngle + rotationDelta);
     copiedPage.setRotation(degrees(nextAngle));
 

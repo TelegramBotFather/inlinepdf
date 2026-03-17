@@ -15,7 +15,7 @@ export const meta: Route.MetaFunction = () => {
 
 export default function CatchallRoute() {
   return (
-    <section className="mx-auto max-w-2xl space-y-4 rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm">
+    <section className="w-full space-y-4 rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm">
       <p className="text-sm text-muted-foreground">404</p>
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
         Page not found

@@ -25,7 +25,9 @@ function isOrganizeRunOptions(value: unknown): value is OrganizeRunOptions {
   }
 
   const options = value as Partial<OrganizeRunOptions>;
-  return Array.isArray(options.pages) && options.pages.every(isOrganizePageState);
+  return (
+    Array.isArray(options.pages) && options.pages.every(isOrganizePageState)
+  );
 }
 
 export async function organizePdfDocument(
@@ -38,7 +40,9 @@ export async function organizePdfDocument(
   }
 
   if (!isOrganizeRunOptions(options)) {
-    throw new Error('Missing organize settings. Arrange pages before downloading.');
+    throw new Error(
+      'Missing organize settings. Arrange pages before downloading.',
+    );
   }
 
   return exportOrganizedPdf({

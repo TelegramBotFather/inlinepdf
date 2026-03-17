@@ -17,7 +17,9 @@ export function getFile(formData: FormData, key: string): File | null {
 }
 
 export function getFiles(formData: FormData, key: string): File[] {
-  return formData.getAll(key).filter((value): value is File => isFileLike(value));
+  return formData
+    .getAll(key)
+    .filter((value): value is File => isFileLike(value));
 }
 
 export function getString(formData: FormData, key: string): string | null {

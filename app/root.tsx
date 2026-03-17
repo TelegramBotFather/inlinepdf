@@ -115,7 +115,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
   return (
     <Shell>
-      <section className="mx-auto max-w-2xl space-y-4 rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm">
+      <section className="w-full space-y-4 rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm">
         <p className="text-sm text-muted-foreground">
           {status ? String(status) : 'Error'}
         </p>

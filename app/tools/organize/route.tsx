@@ -1,6 +1,9 @@
 import type { MetaFunction } from 'react-router';
 
-import { getActionErrorMessage, type ToolActionResult } from '~/shared/tool-ui/action-result';
+import {
+  getActionErrorMessage,
+  type ToolActionResult,
+} from '~/shared/tool-ui/action-result';
 import { getFile, getJson, getString } from '~/platform/files/read-form-data';
 import { takeClientActionFallback } from '~/platform/files/client-action-fallback';
 import { validatePdfFile } from '~/platform/files/security/file-validation';
@@ -25,7 +28,9 @@ export const meta: MetaFunction = () => [
 ];
 
 export function HydrateFallback() {
-  return <p className="text-sm text-muted-foreground">Loading organize tool...</p>;
+  return (
+    <p className="text-sm text-muted-foreground">Loading organize tool...</p>
+  );
 }
 
 export async function clientAction({
@@ -40,10 +45,9 @@ export async function clientAction({
     : null;
   const file = getFile(formData, 'file') ?? fallbackPayload?.file;
   const pagesData = getJson(formData, 'pages');
-  const pages =
-    Array.isArray(pagesData)
-      ? (pagesData as OrganizePageState[])
-      : (fallbackPayload?.pages ?? null);
+  const pages = Array.isArray(pagesData)
+    ? (pagesData as OrganizePageState[])
+    : (fallbackPayload?.pages ?? null);
 
   if (!file) {
     return { ok: false, message: 'Select a PDF file before organizing.' };

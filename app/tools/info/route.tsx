@@ -1,6 +1,9 @@
 import type { MetaFunction } from 'react-router';
 
-import { getActionErrorMessage, type ToolActionResult } from '~/shared/tool-ui/action-result';
+import {
+  getActionErrorMessage,
+  type ToolActionResult,
+} from '~/shared/tool-ui/action-result';
 import { getFile, getString } from '~/platform/files/read-form-data';
 import { takeClientActionFallback } from '~/platform/files/client-action-fallback';
 import { validatePdfFile } from '~/platform/files/security/file-validation';
@@ -23,7 +26,9 @@ export const meta: MetaFunction = () => [
 ];
 
 export function HydrateFallback() {
-  return <p className="text-sm text-muted-foreground">Loading PDF info tool...</p>;
+  return (
+    <p className="text-sm text-muted-foreground">Loading PDF info tool...</p>
+  );
 }
 
 export async function clientAction({
@@ -39,7 +44,10 @@ export async function clientAction({
   const file = getFile(formData, 'file') ?? fallbackPayload?.file;
 
   if (!file) {
-    return { ok: false, message: 'Select a PDF file before extracting details.' };
+    return {
+      ok: false,
+      message: 'Select a PDF file before extracting details.',
+    };
   }
 
   try {

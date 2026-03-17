@@ -1,4 +1,9 @@
-import { type RouteConfig, index, layout, route } from '@react-router/dev/routes';
+import {
+  type RouteConfig,
+  index,
+  layout,
+  route,
+} from '@react-router/dev/routes';
 
 export default [
   route(
@@ -12,6 +17,9 @@ export default [
     route('organize', 'tools/organize/route.tsx'),
     route('image-to-pdf', 'tools/image-to-pdf/route.tsx'),
     route('pdf-to-images', 'tools/pdf-to-images/route.tsx'),
+    route('meesho-labels', 'tools/shipping-labels/routes/meesho.tsx'),
+    route('amazon-labels', 'tools/shipping-labels/routes/amazon.tsx'),
+    route('flipkart-labels', 'tools/shipping-labels/routes/flipkart.tsx'),
     route('info', 'tools/info/route.tsx'),
     route('privacy', 'routes/privacy.tsx'),
     route('terms', 'routes/terms.tsx'),

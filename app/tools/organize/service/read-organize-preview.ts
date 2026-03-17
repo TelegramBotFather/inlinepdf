@@ -21,7 +21,9 @@ function clampScale(scale: number): number {
   return scale;
 }
 
-export async function readOrganizePreview(file: File): Promise<OrganizePreviewSession> {
+export async function readOrganizePreview(
+  file: File,
+): Promise<OrganizePreviewSession> {
   await validatePdfFile(file);
   const sourceBytes = new Uint8Array(await file.arrayBuffer());
   const bytes = new Uint8Array(sourceBytes.byteLength);
@@ -34,7 +36,9 @@ export async function readOrganizePreview(file: File): Promise<OrganizePreviewSe
   try {
     pdfDocument = await loadingTask.promise;
   } catch {
-    throw new Error('Unable to read this PDF. It may be password-protected or corrupted.');
+    throw new Error(
+      'Unable to read this PDF. It may be password-protected or corrupted.',
+    );
   }
 
   try {
@@ -56,8 +60,14 @@ export async function readOrganizePreview(file: File): Promise<OrganizePreviewSe
       throw new Error('Preview session is no longer available.');
     }
 
-    if (!Number.isInteger(pageNumber) || pageNumber < 1 || pageNumber > pdfDocument.numPages) {
-      throw new Error(`Page ${String(pageNumber)} is outside the document range.`);
+    if (
+      !Number.isInteger(pageNumber) ||
+      pageNumber < 1 ||
+      pageNumber > pdfDocument.numPages
+    ) {
+      throw new Error(
+        `Page ${String(pageNumber)} is outside the document range.`,
+      );
     }
 
     const cached = thumbnailCache.get(pageNumber);

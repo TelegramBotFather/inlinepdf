@@ -13,7 +13,10 @@ export function Header() {
         className={`${containerClassName} flex min-w-0 items-center justify-between gap-3 py-4`}
       >
         <div className="flex min-w-0 items-center gap-5">
-          <Link to="/" className="inline-flex items-center gap-2 tracking-tight">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 tracking-tight"
+          >
             <ThemedBrandImage
               alt=""
               className="size-10 rounded-md"

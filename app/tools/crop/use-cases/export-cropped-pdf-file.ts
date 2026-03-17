@@ -82,10 +82,15 @@ export async function exportCroppedPdf({
       const height = boundingBox.top - boundingBox.bottom;
 
       if (width <= 0 || height <= 0) {
-        throw new Error(`Crop area for page ${String(pageNumber)} is too small.`);
+        throw new Error(
+          `Crop area for page ${String(pageNumber)} is too small.`,
+        );
       }
 
-      const embeddedPage = await outputDocument.embedPage(sourcePage, boundingBox);
+      const embeddedPage = await outputDocument.embedPage(
+        sourcePage,
+        boundingBox,
+      );
       const page = outputDocument.addPage([width, height]);
       page.drawPage(embeddedPage, {
         x: 0,

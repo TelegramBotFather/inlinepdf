@@ -13,10 +13,11 @@ import {
   normalizedToPercentRect,
   percentToNormalizedRect,
 } from '~/tools/crop/domain/coordinate-math';
-import type {
-  CropPreset,
-  NormalizedRect,
-} from '~/tools/crop/models';
+import {
+  getPageSizeDimensionsInPoints,
+  isStandardPageSizeId,
+} from '~/platform/pdf/page-size-options';
+import type { CropPreset, NormalizedRect } from '~/tools/crop/models';
 
 import 'react-image-crop/dist/ReactCrop.css';
 
@@ -41,13 +42,14 @@ interface RenderedPageDetails {
 }
 
 function getAspectRatioForPreset(preset: CropPreset): number | undefined {
+  if (isStandardPageSizeId(preset)) {
+    const dimensions = getPageSizeDimensionsInPoints(preset);
+    return dimensions.width / dimensions.height;
+  }
+
   switch (preset) {
     case 'free':
       return undefined;
-    case 'a4':
-      return 210 / 297;
-    case 'letter':
-      return 8.5 / 11;
     case '1:1':
       return 1;
     case '4:3':
@@ -89,7 +91,10 @@ function clampPercentCrop(crop: PercentCrop): PercentCrop {
   };
 }
 
-function areSamePercentCrop(a: PercentCrop | undefined, b: PercentCrop): boolean {
+function areSamePercentCrop(
+  a: PercentCrop | undefined,
+  b: PercentCrop,
+): boolean {
   if (!a) {
     return false;
   }
@@ -233,7 +238,10 @@ export function PdfCropEditor({
           0.1,
           Math.min(4, scaleByWidth, scaleByHeight),
         );
-        const deviceRatio = Math.min(Math.max(window.devicePixelRatio || 1, 1), 3);
+        const deviceRatio = Math.min(
+          Math.max(window.devicePixelRatio || 1, 1),
+          3,
+        );
         const renderScale = layoutScale * deviceRatio;
         const layoutViewport = page.getViewport({ scale: layoutScale });
         const renderViewport = page.getViewport({ scale: renderScale });
@@ -306,9 +314,7 @@ export function PdfCropEditor({
     }
 
     const hasCurrentCrop =
-      !!currentCrop &&
-      currentCrop.width > 0 &&
-      currentCrop.height > 0;
+      !!currentCrop && currentCrop.width > 0 && currentCrop.height > 0;
 
     const baseCrop: PercentCrop = hasCurrentCrop
       ? { ...currentCrop, unit: '%' }
@@ -356,7 +362,9 @@ export function PdfCropEditor({
   }
 
   return (
-    <section className={immersive ? 'flex h-full min-h-0 flex-col gap-3' : 'space-y-3'}>
+    <section
+      className={immersive ? 'flex h-full min-h-0 flex-col gap-3' : 'space-y-3'}
+    >
       {showHeader ? (
         <header className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-medium">{`Page ${String(pageNumber)}`}</p>
@@ -384,7 +392,9 @@ export function PdfCropEditor({
           </p>
         ) : null}
 
-        <div className={immersive ? 'flex h-full items-center justify-center' : ''}>
+        <div
+          className={immersive ? 'flex h-full items-center justify-center' : ''}
+        >
           <ReactCrop
             crop={currentCrop}
             onChange={handleCropChange}
@@ -394,7 +404,9 @@ export function PdfCropEditor({
             minHeight={24}
             ruleOfThirds
             aspect={aspectRatio}
-            className={immersive ? 'crop-mask-blue max-h-full' : 'crop-mask-blue'}
+            className={
+              immersive ? 'crop-mask-blue max-h-full' : 'crop-mask-blue'
+            }
           >
             <canvas
               ref={canvasRef}

@@ -1,0 +1,592 @@
+import { PDFDocument } from 'pdf-lib';
+
+import {
+  getPageSizeDimensionsInPoints,
+  isPageSizeSelectId,
+} from '~/platform/pdf/page-size-options';
+import { validatePdfFile } from '~/platform/files/security/file-validation';
+import { loadPdfJsModule } from '~/platform/pdf/load-pdfjs';
+import { normalizedRectToPdfBoundingBox } from '~/tools/crop/domain/coordinate-math';
+
+import {
+  SHIPPING_LABEL_BRANDS,
+  SHIPPING_LABEL_SORT_DIRECTIONS,
+  type ShippingLabelBrand,
+  type ShippingLabelExtractionResult,
+  type ShippingLabelOutputPageSize,
+  type ShippingLabelSortDirection,
+  type ShippingLabelSortOptions,
+} from '../models';
+
+const TAX_INVOICE_ANCHOR = 'TAX INVOICE';
+const TAX_INVOICE_TOP_OFFSET = 3;
+const AUTO_PAGE_BOTTOM_PADDING = 12;
+const SKU_CONTENT_MAX_VERTICAL_DISTANCE = 60;
+const PICKUP_PARTNER_MAX_VERTICAL_DISTANCE = 40;
+const PICKUP_PARTNER_MAX_HORIZONTAL_DISTANCE = 120;
+const PICKUP_PARTNER_LEFT_SIDE_VERTICAL_TOLERANCE = 8;
+
+interface TextContentItemLike {
+  str?: string;
+  height?: number;
+  transform?: number[];
+}
+
+interface MeeshoAnchorMatch {
+  top: number;
+}
+
+interface ExtractedLabelPage {
+  pageNumber: number;
+  boundingBox: {
+    left: number;
+    right: number;
+    bottom: number;
+    top: number;
+  };
+  width: number;
+  height: number;
+  sku: string | null;
+  pickupPartner: string | null;
+}
+
+function createOutputFileName(
+  originalName: string,
+  brand: ShippingLabelBrand,
+): string {
+  const baseName = originalName.replace(/\.pdf$/i, '') || 'document';
+  const stamp = new Date().toISOString().slice(0, 10);
+  return `${baseName}-${brand}-labels-${stamp}.pdf`;
+}
+
+function normalizeText(value: string): string {
+  return value.replace(/\s+/g, ' ').trim().toUpperCase();
+}
+
+function normalizeWhitespace(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function isTextContentItemLike(value: unknown): value is TextContentItemLike {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const candidate = value as TextContentItemLike;
+  return (
+    typeof candidate.str === 'string' && Array.isArray(candidate.transform)
+  );
+}
+
+function getItemHeight(item: TextContentItemLike): number {
+  const transformHeight =
+    Array.isArray(item.transform) && typeof item.transform[3] === 'number'
+      ? Math.abs(item.transform[3])
+      : 0;
+  const declaredHeight = typeof item.height === 'number' ? item.height : 0;
+  return Math.max(transformHeight, declaredHeight, 0);
+}
+
+function findMeeshoAnchor(items: unknown[]): MeeshoAnchorMatch | null {
+  let bestMatch: MeeshoAnchorMatch | null = null;
+
+  for (const item of items) {
+    if (!isTextContentItemLike(item) || !item.transform) {
+      continue;
+    }
+
+    if (!normalizeText(item.str ?? '').includes(TAX_INVOICE_ANCHOR)) {
+      continue;
+    }
+
+    const y = item.transform[5];
+    if (typeof y !== 'number') {
+      continue;
+    }
+
+    const top = y + getItemHeight(item);
+    if (!Number.isFinite(top)) {
+      continue;
+    }
+
+    if (!bestMatch || top > bestMatch.top) {
+      bestMatch = { top };
+    }
+  }
+
+  return bestMatch;
+}
+
+function isShippingLabelBrand(
+  value: string | null | undefined,
+): value is ShippingLabelBrand {
+  return SHIPPING_LABEL_BRANDS.includes(value as ShippingLabelBrand);
+}
+
+export function isShippingLabelOutputPageSize(
+  value: string | null | undefined,
+): value is ShippingLabelOutputPageSize {
+  return typeof value === 'string' && isPageSizeSelectId(value);
+}
+
+export function isShippingLabelSortDirection(
+  value: string | null | undefined,
+): value is ShippingLabelSortDirection {
+  return SHIPPING_LABEL_SORT_DIRECTIONS.includes(
+    value as ShippingLabelSortDirection,
+  );
+}
+
+export { isShippingLabelBrand };
+
+function getItemPosition(
+  item: TextContentItemLike,
+): { x: number; y: number } | null {
+  if (!Array.isArray(item.transform)) {
+    return null;
+  }
+
+  const [, , , , x, y] = item.transform;
+  return typeof x === 'number' && typeof y === 'number' ? { x, y } : null;
+}
+
+function findTopMostExactText(
+  items: unknown[],
+  text: string,
+): (TextContentItemLike & { transform: number[] }) | null {
+  let bestMatch: (TextContentItemLike & { transform: number[] }) | null = null;
+
+  for (const item of items) {
+    if (!isTextContentItemLike(item) || !item.transform) {
+      continue;
+    }
+
+    if (normalizeText(item.str ?? '') !== text) {
+      continue;
+    }
+
+    const position = getItemPosition(item);
+    if (!position) {
+      continue;
+    }
+
+    if (
+      !bestMatch ||
+      position.y > (bestMatch.transform[5] ?? Number.NEGATIVE_INFINITY)
+    ) {
+      bestMatch = item as TextContentItemLike & { transform: number[] };
+    }
+  }
+
+  return bestMatch;
+}
+
+function extractSku(items: unknown[]): string | null {
+  const skuHeader = findTopMostExactText(items, 'SKU');
+  if (!skuHeader) {
+    return null;
+  }
+
+  const skuHeaderPosition = getItemPosition(skuHeader);
+  if (!skuHeaderPosition) {
+    return null;
+  }
+
+  const sizeHeader = items.find((item) => {
+    if (!isTextContentItemLike(item) || !item.transform) {
+      return false;
+    }
+
+    if (normalizeText(item.str ?? '') !== 'SIZE') {
+      return false;
+    }
+
+    const position = getItemPosition(item);
+    return (
+      !!position &&
+      Math.abs(position.y - skuHeaderPosition.y) < 4 &&
+      position.x > skuHeaderPosition.x
+    );
+  }) as (TextContentItemLike & { transform: number[] }) | undefined;
+
+  const sizeHeaderPosition = sizeHeader ? getItemPosition(sizeHeader) : null;
+  const maxX = sizeHeaderPosition
+    ? sizeHeaderPosition.x - 4
+    : Number.POSITIVE_INFINITY;
+
+  const contentItems = items
+    .filter((item): item is TextContentItemLike & { transform: number[] } => {
+      if (!isTextContentItemLike(item) || !item.transform) {
+        return false;
+      }
+
+      const rawText = normalizeWhitespace(item.str ?? '');
+      if (rawText.length === 0) {
+        return false;
+      }
+
+      const position = getItemPosition(item);
+      if (!position) {
+        return false;
+      }
+
+      return (
+        position.x >= skuHeaderPosition.x - 1 &&
+        position.x < maxX &&
+        position.y < skuHeaderPosition.y - 1 &&
+        position.y >= skuHeaderPosition.y - SKU_CONTENT_MAX_VERTICAL_DISTANCE
+      );
+    })
+    .map((item) => {
+      const position = getItemPosition(item);
+      return position
+        ? {
+            text: normalizeWhitespace(item.str ?? ''),
+            position,
+          }
+        : null;
+    })
+    .filter(
+      (item): item is { text: string; position: { x: number; y: number } } =>
+        item !== null,
+    )
+    .sort((a, b) => b.position.y - a.position.y || a.position.x - b.position.x);
+
+  if (contentItems.length === 0) {
+    return null;
+  }
+
+  const rowGroups: { y: number; texts: string[] }[] = [];
+
+  for (const item of contentItems) {
+    if (rowGroups.length === 0) {
+      rowGroups.push({ y: item.position.y, texts: [item.text] });
+      continue;
+    }
+
+    const currentGroup = rowGroups.at(-1);
+    if (!currentGroup || Math.abs(currentGroup.y - item.position.y) > 3) {
+      rowGroups.push({ y: item.position.y, texts: [item.text] });
+      continue;
+    }
+
+    currentGroup.texts.push(item.text);
+  }
+
+  const value = rowGroups
+    .map((group) => group.texts.join(' '))
+    .join(' ')
+    .trim();
+
+  return value.length > 0 ? value : null;
+}
+
+function extractPickupPartner(items: unknown[]): string | null {
+  const pickup = findTopMostExactText(items, 'PICKUP');
+  if (!pickup) {
+    return null;
+  }
+
+  const pickupPosition = getItemPosition(pickup);
+  if (!pickupPosition) {
+    return null;
+  }
+
+  const candidates = items
+    .filter((item): item is TextContentItemLike & { transform: number[] } => {
+      if (!isTextContentItemLike(item) || !item.transform) {
+        return false;
+      }
+
+      const rawText = normalizeWhitespace(item.str ?? '');
+      if (rawText.length === 0) {
+        return false;
+      }
+
+      const normalized = normalizeText(rawText);
+      if (normalized === 'PICKUP' || normalized.includes('PICKUP ADDRESS')) {
+        return false;
+      }
+
+      const position = getItemPosition(item);
+      if (!position) {
+        return false;
+      }
+
+      return (
+        position.x <= pickupPosition.x &&
+        pickupPosition.x - position.x <=
+          PICKUP_PARTNER_MAX_HORIZONTAL_DISTANCE &&
+        ((position.y >= pickupPosition.y &&
+          position.y <=
+            pickupPosition.y + PICKUP_PARTNER_MAX_VERTICAL_DISTANCE) ||
+          Math.abs(position.y - pickupPosition.y) <=
+            PICKUP_PARTNER_LEFT_SIDE_VERTICAL_TOLERANCE)
+      );
+    })
+    .map((item) => {
+      const position = getItemPosition(item);
+      return position
+        ? {
+            text: normalizeWhitespace(item.str ?? ''),
+            position,
+          }
+        : null;
+    })
+    .filter(
+      (item): item is { text: string; position: { x: number; y: number } } =>
+        item !== null,
+    )
+    .sort((a, b) => {
+      const aSameRow =
+        Math.abs(a.position.y - pickupPosition.y) <=
+        PICKUP_PARTNER_LEFT_SIDE_VERTICAL_TOLERANCE;
+      const bSameRow =
+        Math.abs(b.position.y - pickupPosition.y) <=
+        PICKUP_PARTNER_LEFT_SIDE_VERTICAL_TOLERANCE;
+
+      if (aSameRow !== bSameRow) {
+        return aSameRow ? -1 : 1;
+      }
+
+      const aVerticalGap = a.position.y - pickupPosition.y;
+      const bVerticalGap = b.position.y - pickupPosition.y;
+
+      if (aVerticalGap !== bVerticalGap) {
+        return aSameRow
+          ? Math.abs(aVerticalGap) - Math.abs(bVerticalGap)
+          : aVerticalGap - bVerticalGap;
+      }
+
+      return (
+        pickupPosition.x - a.position.x - (pickupPosition.x - b.position.x)
+      );
+    });
+
+  return candidates[0]?.text ?? null;
+}
+
+function compareNullableText(
+  left: string | null,
+  right: string | null,
+  direction: ShippingLabelSortDirection,
+): number {
+  if (left === right) {
+    return 0;
+  }
+
+  if (left === null) {
+    return 1;
+  }
+
+  if (right === null) {
+    return -1;
+  }
+
+  const comparison = left.localeCompare(right, undefined, {
+    numeric: true,
+    sensitivity: 'base',
+  });
+
+  return direction === 'asc' ? comparison : -comparison;
+}
+
+function sortExtractedLabels(
+  labels: ExtractedLabelPage[],
+  sort: ShippingLabelSortOptions,
+): ExtractedLabelPage[] {
+  return [...labels].sort((left, right) => {
+    if (sort.pickupPartnerDirection) {
+      const pickupComparison = compareNullableText(
+        left.pickupPartner,
+        right.pickupPartner,
+        sort.pickupPartnerDirection,
+      );
+      if (pickupComparison !== 0) {
+        return pickupComparison;
+      }
+    }
+
+    if (sort.skuDirection) {
+      const skuComparison = compareNullableText(
+        left.sku,
+        right.sku,
+        sort.skuDirection,
+      );
+      if (skuComparison !== 0) {
+        return skuComparison;
+      }
+    }
+
+    return left.pageNumber - right.pageNumber;
+  });
+}
+
+interface ExtractShippingLabelsOptions {
+  brand: ShippingLabelBrand;
+  outputPageSize: ShippingLabelOutputPageSize;
+  sort?: Partial<ShippingLabelSortOptions>;
+}
+
+export async function extractShippingLabels(
+  file: File,
+  options: ExtractShippingLabelsOptions,
+): Promise<ShippingLabelExtractionResult> {
+  await validatePdfFile(file);
+  const sortOptions: ShippingLabelSortOptions = {
+    pickupPartnerDirection: options.sort?.pickupPartnerDirection ?? null,
+    skuDirection: options.sort?.skuDirection ?? null,
+  };
+
+  if (options.brand !== 'meesho') {
+    throw new Error(
+      `${options.brand.slice(0, 1).toUpperCase()}${options.brand.slice(1)} label extraction is not available yet.`,
+    );
+  }
+
+  const sourceBytes = new Uint8Array(await file.arrayBuffer());
+  const sourceDocument = await PDFDocument.load(sourceBytes);
+  const outputDocument = await PDFDocument.create();
+  const pdfjs = await loadPdfJsModule();
+  const loadingTask = pdfjs.getDocument({ data: sourceBytes });
+
+  let pagesProcessed = 0;
+  let labelsExtracted = 0;
+  let pagesSkipped = 0;
+  const extractedLabels: ExtractedLabelPage[] = [];
+  type PdfDocumentProxy = Awaited<
+    ReturnType<typeof pdfjs.getDocument>['promise']
+  >;
+  let previewDocument: PdfDocumentProxy | null = null;
+
+  try {
+    previewDocument = await loadingTask.promise;
+    pagesProcessed = previewDocument.numPages;
+
+    for (
+      let pageNumber = 1;
+      pageNumber <= previewDocument.numPages;
+      pageNumber += 1
+    ) {
+      const previewPage = await previewDocument.getPage(pageNumber);
+      const textContent = await previewPage.getTextContent();
+      const anchor = findMeeshoAnchor(textContent.items);
+
+      if (!anchor) {
+        pagesSkipped += 1;
+        previewPage.cleanup();
+        continue;
+      }
+
+      const viewport = previewPage.getViewport({ scale: 1 });
+      const cutLine = Math.min(
+        Math.max(anchor.top + TAX_INVOICE_TOP_OFFSET, 0),
+        viewport.height,
+      );
+      const cropHeight = viewport.height - cutLine;
+
+      if (cropHeight <= 0) {
+        pagesSkipped += 1;
+        previewPage.cleanup();
+        continue;
+      }
+
+      const boundingBox = normalizedRectToPdfBoundingBox(
+        {
+          x: 0,
+          y: 0,
+          width: 1,
+          height: cropHeight / viewport.height,
+        },
+        {
+          width: viewport.width,
+          height: viewport.height,
+          viewBox: viewport.viewBox,
+          convertToPdfPoint: (x, y) =>
+            viewport.convertToPdfPoint(x, y) as [number, number],
+        },
+      );
+      const width = boundingBox.right - boundingBox.left;
+      const height = boundingBox.top - boundingBox.bottom;
+      extractedLabels.push({
+        pageNumber,
+        boundingBox,
+        width,
+        height,
+        sku: extractSku(textContent.items),
+        pickupPartner: extractPickupPartner(textContent.items),
+      });
+      previewPage.cleanup();
+    }
+  } finally {
+    if (previewDocument?.cleanup) {
+      await previewDocument.cleanup();
+    }
+
+    if (previewDocument?.destroy) {
+      await previewDocument.destroy();
+    }
+
+    void loadingTask.destroy();
+  }
+
+  if (labelsExtracted === 0) {
+    labelsExtracted = extractedLabels.length;
+  }
+
+  if (extractedLabels.length === 0) {
+    throw new Error('No Meesho shipping labels were found in this PDF.');
+  }
+
+  const sortedLabels = sortExtractedLabels(extractedLabels, sortOptions);
+
+  for (const label of sortedLabels) {
+    const sourcePage = sourceDocument.getPage(label.pageNumber - 1);
+    const embeddedPage = await outputDocument.embedPage(
+      sourcePage,
+      label.boundingBox,
+    );
+
+    if (options.outputPageSize === 'auto') {
+      const page = outputDocument.addPage([
+        label.width,
+        label.height + AUTO_PAGE_BOTTOM_PADDING,
+      ]);
+      page.drawPage(embeddedPage, {
+        x: 0,
+        y: AUTO_PAGE_BOTTOM_PADDING,
+        width: label.width,
+        height: label.height,
+      });
+      continue;
+    }
+
+    const pageSize = getPageSizeDimensionsInPoints(options.outputPageSize);
+    const page = outputDocument.addPage([pageSize.width, pageSize.height]);
+    const scale = Math.min(
+      pageSize.width / label.width,
+      pageSize.height / label.height,
+    );
+    const scaledWidth = label.width * scale;
+    const scaledHeight = label.height * scale;
+
+    page.drawPage(embeddedPage, {
+      x: (pageSize.width - scaledWidth) / 2,
+      y: (pageSize.height - scaledHeight) / 2,
+      width: scaledWidth,
+      height: scaledHeight,
+    });
+  }
+
+  const outputBytes = await outputDocument.save();
+  const normalizedOutputBytes = new Uint8Array(outputBytes.byteLength);
+  normalizedOutputBytes.set(outputBytes);
+
+  return {
+    blob: new Blob([normalizedOutputBytes.buffer], { type: 'application/pdf' }),
+    fileName: createOutputFileName(file.name, options.brand),
+    pagesProcessed,
+    labelsExtracted: extractedLabels.length,
+    pagesSkipped,
+  };
+}

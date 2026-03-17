@@ -163,7 +163,8 @@ function pdfToImagesReducer(
             ? {
                 ...state.selectedFileEntry,
                 pageCount:
-                  state.selectedFileEntry.pageCount ?? action.baseResolution.pageCount,
+                  state.selectedFileEntry.pageCount ??
+                  action.baseResolution.pageCount,
               }
             : state.selectedFileEntry,
       };
@@ -264,7 +265,8 @@ function PdfToImagesOptionsPanel({
               <SelectValue placeholder="Select output format">
                 {(value: unknown) =>
                   typeof value === 'string'
-                    ? FORMAT_OPTIONS.find((option) => option.value === value)?.label
+                    ? FORMAT_OPTIONS.find((option) => option.value === value)
+                        ?.label
                     : null
                 }
               </SelectValue>
@@ -282,7 +284,10 @@ function PdfToImagesOptionsPanel({
 
       <Field>
         <FieldContent>
-          <FieldLabel id={maxDimensionCapLabelId} htmlFor={maxDimensionCapInputId}>
+          <FieldLabel
+            id={maxDimensionCapLabelId}
+            htmlFor={maxDimensionCapInputId}
+          >
             Max dimension cap
           </FieldLabel>
           <Select
@@ -304,7 +309,10 @@ function PdfToImagesOptionsPanel({
             </SelectTrigger>
             <SelectContent align="start">
               {MAX_DIMENSION_CAP_OPTIONS.map((option) => (
-                <SelectItem key={String(option.value)} value={String(option.value)}>
+                <SelectItem
+                  key={String(option.value)}
+                  value={String(option.value)}
+                >
                   {option.label}
                 </SelectItem>
               ))}
@@ -344,19 +352,19 @@ function PdfToImagesOptionsPanel({
         <Field>
           <FieldContent>
             <FieldLabel htmlFor={customRangeInputId}>Custom range</FieldLabel>
-          <Input
-            id={customRangeInputId}
-            aria-label="Custom page range"
-            value={pageRangeInput}
-            disabled={disabled}
-            aria-invalid={selectedPageCount === null}
-            onChange={(event) => {
-              onPageRangeInputChange(event.currentTarget.value);
-            }}
-            placeholder="e.g. 1-3, 5, 9-12"
-          />
+            <Input
+              id={customRangeInputId}
+              aria-label="Custom page range"
+              value={pageRangeInput}
+              disabled={disabled}
+              aria-invalid={selectedPageCount === null}
+              onChange={(event) => {
+                onPageRangeInputChange(event.currentTarget.value);
+              }}
+              placeholder="e.g. 1-3, 5, 9-12"
+            />
             <FieldDescription>
-            Use comma-separated pages and ranges.
+              Use comma-separated pages and ranges.
             </FieldDescription>
             <FieldError>
               {selectedPageCount === null
@@ -382,7 +390,9 @@ function PdfToImagesResolutionPreview({
   maxDimensionCap: MaxDimensionCap;
 }) {
   if (isReadingResolution) {
-    return <p className="text-sm text-muted-foreground">Reading PDF resolution...</p>;
+    return (
+      <p className="text-sm text-muted-foreground">Reading PDF resolution...</p>
+    );
   }
 
   if (!resolutionInfo) {
@@ -589,7 +599,6 @@ export function PdfToImagesToolScreen() {
               handleFileSelection(files[0]);
             }}
             disabled={isConverting}
-            title="Drag and drop a PDF file"
           />
         )
       }

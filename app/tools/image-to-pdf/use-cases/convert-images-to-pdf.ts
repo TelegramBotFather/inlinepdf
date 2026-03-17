@@ -8,7 +8,9 @@ import type {
   ImageToPdfRunOptions,
 } from '~/tools/image-to-pdf/models';
 
-export function isImageToPdfQuality(value: unknown): value is ImageToPdfQuality {
+export function isImageToPdfQuality(
+  value: unknown,
+): value is ImageToPdfQuality {
   return value === 'high' || value === 'medium' || value === 'low';
 }
 
@@ -20,7 +22,8 @@ function isImageToPdfRunOptions(value: unknown): value is ImageToPdfRunOptions {
   const options = value as Partial<ImageToPdfRunOptions>;
   return (
     isImageToPdfQuality(options.quality) &&
-    (options.onProgress === undefined || typeof options.onProgress === 'function')
+    (options.onProgress === undefined ||
+      typeof options.onProgress === 'function')
   );
 }
 

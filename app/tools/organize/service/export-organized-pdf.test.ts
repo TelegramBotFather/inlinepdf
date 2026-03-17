@@ -88,7 +88,9 @@ describe('exportOrganizedPdf', () => {
     });
 
     expect(result.pagesExported).toBe(2);
-    expect(result.fileName).toMatch(/^sample-organized-\d{4}-\d{2}-\d{2}\.pdf$/);
+    expect(result.fileName).toMatch(
+      /^sample-organized-\d{4}-\d{2}-\d{2}\.pdf$/,
+    );
 
     const outputDocument = await PDFDocument.load(
       await readBlobAsArrayBuffer(result.blob),

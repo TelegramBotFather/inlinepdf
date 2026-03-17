@@ -1,6 +1,9 @@
 import type { MetaFunction } from 'react-router';
 
-import { getActionErrorMessage, type ToolActionResult } from '~/shared/tool-ui/action-result';
+import {
+  getActionErrorMessage,
+  type ToolActionResult,
+} from '~/shared/tool-ui/action-result';
 import { getFiles, getString } from '~/platform/files/read-form-data';
 import { takeClientActionFallback } from '~/platform/files/client-action-fallback';
 import {
@@ -41,7 +44,8 @@ export async function clientAction({
     ? (takeClientActionFallback(submissionId) as MergeActionPayload | null)
     : null;
   const files = getFiles(formData, 'files[]');
-  const resolvedFiles = files.length > 0 ? files : (fallbackPayload?.files ?? []);
+  const resolvedFiles =
+    files.length > 0 ? files : (fallbackPayload?.files ?? []);
 
   if (resolvedFiles.length < 2) {
     return { ok: false, message: 'Add at least two PDF files before merging.' };
@@ -55,7 +59,10 @@ export async function clientAction({
     });
     const result = await mergePdf({ files: resolvedFiles });
     triggerFileDownload(result.blob, result.fileName);
-    return { ok: true, message: 'Merged PDF is ready and download has started.' };
+    return {
+      ok: true,
+      message: 'Merged PDF is ready and download has started.',
+    };
   } catch (error: unknown) {
     return getActionErrorMessage(
       error,

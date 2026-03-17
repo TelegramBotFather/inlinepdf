@@ -24,7 +24,7 @@ export function ToolWorkspace({
   return (
     <section className="space-y-6">
       <header className="space-y-2">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance sm:text-5xl">
+        <h1 className="scroll-m-20 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
           {title}
         </h1>
         <p className="text-lg text-muted-foreground">{description}</p>

@@ -15,7 +15,9 @@ export function Shell({
   return (
     <div className={cn('flex min-h-screen flex-col', shellClassName)}>
       <Header />
-      <main className={cn('min-w-0 flex-1 overflow-x-hidden py-10', mainClassName)}>
+      <main
+        className={cn('min-w-0 flex-1 overflow-x-hidden py-10', mainClassName)}
+      >
         <div className={containerClassName}>{children}</div>
       </main>
       <Footer />

@@ -1,6 +1,24 @@
 export type CropStep = 'select' | 'crop';
 
-export type CropPreset = 'free' | 'a4' | 'letter' | '1:1' | '4:3' | '16:9';
+export type CropPreset =
+  | 'free'
+  | 'a3'
+  | 'a4'
+  | 'a5'
+  | 'b5'
+  | 'envelope10'
+  | 'envelopeChoukei3'
+  | 'envelopeDl'
+  | 'jisB5'
+  | 'roc16k'
+  | 'superBA3'
+  | 'tabloid'
+  | 'tabloidOversize'
+  | 'legal'
+  | 'letter'
+  | '1:1'
+  | '4:3'
+  | '16:9';
 
 export type CropInteractionMode = 'crop' | 'pan';
 

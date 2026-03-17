@@ -19,7 +19,8 @@ export function MergeToolScreen() {
 
   const isMerging = fetcher.state !== 'idle';
   const canMerge = files.length >= 2 && !isMerging;
-  const errorMessage = fetcher.data && !fetcher.data.ok ? fetcher.data.message : null;
+  const errorMessage =
+    fetcher.data && !fetcher.data.ok ? fetcher.data.message : null;
   const successMessage = fetcher.data?.ok ? fetcher.data.message : null;
 
   useSuccessToast(successMessage);
@@ -43,7 +44,9 @@ export function MergeToolScreen() {
                   ...item,
                   pageCount: details.pageCount,
                   previewDataUrl: details.previewDataUrl,
-                  previewStatus: details.previewDataUrl ? 'ready' : 'unavailable',
+                  previewStatus: details.previewDataUrl
+                    ? 'ready'
+                    : 'unavailable',
                 }
               : item,
           ),
@@ -100,7 +103,6 @@ export function MergeToolScreen() {
               ariaLabel="Select PDF files"
               onSelect={handleFilesAdded}
               disabled={isMerging}
-              title="Drag and drop PDF files"
             />
           ) : (
             <>
@@ -123,7 +125,11 @@ export function MergeToolScreen() {
                 }
               />
               <div className="flex items-center justify-between gap-3">
-                <Button variant="outline" disabled={isMerging} onClick={handleClearAll}>
+                <Button
+                  variant="outline"
+                  disabled={isMerging}
+                  onClick={handleClearAll}
+                >
                   Clear all
                 </Button>
                 <Button disabled={!canMerge} onClick={handleMerge}>

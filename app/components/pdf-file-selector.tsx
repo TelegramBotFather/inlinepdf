@@ -1,4 +1,4 @@
-import { Add01Icon, File01Icon } from '@hugeicons/core-free-icons';
+import { Add01Icon, FileUploadIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { type ChangeEvent, type DragEvent, useRef, useState } from 'react';
 
@@ -6,7 +6,6 @@ import { Button } from '~/components/ui/button';
 import { Card, CardContent } from '~/components/ui/card';
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -24,8 +23,8 @@ interface PdfFileSelectorProps {
   ariaLabel: string;
   accept?: string;
   variant?: SelectorVariant;
-  title?: string;
-  description?: string;
+  dropzoneTitle?: React.ReactNode;
+  dropzoneDescription?: React.ReactNode;
   buttonLabel?: string;
 }
 
@@ -50,8 +49,8 @@ export function PdfFileSelector({
   ariaLabel,
   accept = 'application/pdf,.pdf',
   variant = 'dropzone',
-  title,
-  description,
+  dropzoneTitle,
+  dropzoneDescription,
   buttonLabel,
 }: PdfFileSelectorProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -79,12 +78,14 @@ export function PdfFileSelector({
     }
   }
 
-  const defaultTitle = multiple
-    ? 'Drag and drop PDF files'
-    : 'Drag and drop a PDF file';
-  const defaultDescription = multiple
-    ? 'Select PDF files by dragging and dropping, or choose from your device.'
-    : 'Select a PDF file by dragging and dropping, or choose from your device.';
+  const defaultDropzoneTitle = 'Upload files';
+  const defaultDropzoneDescription = (
+    <>
+      Drag & drop your {accept.includes('image') ? 'images' : 'PDFs'} here, or{' '}
+      <span className="font-semibold underline underline-offset-4">browse</span>{' '}
+      to upload.
+    </>
+  );
 
   return (
     <section>
@@ -120,7 +121,7 @@ export function PdfFileSelector({
           variant="outline"
           disabled={disabled}
           className={cn(
-            'h-full min-h-[136px] w-full rounded-2xl border-dashed bg-transparent p-0 text-center transition-colors sm:min-h-[156px] lg:min-h-[188px]',
+            'h-full min-h-34 w-full rounded-2xl border-dashed bg-transparent p-0 text-center transition-colors sm:min-h-39 lg:min-h-47',
             !disabled && 'hover:border-primary/40 hover:bg-muted/50',
             disabled && 'cursor-not-allowed opacity-70',
           )}
@@ -138,17 +139,22 @@ export function PdfFileSelector({
           </Card>
         </Button>
       ) : (
-        <Button
-          type="button"
-          variant="outline"
-          disabled={disabled}
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={!disabled ? openPicker : undefined}
+          onKeyDown={(event) => {
+            if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
+              event.preventDefault();
+              openPicker();
+            }
+          }}
           className={cn(
-            'h-auto w-full rounded-2xl border-dashed bg-transparent p-0 text-center whitespace-normal transition-colors',
+            'relative w-full cursor-pointer rounded-2xl border-2 border-dashed bg-transparent p-0 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
             !disabled && 'hover:border-primary/40 hover:bg-muted/50',
             isDragActive && 'border-primary/60 bg-muted/60',
             disabled && 'cursor-not-allowed opacity-70',
           )}
-          onClick={openPicker}
           onDragEnter={(event) => {
             event.preventDefault();
             if (!disabled) {
@@ -162,29 +168,29 @@ export function PdfFileSelector({
             event.preventDefault();
             setIsDragActive(false);
           }}
-          onDrop={(event: DragEvent<HTMLButtonElement>) => {
+          onDrop={(event: DragEvent<HTMLDivElement>) => {
             event.preventDefault();
             setIsDragActive(false);
             commitSelection(event.dataTransfer.files);
           }}
         >
-          <Empty className="rounded-[inherit] border-0 p-6 sm:p-10">
+          <Empty className="pointer-events-none rounded-[inherit] border-0 p-8 sm:p-12">
             <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <HugeiconsIcon icon={File01Icon} size={30} />
+              <EmptyMedia className="mb-4 flex size-16 items-center justify-center rounded-xl bg-muted/50 sm:size-20">
+                <HugeiconsIcon
+                  icon={FileUploadIcon}
+                  className="size-8 text-muted-foreground sm:size-10"
+                />
               </EmptyMedia>
-              <EmptyTitle className="text-2xl font-semibold tracking-tight">
-                {title ?? defaultTitle}
+              <EmptyTitle className="text-xl font-bold tracking-tight">
+                {dropzoneTitle ?? defaultDropzoneTitle}
               </EmptyTitle>
-              <EmptyDescription>
-                {description ?? defaultDescription}
+              <EmptyDescription className="text-base text-muted-foreground">
+                {dropzoneDescription ?? defaultDropzoneDescription}
               </EmptyDescription>
             </EmptyHeader>
-            <EmptyContent className="text-xs text-muted-foreground sm:text-sm">
-              Drag files here or click to browse.
-            </EmptyContent>
           </Empty>
-        </Button>
+        </div>
       )}
     </section>
   );

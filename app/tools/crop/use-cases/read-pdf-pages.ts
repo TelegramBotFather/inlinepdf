@@ -1,8 +1,5 @@
 import { loadPdfJsModule } from '~/platform/pdf/load-pdfjs';
-import type {
-  CropDocumentPreview,
-  CropPagePreview,
-} from '~/tools/crop/models';
+import type { CropDocumentPreview, CropPagePreview } from '~/tools/crop/models';
 import {
   isSecurityValidationError,
   MAX_RENDER_PAGES,
@@ -40,7 +37,11 @@ export async function readPdfPages(file: File): Promise<CropDocumentPreview> {
         `Crop preview supports up to ${String(MAX_RENDER_PAGES)} pages per document.`,
       );
 
-      for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
+      for (
+        let pageNumber = 1;
+        pageNumber <= pdfDocument.numPages;
+        pageNumber += 1
+      ) {
         const page = await pdfDocument.getPage(pageNumber);
         const baseViewport = page.getViewport({ scale: 1 });
         const thumbnailScale = clampScale(

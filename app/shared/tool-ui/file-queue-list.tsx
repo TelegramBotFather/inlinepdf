@@ -30,9 +30,10 @@ interface FileQueueListProps {
   appendItem?: ReactNode;
 }
 
-const FILE_ROW_CLASS_NAME = 'relative rounded-2xl select-none transition-shadow touch-none';
+const FILE_ROW_CLASS_NAME =
+  'relative rounded-2xl select-none transition-shadow touch-none';
 const FILE_ROW_ACTION_BUTTON_CLASS =
-  'h-9 w-9 shrink-0 rounded-full border-border/90 bg-card/90 text-foreground shadow-md backdrop-blur-xl hover:bg-card';
+  'h-9 w-9 shrink-0 rounded-full border border-border bg-muted text-foreground shadow-sm transition-colors duration-150 hover:border-destructive hover:bg-destructive hover:text-white hover:shadow-sm focus-visible:border-destructive focus-visible:bg-destructive focus-visible:text-white focus-visible:shadow-sm dark:bg-muted dark:text-foreground dark:hover:border-destructive dark:hover:bg-destructive dark:hover:text-white dark:focus-visible:border-destructive dark:focus-visible:bg-destructive dark:focus-visible:text-white';
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) {
@@ -71,7 +72,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function getEventSourceId(event: unknown): string | null {
-  if (!isRecord(event) || !isRecord(event.operation) || !isRecord(event.operation.source)) {
+  if (
+    !isRecord(event) ||
+    !isRecord(event.operation) ||
+    !isRecord(event.operation.source)
+  ) {
     return null;
   }
 
@@ -81,7 +86,11 @@ function getEventSourceId(event: unknown): string | null {
 }
 
 function getEventTargetId(event: unknown): string | null {
-  if (!isRecord(event) || !isRecord(event.operation) || !isRecord(event.operation.target)) {
+  if (
+    !isRecord(event) ||
+    !isRecord(event.operation) ||
+    !isRecord(event.operation.target)
+  ) {
     return null;
   }
 
@@ -120,33 +129,40 @@ function FileQueueRowCard({
   showIndexBadge,
   onRemove,
 }: FileQueueRowCardProps) {
+  const pageText =
+    entry.metadataText ??
+    (entry.pageCount === null
+      ? 'Pages unavailable'
+      : `${String(entry.pageCount)} page${entry.pageCount === 1 ? '' : 's'}`);
+
   return (
-    <Card className="h-full gap-0 border border-border/90 py-3 shadow-none ring-0">
+    <Card className="depth-shadow-s h-full gap-0 border border-border/90 bg-muted/45 py-3 shadow-none ring-0 dark:depth-shadow-l dark:bg-card/95 dark:border-border/80">
       <CardContent className="px-3">
         <div className="flex items-center gap-3 lg:flex-col lg:items-stretch">
           <div className="w-[76px] shrink-0 lg:w-full">
             <AspectRatio
               ratio={4 / 5}
-              className="overflow-hidden rounded-lg border border-border/70 bg-white dark:border-white/15"
+              className="overflow-hidden rounded-lg bg-muted/45 dark:bg-muted/30"
             >
               {entry.previewStatus === 'loading' ? (
                 <div className="flex h-full w-full items-center justify-center bg-background/80">
                   <Spinner className="h-6 w-6" />
                 </div>
               ) : entry.previewDataUrl ? (
-                <img
-                  src={entry.previewDataUrl}
-                  alt={`First page preview of ${entry.file.name}`}
-                  draggable={false}
-                  className="h-full w-full object-cover object-top transition-transform duration-300"
-                  loading="lazy"
-                />
+                <>
+                  <img
+                    src={entry.previewDataUrl}
+                    alt={`First page preview of ${entry.file.name}`}
+                    draggable={false}
+                    className="h-full w-full object-cover object-top transition-transform duration-300"
+                    loading="lazy"
+                  />
+                </>
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-background">
                   <HugeiconsIcon icon={File01Icon} size={30} />
                 </div>
               )}
-              <div className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgba(15,23,42,0.08),inset_0_0_24px_-14px_rgba(15,23,42,0.28)] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08),inset_0_0_40px_-8px_rgba(0,0,0,0.78)]" />
             </AspectRatio>
           </div>
 
@@ -157,21 +173,17 @@ function FileQueueRowCard({
             )}
           >
             {showIndexBadge ? (
-              <span className="row-span-3 inline-flex h-10 items-center justify-center rounded-md bg-muted text-xs font-semibold tabular-nums text-muted-foreground">
+              <span className="row-span-3 inline-flex h-10 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 px-2 text-xs font-semibold tabular-nums text-primary shadow-sm">
                 {index + 1}
               </span>
             ) : null}
-            <p className="text-sm font-semibold leading-tight break-all select-none [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] overflow-hidden">
+            <p className="text-[0.95rem] font-semibold leading-snug tracking-[-0.01em] wrap-break-word text-foreground select-none [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] overflow-hidden">
               {entry.file.name}
             </p>
-            <p className="text-xs text-muted-foreground select-none">
-              {entry.metadataText ?? (
-                entry.pageCount === null
-                  ? 'Pages unavailable'
-                  : `${String(entry.pageCount)} page${entry.pageCount === 1 ? '' : 's'}`
-              )}
+            <p className="text-xs leading-relaxed font-medium tabular-nums text-foreground/90 select-none">
+              {pageText}
             </p>
-            <p className="text-xs text-muted-foreground select-none">
+            <p className="text-xs leading-relaxed font-medium tabular-nums text-foreground/80 select-none">
               {formatBytes(entry.file.size)}
             </p>
           </div>
@@ -219,11 +231,7 @@ function SortableFileRow({
   isOverlay = false,
   onRemove,
 }: SortableFileRowProps) {
-  const {
-    ref,
-    isDragging,
-    isDropTarget,
-  } = useSortable({
+  const { ref, isDragging, isDropTarget } = useSortable({
     id: entry.id,
     index,
     disabled: isOverlay || disabled || !canReorder,
@@ -235,13 +243,18 @@ function SortableFileRow({
       data-testid="file-queue-item"
       className={cn(
         FILE_ROW_CLASS_NAME,
-        canReorder && !disabled && !isOverlay && 'cursor-grab active:cursor-grabbing',
+        canReorder &&
+          !disabled &&
+          !isOverlay &&
+          'cursor-grab active:cursor-grabbing',
         isDragging && 'ring-2 ring-ring shadow-sm',
         isDropTarget && 'border-primary/60 ring-2 ring-primary/30',
         disabled && 'opacity-70',
       )}
       tabIndex={canReorder && !disabled && !isOverlay ? 0 : undefined}
-      aria-label={canReorder && !isOverlay ? `Reorder ${entry.file.name}` : undefined}
+      aria-label={
+        canReorder && !isOverlay ? `Reorder ${entry.file.name}` : undefined
+      }
     >
       <FileQueueRowCard
         entry={entry}
@@ -299,14 +312,21 @@ export function FileQueueList({
     const sourceId = getEventSourceId(event);
     setDraggedId(null);
 
-    if (!canReorder || disabled || !reorderFiles || typeof sourceId !== 'string') {
+    if (
+      !canReorder ||
+      disabled ||
+      !reorderFiles ||
+      typeof sourceId !== 'string'
+    ) {
       return;
     }
 
     const nextIndex = getEventSortableIndex(event);
     const targetId =
       getEventTargetId(event) ??
-      (nextIndex === null ? null : getProjectedTargetId(files, sourceId, nextIndex));
+      (nextIndex === null
+        ? null
+        : getProjectedTargetId(files, sourceId, nextIndex));
 
     if (!targetId) {
       return;

@@ -1,7 +1,4 @@
-import {
-  loadPdfJsModule,
-  type PdfJsModule,
-} from '~/platform/pdf/load-pdfjs';
+import { loadPdfJsModule, type PdfJsModule } from '~/platform/pdf/load-pdfjs';
 import {
   MAX_RENDER_PAGES,
   validatePageCountLimit,
@@ -93,10 +90,15 @@ function getSelectedPageNumbers(
 
   const unique = [...new Set(pageNumbers)];
   const invalidPage = unique.find(
-    (pageNumber) => !Number.isInteger(pageNumber) || pageNumber < 1 || pageNumber > totalPages,
+    (pageNumber) =>
+      !Number.isInteger(pageNumber) ||
+      pageNumber < 1 ||
+      pageNumber > totalPages,
   );
   if (invalidPage) {
-    throw new Error(`Page ${String(invalidPage)} is out of range for this PDF.`);
+    throw new Error(
+      `Page ${String(invalidPage)} is out of range for this PDF.`,
+    );
   }
 
   return unique;
@@ -174,7 +176,9 @@ export async function renderPdfToImages({
 
       const context = canvas.getContext('2d', { alpha: false });
       if (!context) {
-        throw new Error('Failed to initialize canvas context for PDF rendering.');
+        throw new Error(
+          'Failed to initialize canvas context for PDF rendering.',
+        );
       }
 
       context.fillStyle = '#FFFFFF';

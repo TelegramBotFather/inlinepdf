@@ -6,9 +6,14 @@ import {
   type DragDropEventHandlers,
 } from '@dnd-kit/react';
 
-type CspDragDropProviderProps = PropsWithChildren<Partial<DragDropEventHandlers>>;
+type CspDragDropProviderProps = PropsWithChildren<
+  Partial<DragDropEventHandlers>
+>;
 
-function isInteractiveElement(target: EventTarget | null, source: Element | undefined): boolean {
+function isInteractiveElement(
+  target: EventTarget | null,
+  source: Element | undefined,
+): boolean {
   if (!(target instanceof Element)) {
     return false;
   }

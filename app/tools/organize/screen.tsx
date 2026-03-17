@@ -2,10 +2,7 @@ import { type ReactNode, useEffect, useReducer, useRef, useState } from 'react';
 import { DragOverlay } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { useFetcher } from 'react-router';
-import {
-  Cancel01Icon,
-  Rotate02Icon,
-} from '@hugeicons/core-free-icons';
+import { Cancel01Icon, Rotate02Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 
 import { CspDragDropProvider } from '~/components/dnd/csp-drag-drop-provider';
@@ -94,7 +91,11 @@ type OrganizeWorkspaceAction =
   | { type: 'pageRemoved'; pageId: string }
   | { type: 'pagesReordered'; sourceId: string; targetId: string }
   | { type: 'pagesMarkedLoading'; pageIds: string[] }
-  | { type: 'pageThumbnailLoaded'; pageId: string; thumbnailDataUrl: string | null }
+  | {
+      type: 'pageThumbnailLoaded';
+      pageId: string;
+      thumbnailDataUrl: string | null;
+    }
   | { type: 'pageThumbnailUnavailable'; pageId: string };
 
 interface SortableOrganizePageCardProps {
@@ -134,7 +135,10 @@ function reorderPagesById(
   return reorderListByIndex(pages, sourceIndex, targetIndex);
 }
 
-function buildPaginationItems(totalPages: number, currentPage: number): PaginationToken[] {
+function buildPaginationItems(
+  totalPages: number,
+  currentPage: number,
+): PaginationToken[] {
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
   }
@@ -375,7 +379,9 @@ function organizeWorkspaceReducer(
           page.id === action.pageId
             ? {
                 ...page,
-                thumbnailStatus: action.thumbnailDataUrl ? 'ready' : 'unavailable',
+                thumbnailStatus: action.thumbnailDataUrl
+                  ? 'ready'
+                  : 'unavailable',
                 thumbnailDataUrl: action.thumbnailDataUrl,
               }
             : page,
@@ -422,7 +428,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function getEventSourceId(event: unknown): string | null {
-  if (!isRecord(event) || !isRecord(event.operation) || !isRecord(event.operation.source)) {
+  if (
+    !isRecord(event) ||
+    !isRecord(event.operation) ||
+    !isRecord(event.operation.source)
+  ) {
     return null;
   }
 
@@ -432,7 +442,11 @@ function getEventSourceId(event: unknown): string | null {
 }
 
 function getEventTargetId(event: unknown): string | null {
-  if (!isRecord(event) || !isRecord(event.operation) || !isRecord(event.operation.target)) {
+  if (
+    !isRecord(event) ||
+    !isRecord(event.operation) ||
+    !isRecord(event.operation.target)
+  ) {
     return null;
   }
 
@@ -597,11 +611,7 @@ function SortableOrganizePageCard({
   onRotate,
   onRemove,
 }: SortableOrganizePageCardProps) {
-  const {
-    ref,
-    isDragging,
-    isDropTarget,
-  } = useSortable({
+  const { ref, isDragging, isDropTarget } = useSortable({
     id: page.id,
     index,
     disabled: isOverlay || disabled || !canReorder,
@@ -613,7 +623,10 @@ function SortableOrganizePageCard({
       data-testid="organize-page-card"
       className={cn(
         PAGE_CARD_CLASS_NAME,
-        canReorder && !disabled && !isOverlay && 'cursor-grab active:cursor-grabbing',
+        canReorder &&
+          !disabled &&
+          !isOverlay &&
+          'cursor-grab active:cursor-grabbing',
         isDragging && 'ring-2 ring-ring shadow-sm',
         isDropTarget && 'border-primary/60 ring-2 ring-primary/30',
       )}
@@ -774,7 +787,8 @@ function OrganizePageGrid({
 }: OrganizePageGridProps) {
   const [draggedPageId, setDraggedPageId] = useState<string | null>(null);
   const canReorder = visiblePages.length > 1;
-  const activePage = visiblePages.find((page) => page.id === draggedPageId) ?? null;
+  const activePage =
+    visiblePages.find((page) => page.id === draggedPageId) ?? null;
 
   function handleDragStart(event: unknown) {
     setDraggedPageId(getEventSourceId(event));
@@ -847,13 +861,15 @@ function buildFileInfoEntry(
   pageStates: OrganizePageState[],
   isReadingPdf: boolean,
 ): QueuedFile {
-  return selectedFileEntry ?? {
-    id: 'organize-file-fallback',
-    file: selectedFile,
-    pageCount: pageStates.length > 0 ? pageStates.length : null,
-    previewDataUrl: null,
-    previewStatus: isReadingPdf ? 'loading' : 'unavailable',
-  };
+  return (
+    selectedFileEntry ?? {
+      id: 'organize-file-fallback',
+      file: selectedFile,
+      pageCount: pageStates.length > 0 ? pageStates.length : null,
+      previewDataUrl: null,
+      previewStatus: isReadingPdf ? 'loading' : 'unavailable',
+    }
+  );
 }
 
 function OrganizeFileInfoPanel({
@@ -896,7 +912,6 @@ function OrganizeSelectionState({
             void onSelectFile(files[0]);
           }}
           disabled={disabled}
-          title="Drag and drop a PDF to organize"
         />
       }
       errorMessage={errorMessage}
@@ -1021,7 +1036,9 @@ export function OrganizeToolScreen() {
   const [state, dispatch] = useReducer(organizeWorkspaceReducer, initialState);
   const isExporting = fetcher.state !== 'idle';
 
-  const selectedPageCount = state.pageStates.filter((page) => !page.isDeleted).length;
+  const selectedPageCount = state.pageStates.filter(
+    (page) => !page.isDeleted,
+  ).length;
   const excludedPageCount = state.pageStates.length - selectedPageCount;
   const totalPaginationPages = Math.max(
     1,
@@ -1239,7 +1256,11 @@ export function OrganizeToolScreen() {
     />
   );
 
-  if (state.isReadingPdf || !state.previewSession || state.pageStates.length < 1) {
+  if (
+    state.isReadingPdf ||
+    !state.previewSession ||
+    state.pageStates.length < 1
+  ) {
     return (
       <OrganizeLoadingState
         fileInfoPanel={fileInfoPanel}
