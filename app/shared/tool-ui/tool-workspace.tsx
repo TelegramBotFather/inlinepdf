@@ -35,7 +35,7 @@ export function ToolWorkspace({
 
       {errorMessage ? (
         <Alert variant="destructive">
-          <AlertTitle>Action failed</AlertTitle>
+          <AlertTitle>Unable to complete action</AlertTitle>
           <AlertDescription>{errorMessage}</AlertDescription>
         </Alert>
       ) : null}

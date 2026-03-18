@@ -7,13 +7,19 @@
   "name": "inlinepdf",
   "compatibility_date": "2026-03-16",
   "main": "./workers/app.ts",
-  "vars": {
-    "VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare",
-  },
   "observability": {
     "enabled": true,
   },
   "compatibility_flags": ["nodejs_compat"],
+  /**
+   * The top-level configuration is the default production deploy target.
+   * Use `wrangler deploy --env staging` for the staging Worker.
+   */
+  "env": {
+    "staging": {
+      "name": "inlinepdf-staging",
+    },
+  },
   /**
    * Smart Placement
    * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

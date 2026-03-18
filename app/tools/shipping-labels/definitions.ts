@@ -9,7 +9,7 @@ export const meeshoShippingLabelsToolDefinition = {
   title: 'Meesho Labels',
   shortDescription:
     'Prepare Meesho label pages from marketplace PDFs.',
-  navGroup: 'Extract',
+  navGroup: 'Prepare',
   icon: File01Icon,
   availability: 'available',
 } satisfies ToolDefinition;
@@ -20,7 +20,7 @@ export const amazonShippingLabelsToolDefinition = {
   path: '/amazon-labels',
   title: 'Amazon Labels',
   shortDescription: 'Prepare Amazon label pages from marketplace PDFs.',
-  navGroup: 'Extract',
+  navGroup: 'Prepare',
   icon: File01Icon,
   availability: 'available',
 } satisfies ToolDefinition;
@@ -31,7 +31,7 @@ export const flipkartShippingLabelsToolDefinition = {
   path: '/flipkart-labels',
   title: 'Flipkart Labels',
   shortDescription: 'Prepare Flipkart label pages from marketplace PDFs.',
-  navGroup: 'Extract',
+  navGroup: 'Prepare',
   icon: File01Icon,
   availability: 'available',
 } satisfies ToolDefinition;

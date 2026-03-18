@@ -35,11 +35,11 @@ async function readFileBytes(file: File): Promise<ArrayBuffer> {
         return;
       }
 
-      reject(new Error(`Failed to read PDF bytes: ${file.name}`));
+      reject(new Error(`Unable to read PDF data: ${file.name}`));
     };
 
     reader.onerror = () => {
-      reject(new Error(`Failed to read PDF bytes: ${file.name}`));
+      reject(new Error(`Unable to read PDF data: ${file.name}`));
     };
 
     reader.readAsArrayBuffer(file);

@@ -102,7 +102,7 @@ export function useCropWorkspace() {
         return;
       }
 
-      const fallback = 'Failed to read PDF pages.';
+      const fallback = 'Unable to read PDF pages.';
       dispatch({
         type: 'fileSelectionFailed',
         message: error instanceof Error ? error.message : fallback,

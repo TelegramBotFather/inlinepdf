@@ -28,6 +28,14 @@ InlinePDF is a local-first PDF app for working with PDF and image files on devic
 - PDF.js adapter scaffold for future local-first tools
 - Cloudflare Workers deployment target
 
+## Cloudflare Runtime Contract
+
+- The app is local-first. PDF and image processing stays in the browser and is not sent to the Worker.
+- The Worker serves the app shell and route responses only. It does not store, inspect, or transform PDF file contents selected in the app.
+- Runtime logs must stay metadata-only. Do not log request bodies, cookies, or user file contents.
+- Static assets are emitted by the React Router build and deployed alongside the Worker.
+- The top-level Wrangler configuration is the default production target. Use `wrangler deploy --env staging` for the staging Worker.
+
 ## Folder Architecture
 
 - `app/components/layout/*` shared shell (`SiteHeader`, `SiteFooter`, `SiteShell`)
@@ -66,6 +74,17 @@ pnpm run verify
 
 This runs the full local release gate sequence (lint, typecheck, tests, and build)
 without deploying.
+
+## Cloudflare Deploy
+
+```bash
+pnpm run deploy
+```
+
+- `pnpm run build` generates the Worker and static asset output under `build/`.
+- `wrangler deploy` deploys the generated Worker build for production.
+- For staging deploys, build first and then run `wrangler deploy --env staging`.
+- Keep Cloudflare config changes small and explicit. This app does not require server-side PDF processing, storage bindings, or background workflow products.
 
 ## Security Hygiene
 

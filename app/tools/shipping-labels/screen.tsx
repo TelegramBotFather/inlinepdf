@@ -41,24 +41,24 @@ const BRAND_LABELS: Record<ShippingLabelBrand, string> = {
 
 const OUTPUT_PAGE_SIZE_DESCRIPTIONS: Record<ShippingLabelOutputPageSize, string> =
   {
-    auto: 'Use the extracted label size automatically with no resizing.',
-    a3: 'Scale each extracted label to fit on a portrait A3 page.',
-    a4: 'Scale each extracted label to fit on a portrait A4 page.',
-    a5: 'Scale each extracted label to fit on a portrait A5 page.',
-    b5: 'Scale each extracted label to fit on a portrait B5 page.',
+    auto: 'Use the detected label size with no resizing.',
+    a3: 'Scale each label page to fit on a portrait A3 page.',
+    a4: 'Scale each label page to fit on a portrait A4 page.',
+    a5: 'Scale each label page to fit on a portrait A5 page.',
+    b5: 'Scale each label page to fit on a portrait B5 page.',
     envelope10:
-      'Scale each extracted label to fit on an Envelope #10 page.',
+      'Scale each label page to fit on an Envelope #10 page.',
     envelopeChoukei3:
-      'Scale each extracted label to fit on an Envelope Choukei 3 page.',
-    envelopeDl: 'Scale each extracted label to fit on an Envelope DL page.',
-    jisB5: 'Scale each extracted label to fit on a JIS B5 page.',
-    roc16k: 'Scale each extracted label to fit on a ROC 16K page.',
-    superBA3: 'Scale each extracted label to fit on a Super B/A3 page.',
-    tabloid: 'Scale each extracted label to fit on a Tabloid page.',
+      'Scale each label page to fit on an Envelope Choukei 3 page.',
+    envelopeDl: 'Scale each label page to fit on an Envelope DL page.',
+    jisB5: 'Scale each label page to fit on a JIS B5 page.',
+    roc16k: 'Scale each label page to fit on a ROC 16K page.',
+    superBA3: 'Scale each label page to fit on a Super B/A3 page.',
+    tabloid: 'Scale each label page to fit on a Tabloid page.',
     tabloidOversize:
-      'Scale each extracted label to fit on a Tabloid Oversize page.',
-    legal: 'Scale each extracted label to fit on a US Legal page.',
-    letter: 'Scale each extracted label to fit on a US Letter page.',
+      'Scale each label page to fit on a Tabloid Oversize page.',
+    legal: 'Scale each label page to fit on a US Legal page.',
+    letter: 'Scale each label page to fit on a US Letter page.',
   };
 
 const OUTPUT_PAGE_SIZE_OPTIONS: {
@@ -97,9 +97,9 @@ export function ShippingLabelsToolScreen({
     <SinglePdfToolWorkspace
       title={title}
       description={description}
-      selectorAriaLabel="Select PDF file for shipping label extraction"
+      selectorAriaLabel="Select a PDF file to prepare label pages"
       selectedFileEntry={workspace.selectedFileEntry}
-      isBusy={workspace.isExtracting}
+      isBusy={workspace.isPreparing}
       onSelectFile={workspace.handleFileSelection}
       onClearSelection={workspace.handleClearSelection}
       helperText={workspace.helperText}
@@ -122,7 +122,7 @@ export function ShippingLabelsToolScreen({
                       workspace.setOutputPageSize(nextPageSize);
                     }
                   }}
-                  disabled={workspace.isExtracting}
+                  disabled={workspace.isPreparing}
                 >
                   <SelectTrigger id={outputPageSizeInputId} className="w-full">
                     <SelectValue>
@@ -166,7 +166,7 @@ export function ShippingLabelsToolScreen({
                         checked ? 'desc' : null,
                       );
                     }}
-                    disabled={workspace.isExtracting}
+                    disabled={workspace.isPreparing}
                     aria-label="Sort labels by pickup partner"
                   />
                   <FieldContent>
@@ -187,7 +187,7 @@ export function ShippingLabelsToolScreen({
                     onCheckedChange={(checked) => {
                       workspace.setSkuDirection(checked ? 'desc' : null);
                     }}
-                    disabled={workspace.isExtracting}
+                    disabled={workspace.isPreparing}
                     aria-label="Sort labels by SKU"
                   />
                   <FieldContent>
@@ -207,7 +207,7 @@ export function ShippingLabelsToolScreen({
           <div className="space-y-2">
             <Button
               disabled={workspace.prepareButtonDisabled}
-              onClick={workspace.handleExtract}
+              onClick={workspace.handlePrepare}
             >
               {workspace.prepareButtonLabel}
             </Button>
@@ -247,10 +247,10 @@ export function ShippingLabelsToolScreen({
                 </div>
                 <div className="rounded-2xl bg-emerald-500/8 p-4 ring-1 ring-emerald-500/15">
                   <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-                    Extracted
+                    Prepared
                   </p>
                   <p className="mt-2 text-3xl font-semibold">
-                    {String(workspace.resultSummary.labelsExtracted)}
+                    {String(workspace.resultSummary.labelsPrepared)}
                   </p>
                 </div>
                 <div className="rounded-2xl bg-amber-500/8 p-4 ring-1 ring-amber-500/15">

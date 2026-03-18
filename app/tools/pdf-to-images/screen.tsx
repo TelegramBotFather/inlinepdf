@@ -146,7 +146,7 @@ function PdfToImagesOptionsPanel({
               aria-labelledby={maxDimensionCapLabelId}
               className="w-full"
             >
-              <SelectValue placeholder="Select cap" />
+              <SelectValue placeholder="Select max dimension" />
             </SelectTrigger>
             <SelectContent align="start">
               {MAX_DIMENSION_CAP_OPTIONS.map((option) => (
@@ -179,7 +179,7 @@ function PdfToImagesOptionsPanel({
               aria-labelledby={pageRangeModeLabelId}
               className="w-full"
             >
-              <SelectValue placeholder="Select page scope" />
+              <SelectValue placeholder="Select pages" />
             </SelectTrigger>
             <SelectContent align="start">
               <SelectItem value="all">All pages</SelectItem>
@@ -209,7 +209,7 @@ function PdfToImagesOptionsPanel({
             </FieldDescription>
             <FieldError>
               {selectedPageCount === null
-                ? 'Invalid range. Use values like 1, 3-5, 9.'
+                ? 'Enter a range like 1, 3-5, 9.'
                 : null}
             </FieldError>
           </FieldContent>

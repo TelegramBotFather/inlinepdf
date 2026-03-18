@@ -2,17 +2,17 @@ import { describe, expect, it, vi } from 'vitest';
 
 const {
   prepareShippingLabelsMock,
-  triggerFileDownloadMock,
+  saveBlobFileMock,
 } = vi.hoisted(() => ({
   prepareShippingLabelsMock: vi.fn(),
-  triggerFileDownloadMock: vi.fn(),
+  saveBlobFileMock: vi.fn(),
 }));
 
-vi.mock('~/platform/files/trigger-file-download', () => ({
-  triggerFileDownload: triggerFileDownloadMock,
+vi.mock('~/platform/files/save-blob-file', () => ({
+  saveBlobFile: saveBlobFileMock,
 }));
 
-vi.mock('./use-cases/extract-shipping-labels', () => ({
+vi.mock('./use-cases/prepare-shipping-labels', () => ({
   prepareShippingLabels: (input: {
     file: File | null;
     brand: string;
@@ -66,7 +66,7 @@ describe('shipping labels route clientAction', () => {
     });
   });
 
-  it('surfaces placeholder-brand errors from the extractor use case', async () => {
+  it('surfaces placeholder-brand errors from the preparation use case', async () => {
     const formData = new FormData();
     formData.set(
       'file',
@@ -74,7 +74,7 @@ describe('shipping labels route clientAction', () => {
     );
     formData.set('outputPageSize', 'a4');
     prepareShippingLabelsMock.mockRejectedValueOnce(
-      new Error('Amazon label extraction is not available yet.'),
+      new Error('Amazon labels are not available yet.'),
     );
 
     const result = await amazonClientAction({
@@ -83,11 +83,11 @@ describe('shipping labels route clientAction', () => {
 
     expect(result).toEqual({
       ok: false,
-      message: 'Amazon label extraction is not available yet.',
+      message: 'Amazon labels are not available yet.',
     });
   });
 
-  it('returns a zero-label error from extraction failures', async () => {
+  it('returns a zero-label error when no label pages are found', async () => {
     const formData = new FormData();
     formData.set(
       'file',
@@ -95,7 +95,7 @@ describe('shipping labels route clientAction', () => {
     );
     formData.set('outputPageSize', 'auto');
     prepareShippingLabelsMock.mockRejectedValueOnce(
-      new Error('No Meesho shipping labels were found in this PDF.'),
+      new Error('No Meesho label pages were found in this PDF.'),
     );
 
     const result = await meeshoClientAction({
@@ -104,7 +104,7 @@ describe('shipping labels route clientAction', () => {
 
     expect(result).toEqual({
       ok: false,
-      message: 'No Meesho shipping labels were found in this PDF.',
+      message: 'No Meesho label pages were found in this PDF.',
     });
   });
 
@@ -121,7 +121,7 @@ describe('shipping labels route clientAction', () => {
       blob: new Blob(['pdf'], { type: 'application/pdf' }),
       fileName: 'meesho-meesho-labels-2026-03-17.pdf',
       pagesProcessed: 10,
-      labelsExtracted: 8,
+      labelsPrepared: 8,
       pagesSkipped: 2,
     });
 
@@ -129,7 +129,7 @@ describe('shipping labels route clientAction', () => {
       request: createRequest(formData),
     });
 
-    expect(triggerFileDownloadMock).toHaveBeenCalledTimes(1);
+    expect(saveBlobFileMock).toHaveBeenCalledTimes(1);
     const firstCall = prepareShippingLabelsMock.mock.calls.at(-1)?.[0] as
       | {
           file: File;
@@ -151,7 +151,7 @@ describe('shipping labels route clientAction', () => {
       message: 'Prepared 8 label pages.',
       result: {
         pagesProcessed: 10,
-        labelsExtracted: 8,
+        labelsPrepared: 8,
         pagesSkipped: 2,
         fileName: 'meesho-meesho-labels-2026-03-17.pdf',
       },

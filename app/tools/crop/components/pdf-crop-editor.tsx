@@ -206,7 +206,7 @@ export function PdfCropEditor({
       } catch {
         if (!cancellation.cancelled) {
           setErrorMessage(
-            'Failed to load this PDF page preview. Try selecting the file again.',
+            'Unable to load this page preview. Select the file again.',
           );
         }
       }
@@ -276,7 +276,7 @@ export function PdfCropEditor({
 
         const context = canvas.getContext('2d', { alpha: false });
         if (!context) {
-          throw new Error('Could not create canvas context.');
+          throw new Error('Unable to create a canvas context.');
         }
 
         context.fillStyle = '#FFFFFF';
@@ -300,7 +300,7 @@ export function PdfCropEditor({
         });
       } catch {
         if (!cancellation.cancelled) {
-          setErrorMessage('Could not render this page preview.');
+          setErrorMessage('Unable to render this page preview.');
         }
       } finally {
         if (!cancellation.cancelled) {
@@ -388,7 +388,7 @@ export function PdfCropEditor({
           <p className="text-sm font-medium">{`Page ${String(pageNumber)}`}</p>
           <p className="text-xs text-muted-foreground">
             {errorMessage
-              ? 'Preview failed to load.'
+              ? 'Preview unavailable.'
               : pageDetails
                 ? `${formatPageInfo(pageDetails)} · ${String(pageDetails.rotation)}° rotation`
                 : 'Preparing page preview...'}

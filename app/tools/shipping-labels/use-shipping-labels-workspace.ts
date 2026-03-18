@@ -17,32 +17,32 @@ const BRAND_LABELS: Record<ShippingLabelBrand, string> = {
 export function buildShippingLabelsViewModel(args: {
   brand: ShippingLabelBrand;
   selectedFile: boolean;
-  isExtracting: boolean;
+  isPreparing: boolean;
   localErrorMessage: string | null;
   actionErrorMessage: string | null;
   result: {
     pagesProcessed: number;
-    labelsExtracted: number;
+    labelsPrepared: number;
     pagesSkipped: number;
     fileName: string;
   } | null;
 }) {
-  const { brand, selectedFile, isExtracting, localErrorMessage, actionErrorMessage, result } = args;
+  const { brand, selectedFile, isPreparing, localErrorMessage, actionErrorMessage, result } = args;
   const isBrandAvailable = brand === 'meesho';
 
   return {
     errorMessage: localErrorMessage ?? actionErrorMessage,
-    helperText: isExtracting
+    helperText: isPreparing
       ? 'Scanning pages and preparing label pages...'
       : undefined,
     isBrandAvailable,
-    prepareButtonDisabled: !selectedFile || !isBrandAvailable || isExtracting,
-    prepareButtonLabel: isExtracting ? 'Preparing...' : 'Prepare Labels',
+    prepareButtonDisabled: !selectedFile || !isBrandAvailable || isPreparing,
+    prepareButtonLabel: isPreparing ? 'Preparing...' : 'Prepare Labels',
     resultSummary: result
       ? {
           brandLabel: BRAND_LABELS[brand],
           fileName: result.fileName,
-          labelsExtracted: result.labelsExtracted,
+          labelsPrepared: result.labelsPrepared,
           pagesProcessed: result.pagesProcessed,
           pagesSkipped: result.pagesSkipped,
         }
@@ -53,7 +53,7 @@ export function buildShippingLabelsViewModel(args: {
 export function useShippingLabelsWorkspace(brand: ShippingLabelBrand) {
   const workspace = useSinglePdfActionWorkspace<{
     pagesProcessed: number;
-    labelsExtracted: number;
+    labelsPrepared: number;
     pagesSkipped: number;
     fileName: string;
   }>();
@@ -66,13 +66,13 @@ export function useShippingLabelsWorkspace(brand: ShippingLabelBrand) {
   const viewModel = buildShippingLabelsViewModel({
     brand,
     selectedFile: !!workspace.selectedFileEntry,
-    isExtracting: workspace.isBusy,
+    isPreparing: workspace.isBusy,
     localErrorMessage: workspace.localErrorMessage,
     actionErrorMessage: workspace.actionErrorMessage,
     result: workspace.result,
   });
 
-  function handleExtract() {
+  function handlePrepare() {
     if (!workspace.selectedFileEntry) {
       workspace.setLocalErrorMessage(
         'Select a PDF file before preparing label pages.',
@@ -114,9 +114,9 @@ export function useShippingLabelsWorkspace(brand: ShippingLabelBrand) {
   return {
     ...viewModel,
     handleClearSelection: workspace.handleClearSelection,
-    handleExtract,
+    handlePrepare,
     handleFileSelection: workspace.handleFileSelection,
-    isExtracting: workspace.isBusy,
+    isPreparing: workspace.isBusy,
     outputPageSize,
     pickupPartnerDirection,
     selectedFileEntry: workspace.selectedFileEntry,

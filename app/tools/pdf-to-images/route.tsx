@@ -1,6 +1,6 @@
 import type { Route } from './+types/route';
 import { getFile, getJson, getString } from '~/platform/files/read-form-data';
-import { triggerFileDownload } from '~/platform/files/trigger-file-download';
+import { saveBlobFile } from '~/platform/files/save-blob-file';
 import { createToolRouteModule } from '~/shared/tool-ui/create-tool-route-module';
 
 import { pdfToImagesToolDefinition } from './definition';
@@ -74,7 +74,7 @@ const routeModule = createToolRouteModule<
     });
   },
   onSuccess(result) {
-    triggerFileDownload(result.blob, result.fileName);
+    saveBlobFile(result.blob, result.fileName);
   },
   getSuccessMessage(result) {
     return `Image archive prepared with ${String(result.pageCount)} file${result.pageCount === 1 ? '' : 's'}.`;

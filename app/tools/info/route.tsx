@@ -5,7 +5,7 @@ import { createToolRouteModule } from '~/shared/tool-ui/create-tool-route-module
 import { infoToolDefinition } from './definition';
 import type { PdfInfoResult } from './models';
 import { PdfInfoToolScreen } from './screen';
-import { extractPdfInfoForFile } from './use-cases/extract-pdf-info';
+import { readPdfInfoForFile } from './use-cases/read-pdf-info';
 
 interface PdfInfoActionPayload {
   file: File;
@@ -24,7 +24,7 @@ const routeModule = createToolRouteModule<
     return { files: file ? [file] : [] };
   },
   execute({ files }) {
-    return extractPdfInfoForFile({ files });
+    return readPdfInfoForFile({ files });
   },
   getSuccessMessage() {
     return 'PDF details ready.';

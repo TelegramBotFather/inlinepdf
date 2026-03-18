@@ -125,7 +125,7 @@ function normalizeFontNameToken(value: string): string | null {
   return normalized;
 }
 
-function extractCandidateFontNames(rawValue: string): string[] {
+function readCandidateFontNames(rawValue: string): string[] {
   const candidates = rawValue
     .split(',')
     .map((token) => normalizeFontNameToken(token))
@@ -149,7 +149,7 @@ function readFontObjectFontNames(fontObject: unknown): string[] {
   ].filter((value): value is string => typeof value === 'string');
 
   const parsed = rawCandidates.flatMap((value) =>
-    extractCandidateFontNames(value),
+    readCandidateFontNames(value),
   );
   return [...new Set(parsed)];
 }
@@ -197,18 +197,18 @@ async function readFileBytes(file: File): Promise<ArrayBuffer> {
         return;
       }
 
-      reject(new Error(`Failed to read PDF bytes: ${file.name}`));
+      reject(new Error(`Unable to read PDF data: ${file.name}`));
     };
 
     reader.onerror = () => {
-      reject(new Error(`Failed to read PDF bytes: ${file.name}`));
+      reject(new Error(`Unable to read PDF data: ${file.name}`));
     };
 
     reader.readAsArrayBuffer(file);
   });
 }
 
-async function extractFontsAndRawMetadata(pdfBytes: Uint8Array): Promise<{
+async function readFontsAndRawMetadata(pdfBytes: Uint8Array): Promise<{
   internalNames: string[];
   fontFamilies: string[];
   infoDictionary: Record<string, string>;
@@ -260,7 +260,7 @@ async function extractFontsAndRawMetadata(pdfBytes: Uint8Array): Promise<{
             fontFamilies.add(fontName);
           }
         } catch {
-          // Ignore unresolved font object entries and continue extraction.
+          // Ignore unresolved font object entries and continue reading metadata.
         }
       }
 
@@ -275,7 +275,7 @@ async function extractFontsAndRawMetadata(pdfBytes: Uint8Array): Promise<{
 
         if (Object.hasOwn(textContent.styles, item.fontName)) {
           const style = textContent.styles[item.fontName];
-          for (const fontName of extractCandidateFontNames(style.fontFamily)) {
+          for (const fontName of readCandidateFontNames(style.fontFamily)) {
             fontFamilies.add(fontName);
           }
         }
@@ -298,18 +298,18 @@ async function extractFontsAndRawMetadata(pdfBytes: Uint8Array): Promise<{
   };
 }
 
-export async function extractPdfInfo(file: File): Promise<PdfInfoResult> {
+export async function readPdfInfo(file: File): Promise<PdfInfoResult> {
   await validatePdfFile(file);
 
   const bytes = await readFileBytes(file);
   const pdfBytes = new Uint8Array(bytes);
 
   let document: PDFDocument;
-  let extracted: Awaited<ReturnType<typeof extractFontsAndRawMetadata>>;
+  let metadataSnapshot: Awaited<ReturnType<typeof readFontsAndRawMetadata>>;
   try {
-    [document, extracted] = await Promise.all([
+    [document, metadataSnapshot] = await Promise.all([
       PDFDocument.load(bytes),
-      extractFontsAndRawMetadata(pdfBytes),
+      readFontsAndRawMetadata(pdfBytes),
     ]);
   } catch {
     throw new Error('Unable to parse this PDF file.');
@@ -333,10 +333,10 @@ export async function extractPdfInfo(file: File): Promise<PdfInfoResult> {
       isEncrypted: document.isEncrypted,
     },
     fonts: {
-      internalNames: extracted.internalNames,
-      fontFamilies: extracted.fontFamilies,
+      internalNames: metadataSnapshot.internalNames,
+      fontFamilies: metadataSnapshot.fontFamilies,
     },
-    infoDictionary: extracted.infoDictionary,
-    rawXmpMetadata: extracted.rawXmpMetadata,
+    infoDictionary: metadataSnapshot.infoDictionary,
+    rawXmpMetadata: metadataSnapshot.rawXmpMetadata,
   };
 }

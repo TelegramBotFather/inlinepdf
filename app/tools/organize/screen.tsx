@@ -519,7 +519,7 @@ function OrganizeFileInfoPanel({
 }) {
   return (
     <FileQueueList
-      title="Selected file"
+      title="Selected File"
       files={[fileInfoEntry]}
       disabled={disabled}
       showIndexBadge={false}

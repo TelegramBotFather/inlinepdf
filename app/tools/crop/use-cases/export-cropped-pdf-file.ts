@@ -105,7 +105,7 @@ export async function exportCroppedPdf({
       throw error;
     }
 
-    throw new Error('Failed to crop the PDF. Please try another document.', {
+    throw new Error('Unable to crop this PDF. Try another file.', {
       cause: error,
     });
   } finally {

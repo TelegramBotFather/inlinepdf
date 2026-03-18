@@ -189,7 +189,7 @@ export async function prepareImageForPdf(
   });
   if (!context) {
     throw new Error(
-      'Failed to initialize canvas context for image conversion.',
+      'Unable to initialize canvas context for image conversion.',
     );
   }
 
@@ -208,7 +208,9 @@ export async function prepareImageForPdf(
     mimeType === 'image/jpeg' ? profile.jpegQuality : undefined,
   );
   if (!encodedBlob) {
-    throw new Error(`This browser could not encode ${mimeType} output.`);
+    throw new Error(
+      `The current browser could not encode ${mimeType} output.`,
+    );
   }
 
   const encodedBytes = toNormalizedBytes(

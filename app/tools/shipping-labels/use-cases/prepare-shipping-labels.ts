@@ -12,7 +12,7 @@ import {
   SHIPPING_LABEL_BRANDS,
   SHIPPING_LABEL_SORT_DIRECTIONS,
   type ShippingLabelBrand,
-  type ShippingLabelExtractionResult,
+  type ShippingLabelPreparationResult,
   type ShippingLabelOutputPageSize,
   type ShippingLabelSortDirection,
   type ShippingLabelSortOptions,
@@ -36,7 +36,7 @@ interface MeeshoAnchorMatch {
   top: number;
 }
 
-interface ExtractedLabelPage {
+interface PreparedLabelPage {
   pageNumber: number;
   boundingBox: {
     left: number;
@@ -153,16 +153,16 @@ export async function prepareShippingLabels({
   outputPageSize,
   pickupPartnerDirection,
   skuDirection,
-}: PrepareShippingLabelsInput): Promise<ShippingLabelExtractionResult> {
+}: PrepareShippingLabelsInput): Promise<ShippingLabelPreparationResult> {
   if (!file) {
     throw new Error('Select a PDF file before preparing label pages.');
   }
 
   if (!isShippingLabelOutputPageSize(outputPageSize)) {
-    throw new Error('Select a valid output page size.');
+    throw new Error('Select an output page size.');
   }
 
-  return extractShippingLabels(file, {
+  return prepareShippingLabelPdf(file, {
     brand,
     outputPageSize,
     sort: {
@@ -220,7 +220,7 @@ function findTopMostExactText(
   return bestMatch;
 }
 
-function extractSku(items: unknown[]): string | null {
+function readSku(items: unknown[]): string | null {
   const skuHeader = findTopMostExactText(items, 'SKU');
   if (!skuHeader) {
     return null;
@@ -320,7 +320,7 @@ function extractSku(items: unknown[]): string | null {
   return value.length > 0 ? value : null;
 }
 
-function extractPickupPartner(items: unknown[]): string | null {
+function readPickupPartner(items: unknown[]): string | null {
   const pickup = findTopMostExactText(items, 'PICKUP');
   if (!pickup) {
     return null;
@@ -430,10 +430,10 @@ function compareNullableText(
   return direction === 'asc' ? comparison : -comparison;
 }
 
-function sortExtractedLabels(
-  labels: ExtractedLabelPage[],
+function sortPreparedLabelPages(
+  labels: PreparedLabelPage[],
   sort: ShippingLabelSortOptions,
-): ExtractedLabelPage[] {
+): PreparedLabelPage[] {
   return [...labels].sort((left, right) => {
     if (sort.pickupPartnerDirection) {
       const pickupComparison = compareNullableText(
@@ -461,16 +461,16 @@ function sortExtractedLabels(
   });
 }
 
-interface ExtractShippingLabelsOptions {
+interface PrepareShippingLabelPdfOptions {
   brand: ShippingLabelBrand;
   outputPageSize: ShippingLabelOutputPageSize;
   sort?: Partial<ShippingLabelSortOptions>;
 }
 
-export async function extractShippingLabels(
+export async function prepareShippingLabelPdf(
   file: File,
-  options: ExtractShippingLabelsOptions,
-): Promise<ShippingLabelExtractionResult> {
+  options: PrepareShippingLabelPdfOptions,
+): Promise<ShippingLabelPreparationResult> {
   await validatePdfFile(file);
   const sortOptions: ShippingLabelSortOptions = {
     pickupPartnerDirection: options.sort?.pickupPartnerDirection ?? null,
@@ -479,7 +479,7 @@ export async function extractShippingLabels(
 
   if (options.brand !== 'meesho') {
     throw new Error(
-      `${options.brand.slice(0, 1).toUpperCase()}${options.brand.slice(1)} label extraction is not available yet.`,
+      `${options.brand.slice(0, 1).toUpperCase()}${options.brand.slice(1)} labels are not available yet.`,
     );
   }
 
@@ -492,9 +492,8 @@ export async function extractShippingLabels(
   const loadingTask = pdfjs.getDocument({ data: sourceBytes });
 
   let pagesProcessed = 0;
-  let labelsExtracted = 0;
   let pagesSkipped = 0;
-  const extractedLabels: ExtractedLabelPage[] = [];
+  const preparedLabels: PreparedLabelPage[] = [];
   type PdfDocumentProxy = Awaited<
     ReturnType<typeof pdfjs.getDocument>['promise']
   >;
@@ -549,13 +548,13 @@ export async function extractShippingLabels(
       );
       const width = boundingBox.right - boundingBox.left;
       const height = boundingBox.top - boundingBox.bottom;
-      extractedLabels.push({
+      preparedLabels.push({
         pageNumber,
         boundingBox,
         width,
         height,
-        sku: extractSku(textContent.items),
-        pickupPartner: extractPickupPartner(textContent.items),
+        sku: readSku(textContent.items),
+        pickupPartner: readPickupPartner(textContent.items),
       });
       previewPage.cleanup();
     }
@@ -571,15 +570,11 @@ export async function extractShippingLabels(
     void loadingTask.destroy();
   }
 
-  if (labelsExtracted === 0) {
-    labelsExtracted = extractedLabels.length;
+  if (preparedLabels.length === 0) {
+    throw new Error('No Meesho label pages were found in this PDF.');
   }
 
-  if (extractedLabels.length === 0) {
-    throw new Error('No Meesho shipping labels were found in this PDF.');
-  }
-
-  const sortedLabels = sortExtractedLabels(extractedLabels, sortOptions);
+  const sortedLabels = sortPreparedLabelPages(preparedLabels, sortOptions);
 
   for (const label of sortedLabels) {
     const sourcePage = sourceDocument.getPage(label.pageNumber - 1);
@@ -627,7 +622,7 @@ export async function extractShippingLabels(
     blob: new Blob([normalizedOutputBytes.buffer], { type: 'application/pdf' }),
     fileName: createOutputFileName(file.name, options.brand),
     pagesProcessed,
-    labelsExtracted: extractedLabels.length,
+    labelsPrepared: sortedLabels.length,
     pagesSkipped,
   };
 }

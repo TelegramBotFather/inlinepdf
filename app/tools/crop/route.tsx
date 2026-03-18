@@ -1,6 +1,6 @@
 import type { Route } from './+types/route';
 import { getFile, getJson, getString } from '~/platform/files/read-form-data';
-import { triggerFileDownload } from '~/platform/files/trigger-file-download';
+import { saveBlobFile } from '~/platform/files/save-blob-file';
 import { createToolRouteModule } from '~/shared/tool-ui/create-tool-route-module';
 
 import { cropToolDefinition } from './definition';
@@ -60,7 +60,7 @@ const routeModule = createToolRouteModule<
   CropResult
 >({
   definition: cropToolDefinition,
-  errorMessage: 'Failed to crop this page.',
+  errorMessage: 'Unable to crop this page.',
   parseInput({ formData, fallbackPayload }) {
     const file = getFile(formData, 'file') ?? fallbackPayload?.file;
     const cropRect =
@@ -93,7 +93,7 @@ const routeModule = createToolRouteModule<
     return cropPdfDocument(input);
   },
   onSuccess(result) {
-    triggerFileDownload(result.blob, result.fileName);
+    saveBlobFile(result.blob, result.fileName);
   },
   getSuccessMessage() {
     return 'Cropped PDF prepared.';

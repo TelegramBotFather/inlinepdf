@@ -23,17 +23,17 @@ export interface ShippingLabelSortOptions {
   skuDirection: ShippingLabelSortDirection | null;
 }
 
-export interface ShippingLabelExtractionResult {
+export interface ShippingLabelPreparationResult {
   blob: Blob;
   fileName: string;
   pagesProcessed: number;
-  labelsExtracted: number;
+  labelsPrepared: number;
   pagesSkipped: number;
 }
 
-export interface ShippingLabelExtractionSummary {
+export interface ShippingLabelPreparationSummary {
   pagesProcessed: number;
-  labelsExtracted: number;
+  labelsPrepared: number;
   pagesSkipped: number;
   fileName: string;
 }

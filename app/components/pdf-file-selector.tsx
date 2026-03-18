@@ -1,5 +1,5 @@
 import Add01Icon from '@hugeicons/core-free-icons/Add01Icon';
-import FileUploadIcon from '@hugeicons/core-free-icons/FileUploadIcon';
+import SelectFilesIcon from '@hugeicons/core-free-icons/FileUploadIcon';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { type ChangeEvent, type DragEvent, useRef, useState } from 'react';
 
@@ -181,7 +181,7 @@ export function PdfFileSelector({
             <EmptyHeader>
               <EmptyMedia className="mb-4 flex size-16 items-center justify-center rounded-xl bg-muted/50 sm:size-20">
                 <HugeiconsIcon
-                  icon={FileUploadIcon}
+                  icon={SelectFilesIcon}
                   className="size-8 text-muted-foreground sm:size-10"
                 />
               </EmptyMedia>

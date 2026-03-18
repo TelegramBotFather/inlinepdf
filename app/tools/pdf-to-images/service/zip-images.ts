@@ -28,7 +28,7 @@ export function createImagesArchiveName(
 
 export async function zipImages({ images }: ZipImagesInput): Promise<Blob> {
   if (images.length < 1) {
-    throw new Error('No images were produced to archive.');
+    throw new Error('No images are available to archive.');
   }
 
   const zip = new JSZip();

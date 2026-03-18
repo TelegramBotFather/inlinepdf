@@ -1,6 +1,6 @@
 import type { Route } from './+types/route';
 import { getFiles, getString } from '~/platform/files/read-form-data';
-import { triggerFileDownload } from '~/platform/files/trigger-file-download';
+import { saveBlobFile } from '~/platform/files/save-blob-file';
 import { createToolRouteModule } from '~/shared/tool-ui/create-tool-route-module';
 
 import { imageToPdfToolDefinition } from './definition';
@@ -31,7 +31,7 @@ const routeModule = createToolRouteModule<
     return convertImagesToPdfDocument({ files, quality });
   },
   onSuccess(result) {
-    triggerFileDownload(result.blob, result.fileName);
+    saveBlobFile(result.blob, result.fileName);
   },
   getSuccessMessage(result) {
     return `PDF prepared with ${String(result.pagesExported)} page${result.pagesExported === 1 ? '' : 's'}.`;

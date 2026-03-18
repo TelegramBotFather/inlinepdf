@@ -2,8 +2,8 @@ import ArrangeIcon from '@hugeicons/core-free-icons/ArrangeIcon';
 import CropIcon from '@hugeicons/core-free-icons/CropIcon';
 import File01Icon from '@hugeicons/core-free-icons/File01Icon';
 import GitMergeIcon from '@hugeicons/core-free-icons/GitMergeIcon';
-import ImageDownloadIcon from '@hugeicons/core-free-icons/ImageDownloadIcon';
-import ImageUploadIcon from '@hugeicons/core-free-icons/ImageUploadIcon';
+import PdfToImagesToolIcon from '@hugeicons/core-free-icons/ImageDownloadIcon';
+import ImageToPdfToolIcon from '@hugeicons/core-free-icons/ImageUploadIcon';
 import InformationCircleIcon from '@hugeicons/core-free-icons/InformationCircleIcon';
 import { motion } from 'motion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -32,11 +32,11 @@ export const meta: Route.MetaFunction = () => {
 
 const toolIconBySlug: Partial<Record<string, typeof File01Icon>> = {
   crop: CropIcon,
-  'image-to-pdf': ImageUploadIcon,
+  'image-to-pdf': ImageToPdfToolIcon,
   merge: GitMergeIcon,
   organize: ArrangeIcon,
   info: InformationCircleIcon,
-  'pdf-to-images': ImageDownloadIcon,
+  'pdf-to-images': PdfToImagesToolIcon,
   'meesho-shipping-labels': File01Icon,
   'amazon-shipping-labels': File01Icon,
   'flipkart-shipping-labels': File01Icon,
@@ -45,13 +45,13 @@ const toolIconBySlug: Partial<Record<string, typeof File01Icon>> = {
 const navigationGroupDescriptions: Record<ToolNavigationGroup, string> = {
   Organize: 'Reorder pages and adjust document structure.',
   Convert: 'Move between PDF and image formats on device.',
-  Extract: 'Prepare label pages with marketplace-specific rules.',
+  Prepare: 'Prepare label pages with marketplace-specific rules.',
   Inspect: 'Review document metadata and font details on device.',
 };
 
-/** Groups shown in the general PDF tools section (excludes Extract). */
+/** Groups shown in the general PDF tools section (excludes Prepare). */
 const pdfToolGroups: readonly ToolNavigationGroup[] =
-  toolNavigationGroups.filter((g) => g !== 'Extract');
+  toolNavigationGroups.filter((g) => g !== 'Prepare');
 
 /**
  * GitHub Invertocat mark — monochrome via currentColor.
@@ -303,7 +303,7 @@ export default function HomeRoute() {
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {implementedToolDefinitions
-              .filter((tool) => tool.navGroup === 'Extract')
+              .filter((tool) => tool.navGroup === 'Prepare')
               .map((tool) => {
                 const icon = toolIconBySlug[tool.slug] ?? File01Icon;
                 return (

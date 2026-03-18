@@ -2,8 +2,8 @@ import ArrangeIcon from '@hugeicons/core-free-icons/ArrangeIcon';
 import CropIcon from '@hugeicons/core-free-icons/CropIcon';
 import File01Icon from '@hugeicons/core-free-icons/File01Icon';
 import GitMergeIcon from '@hugeicons/core-free-icons/GitMergeIcon';
-import ImageDownloadIcon from '@hugeicons/core-free-icons/ImageDownloadIcon';
-import ImageUploadIcon from '@hugeicons/core-free-icons/ImageUploadIcon';
+import PdfToImagesToolIcon from '@hugeicons/core-free-icons/ImageDownloadIcon';
+import ImageToPdfToolIcon from '@hugeicons/core-free-icons/ImageUploadIcon';
 import InformationCircleIcon from '@hugeicons/core-free-icons/InformationCircleIcon';
 
 import { cropToolDefinition } from '~/tools/crop/definition';
@@ -21,7 +21,7 @@ import {
 export type ToolNavigationGroup =
   | 'Organize'
   | 'Convert'
-  | 'Extract'
+  | 'Prepare'
   | 'Inspect';
 
 export interface ToolDefinition {
@@ -50,7 +50,7 @@ export const implementedToolDefinitions = [
 export const toolNavigationGroups: readonly ToolNavigationGroup[] = [
   'Organize',
   'Convert',
-  'Extract',
+  'Prepare',
   'Inspect',
 ];
 
@@ -58,8 +58,8 @@ export const toolIconFallbacks = {
   organize: ArrangeIcon,
   crop: CropIcon,
   merge: GitMergeIcon,
-  'image-to-pdf': ImageUploadIcon,
-  'pdf-to-images': ImageDownloadIcon,
+  'image-to-pdf': ImageToPdfToolIcon,
+  'pdf-to-images': PdfToImagesToolIcon,
   'meesho-shipping-labels': File01Icon,
   'amazon-shipping-labels': File01Icon,
   'flipkart-shipping-labels': File01Icon,

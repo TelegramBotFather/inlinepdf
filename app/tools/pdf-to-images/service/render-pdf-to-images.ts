@@ -179,7 +179,7 @@ export async function renderPdfToImages({
       const context = canvas.getContext('2d', { alpha: false });
       if (!context) {
         throw new Error(
-          'Failed to initialize canvas context for PDF rendering.',
+          'Unable to initialize canvas context for PDF rendering.',
         );
       }
 
@@ -196,7 +196,7 @@ export async function renderPdfToImages({
       const blob = await canvasToBlob(canvas, mimeType, quality);
       if (!blob) {
         throw new Error(
-          `This browser could not encode ${format.toUpperCase()} output. Try another format.`,
+          `The current browser could not encode ${format.toUpperCase()} output. Try another format.`,
         );
       }
 

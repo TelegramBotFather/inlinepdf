@@ -83,7 +83,7 @@ function MobileToolNavigation() {
             variant="outline"
             size="sm"
             className="md:hidden"
-            aria-label="Open navigation menu"
+            aria-label="Open Navigation Menu"
           />
         }
       >

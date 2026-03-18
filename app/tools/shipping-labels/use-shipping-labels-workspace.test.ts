@@ -3,16 +3,16 @@ import { describe, expect, it } from 'vitest';
 import { buildShippingLabelsViewModel } from '~/tools/shipping-labels/use-shipping-labels-workspace';
 
 describe('buildShippingLabelsViewModel', () => {
-  it('enables extraction for supported brands with a selected file', () => {
+  it('enables preparation for supported brands with a selected file', () => {
     const viewModel = buildShippingLabelsViewModel({
       brand: 'meesho',
       selectedFile: true,
-      isExtracting: false,
+      isPreparing: false,
       localErrorMessage: null,
       actionErrorMessage: null,
       result: {
         fileName: 'labels.pdf',
-        labelsExtracted: 3,
+        labelsPrepared: 3,
         pagesProcessed: 4,
         pagesSkipped: 1,
       },
@@ -27,7 +27,7 @@ describe('buildShippingLabelsViewModel', () => {
     const viewModel = buildShippingLabelsViewModel({
       brand: 'amazon',
       selectedFile: true,
-      isExtracting: false,
+      isPreparing: false,
       localErrorMessage: 'local',
       actionErrorMessage: 'action',
       result: null,

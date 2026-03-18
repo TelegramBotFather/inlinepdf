@@ -63,7 +63,7 @@ function parsePageRangeToken(token: string, totalPages: number): number[] {
   const rangeMatch = /^(\d+)\s*-\s*(\d+)$/.exec(normalized);
   if (!rangeMatch) {
     throw new Error(
-      `Invalid range token "${normalized}". Use formats like 1, 3-5, 8.`,
+      `Range "${normalized}" is not valid. Use formats like 1, 3-5, 8.`,
     );
   }
 
@@ -71,7 +71,7 @@ function parsePageRangeToken(token: string, totalPages: number): number[] {
   const end = Number.parseInt(rangeMatch[2], 10);
   if (start > end) {
     throw new Error(
-      `Invalid range "${normalized}". Start page must be before end page.`,
+      `Range "${normalized}" is not valid. Start page must come before end page.`,
     );
   }
 

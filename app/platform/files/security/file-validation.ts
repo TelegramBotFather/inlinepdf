@@ -101,7 +101,7 @@ export function validatePageCountLimit(
   maxPageCount = MAX_RENDER_PAGES,
 ): void {
   if (!Number.isInteger(pageCount) || pageCount < 0) {
-    throw new SecurityValidationError('Invalid page count supplied.');
+    throw new SecurityValidationError('Page count is not valid.');
   }
 
   if (pageCount > maxPageCount) {

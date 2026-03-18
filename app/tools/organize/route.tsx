@@ -1,6 +1,6 @@
 import type { Route } from './+types/route';
 import { getFile, getJson } from '~/platform/files/read-form-data';
-import { triggerFileDownload } from '~/platform/files/trigger-file-download';
+import { saveBlobFile } from '~/platform/files/save-blob-file';
 import { createToolRouteModule } from '~/shared/tool-ui/create-tool-route-module';
 
 import { organizeToolDefinition } from './definition';
@@ -20,7 +20,7 @@ const routeModule = createToolRouteModule<
   OrganizeResult
 >({
   definition: organizeToolDefinition,
-  errorMessage: 'Failed to organize this PDF.',
+  errorMessage: 'Unable to organize this PDF.',
   parseInput({ formData, fallbackPayload }) {
     const file = getFile(formData, 'file') ?? fallbackPayload?.file;
     const pagesData = getJson(formData, 'pages');
@@ -35,7 +35,7 @@ const routeModule = createToolRouteModule<
     return organizePdfDocument({ files }, pages ? { pages } : undefined);
   },
   onSuccess(result) {
-    triggerFileDownload(result.blob, result.fileName);
+    saveBlobFile(result.blob, result.fileName);
   },
   getSuccessMessage(result) {
     return `Organized PDF prepared with ${String(result.pagesExported)} page${result.pagesExported === 1 ? '' : 's'}.`;

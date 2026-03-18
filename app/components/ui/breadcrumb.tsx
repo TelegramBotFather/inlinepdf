@@ -12,7 +12,7 @@ import {
 function Breadcrumb({ className, ...props }: React.ComponentProps<'nav'>) {
   return (
     <nav
-      aria-label="breadcrumb"
+      aria-label="Breadcrumb"
       data-slot="breadcrumb"
       className={cn(className)}
       {...props}

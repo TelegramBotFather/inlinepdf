@@ -250,7 +250,7 @@ export function useOrganizeWorkspace() {
         return;
       }
 
-      const fallback = 'Failed to read PDF pages.';
+      const fallback = 'Unable to read PDF pages.';
       dispatchDeferred({
         type: 'previewSessionFailed',
         message: error instanceof Error ? error.message : fallback,

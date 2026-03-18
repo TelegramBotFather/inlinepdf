@@ -60,7 +60,7 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.29.0",
+    "@cloudflare/vite-plugin": "^1.29.1",
     "@eslint/js": "^9.39.4",
     "@react-router/dev": "^7.13.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -83,6 +83,6 @@
     "vite": "^7.3.1",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.0",
-    "wrangler": "^4.74.0"
+    "wrangler": "^4.75.0"
   }
 }

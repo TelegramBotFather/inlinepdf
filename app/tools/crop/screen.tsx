@@ -107,8 +107,12 @@ function CropAspectField({
         }}
         disabled={disabled}
       >
-        <SelectTrigger id={id} aria-label="Aspect" className="min-w-48">
-          <SelectValue placeholder="Select aspect">
+        <SelectTrigger
+          id={id}
+          aria-label="Aspect Ratio"
+          className="min-w-48"
+        >
+          <SelectValue placeholder="Select aspect ratio">
             {selectedPresetOption
               ? renderCropPresetLabel(selectedPresetOption.value)
               : null}
@@ -274,7 +278,7 @@ function CropActionBar({
 
       {errorMessage ? (
         <Alert variant="destructive">
-          <AlertTitle>Crop failed</AlertTitle>
+          <AlertTitle>Unable to crop page</AlertTitle>
           <AlertDescription>{errorMessage}</AlertDescription>
         </Alert>
       ) : null}

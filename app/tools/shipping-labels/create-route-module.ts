@@ -1,18 +1,18 @@
 import { getFile, getString } from '~/platform/files/read-form-data';
-import { triggerFileDownload } from '~/platform/files/trigger-file-download';
+import { saveBlobFile } from '~/platform/files/save-blob-file';
 import { createToolRouteModule } from '~/shared/tool-ui/create-tool-route-module';
 import type { ToolDefinition } from '~/tools/catalog/definitions';
 
 import type {
   ShippingLabelBrand,
-  ShippingLabelExtractionResult,
-  ShippingLabelExtractionSummary,
+  ShippingLabelPreparationResult,
+  ShippingLabelPreparationSummary,
   ShippingLabelOutputPageSize,
   ShippingLabelSortDirection,
 } from './models';
 import {
   prepareShippingLabels,
-} from './use-cases/extract-shipping-labels';
+} from './use-cases/prepare-shipping-labels';
 
 interface ShippingLabelsActionPayload {
   file: File;
@@ -35,11 +35,11 @@ export function createShippingLabelRouteModule(
   return createToolRouteModule<
     ShippingLabelsActionPayload,
     ShippingLabelActionInput,
-    ShippingLabelExtractionResult,
-    ShippingLabelExtractionSummary
+    ShippingLabelPreparationResult,
+    ShippingLabelPreparationSummary
   >({
     definition: toolDefinition,
-    errorMessage: 'Failed to extract shipping labels.',
+    errorMessage: 'Unable to prepare label pages.',
     parseInput({ formData, fallbackPayload }) {
       const file = getFile(formData, 'file') ?? fallbackPayload?.file;
       return {
@@ -68,15 +68,15 @@ export function createShippingLabelRouteModule(
       });
     },
     onSuccess(result) {
-      triggerFileDownload(result.blob, result.fileName);
+      saveBlobFile(result.blob, result.fileName);
     },
     getSuccessMessage(result) {
-      return `Prepared ${String(result.labelsExtracted)} label page${result.labelsExtracted === 1 ? '' : 's'}.`;
+      return `Prepared ${String(result.labelsPrepared)} label page${result.labelsPrepared === 1 ? '' : 's'}.`;
     },
     mapSuccessResult(result) {
       return {
         pagesProcessed: result.pagesProcessed,
-        labelsExtracted: result.labelsExtracted,
+        labelsPrepared: result.labelsPrepared,
         pagesSkipped: result.pagesSkipped,
         fileName: result.fileName,
       };

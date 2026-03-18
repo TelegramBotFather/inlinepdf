@@ -13,7 +13,7 @@ vi.mock('~/platform/pdf/load-pdfjs', () => ({
   ),
 }));
 
-import { extractShippingLabels } from './extract-shipping-labels';
+import { prepareShippingLabelPdf } from './prepare-shipping-labels';
 
 interface MockTextItem {
   str: string;
@@ -114,8 +114,8 @@ function createPdfJsLoadingTask(
   };
 }
 
-describe('extractShippingLabels', () => {
-  it('extracts a Meesho label into the auto crop size with bottom padding', async () => {
+describe('prepareShippingLabelPdf', () => {
+  it('prepares a Meesho label page at the auto size with bottom padding', async () => {
     const file = await createPdfFile('meesho.pdf', [[200, 200]]);
     const { loadingTask, loadingTaskDestroy } = createPdfJsLoadingTask([
       {
@@ -132,13 +132,13 @@ describe('extractShippingLabels', () => {
     ]);
     getDocumentMock.mockReturnValueOnce(loadingTask);
 
-    const result = await extractShippingLabels(file, {
+    const result = await prepareShippingLabelPdf(file, {
       brand: 'meesho',
       outputPageSize: 'auto',
     });
 
     expect(result.pagesProcessed).toBe(1);
-    expect(result.labelsExtracted).toBe(1);
+    expect(result.labelsPrepared).toBe(1);
     expect(result.pagesSkipped).toBe(0);
     expect(result.fileName).toMatch(
       /^meesho-meesho-labels-\d{4}-\d{2}-\d{2}\.pdf$/,
@@ -171,7 +171,7 @@ describe('extractShippingLabels', () => {
     ]);
     getDocumentMock.mockReturnValueOnce(loadingTask);
 
-    const result = await extractShippingLabels(file, {
+    const result = await prepareShippingLabelPdf(file, {
       brand: 'meesho',
       outputPageSize: 'auto',
     });
@@ -213,7 +213,7 @@ describe('extractShippingLabels', () => {
     ]);
     getDocumentMock.mockReturnValueOnce(loadingTask);
 
-    const result = await extractShippingLabels(file, {
+    const result = await prepareShippingLabelPdf(file, {
       brand: 'meesho',
       outputPageSize: 'auto',
     });
@@ -222,13 +222,13 @@ describe('extractShippingLabels', () => {
     );
 
     expect(result.pagesProcessed).toBe(2);
-    expect(result.labelsExtracted).toBe(1);
+    expect(result.labelsPrepared).toBe(1);
     expect(result.pagesSkipped).toBe(1);
     expect(outputDocument.getPageCount()).toBe(1);
     expect(outputDocument.getPage(0).getWidth()).toBeCloseTo(200, 4);
   });
 
-  it('fits extracted labels onto portrait A4 pages when A4 mode is selected', async () => {
+  it('fits prepared label pages onto portrait A4 pages when A4 mode is selected', async () => {
     const file = await createPdfFile('a4.pdf', [[220, 200]]);
     const { loadingTask } = createPdfJsLoadingTask([
       {
@@ -245,7 +245,7 @@ describe('extractShippingLabels', () => {
     ]);
     getDocumentMock.mockReturnValueOnce(loadingTask);
 
-    const result = await extractShippingLabels(file, {
+    const result = await prepareShippingLabelPdf(file, {
       brand: 'meesho',
       outputPageSize: 'a4',
     });
@@ -275,14 +275,14 @@ describe('extractShippingLabels', () => {
     getDocumentMock.mockReturnValueOnce(loadingTask);
 
     await expect(
-      extractShippingLabels(file, {
+      prepareShippingLabelPdf(file, {
         brand: 'meesho',
         outputPageSize: 'auto',
       }),
-    ).rejects.toThrow('No Meesho shipping labels were found in this PDF.');
+    ).rejects.toThrow('No Meesho label pages were found in this PDF.');
   });
 
-  it('sorts extracted labels by SKU when SKU sorting is enabled', async () => {
+  it('sorts prepared label pages by SKU when SKU sorting is enabled', async () => {
     const file = await createPdfFile('sku-sort.pdf', [
       [120, 200],
       [180, 200],
@@ -319,7 +319,7 @@ describe('extractShippingLabels', () => {
     ]);
     getDocumentMock.mockReturnValueOnce(loadingTask);
 
-    const result = await extractShippingLabels(file, {
+    const result = await prepareShippingLabelPdf(file, {
       brand: 'meesho',
       outputPageSize: 'auto',
       sort: {
@@ -336,7 +336,7 @@ describe('extractShippingLabels', () => {
     expect(outputDocument.getPage(1).getWidth()).toBeCloseTo(120, 4);
   });
 
-  it('sorts extracted labels by pickup partner before SKU when both sorts are enabled', async () => {
+  it('sorts prepared label pages by pickup partner before SKU when both sorts are enabled', async () => {
     const file = await createPdfFile('combined-sort.pdf', [
       [110, 200],
       [140, 200],
@@ -394,7 +394,7 @@ describe('extractShippingLabels', () => {
     ]);
     getDocumentMock.mockReturnValueOnce(loadingTask);
 
-    const result = await extractShippingLabels(file, {
+    const result = await prepareShippingLabelPdf(file, {
       brand: 'meesho',
       outputPageSize: 'auto',
       sort: {

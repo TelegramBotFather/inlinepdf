@@ -25,7 +25,7 @@ export function ThemePicker() {
 
   return (
     <ToggleGroup
-      aria-label="Theme preference"
+      aria-label="Theme Preference"
       value={[theme]}
       onValueChange={(nextValue) => {
         const nextTheme = nextValue[0];
