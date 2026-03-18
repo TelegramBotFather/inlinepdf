@@ -166,18 +166,15 @@ describe('entry.server', () => {
 
     renderToReadableStreamMock.mockImplementation(
       (_element: unknown, options: { onError?: (error: unknown) => void }) => {
-      options.onError?.(new Error('render crashed'));
+        options.onError?.(new Error('render crashed'));
         return Promise.resolve(createMockStream());
       },
     );
     registerRequestEvent(wideEvent);
 
-    const response = await handleRequest(
-      request,
-      200,
-      new Headers(),
-      { isSpaMode: false } as never,
-    );
+    const response = await handleRequest(request, 200, new Headers(), {
+      isSpaMode: false,
+    } as never);
 
     expect(response.status).toBe(500);
     expect(wideEvent.error_phase).toBe('ssr_render');

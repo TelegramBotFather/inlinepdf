@@ -10,9 +10,10 @@ interface SubmitOnSelectConfig<TPayload> {
   writeFormData: (formData: FormData, file: File) => void;
 }
 
-export function useSinglePdfActionWorkspace<TResult, TPayload = never>(options?: {
-  submitOnSelect?: SubmitOnSelectConfig<TPayload>;
-}) {
+export function useSinglePdfActionWorkspace<
+  TResult,
+  TPayload = never,
+>(options?: { submitOnSelect?: SubmitOnSelectConfig<TPayload> }) {
   const fetcher = useFetcher<ToolActionResult<TResult>>();
   const [localErrorMessage, setLocalErrorMessage] = useState<string | null>(
     null,

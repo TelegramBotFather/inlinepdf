@@ -47,7 +47,10 @@ export function MergeToolScreen() {
           >
             Clear All
           </Button>
-          <Button disabled={!workspace.canMerge} onClick={workspace.handleMerge}>
+          <Button
+            disabled={!workspace.canMerge}
+            onClick={workspace.handleMerge}
+          >
             {workspace.mergeButtonLabel}
           </Button>
         </div>

@@ -15,9 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
-import {
-  MAX_QUALITY_LONG_EDGE_TARGET_PX,
-} from '~/tools/pdf-to-images/service/render-pdf-to-images';
+import { MAX_QUALITY_LONG_EDGE_TARGET_PX } from '~/tools/pdf-to-images/service/render-pdf-to-images';
 import type {
   ImageOutputFormat,
   MaxDimensionCap,
@@ -25,9 +23,7 @@ import type {
 } from '~/tools/pdf-to-images/models';
 import { SinglePdfToolWorkspace } from '~/shared/tool-ui/single-pdf-tool-workspace';
 import { useSuccessToast } from '~/shared/tool-ui/use-success-toast';
-import {
-  type PageRangeMode,
-} from '~/tools/pdf-to-images/workspace-state';
+import { type PageRangeMode } from '~/tools/pdf-to-images/workspace-state';
 import { usePdfToImagesWorkspace } from '~/tools/pdf-to-images/use-pdf-to-images-workspace';
 
 import {
@@ -327,7 +323,9 @@ export function PdfToImagesToolScreen() {
                 workspace.handleConvert();
               }}
             >
-              {workspace.isConverting ? 'Converting...' : 'Export Image Archive'}
+              {workspace.isConverting
+                ? 'Converting...'
+                : 'Export Image Archive'}
             </Button>
             {workspace.isConverting ? (
               <p className="text-sm text-muted-foreground" aria-live="polite">

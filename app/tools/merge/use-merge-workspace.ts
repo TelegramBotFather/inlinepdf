@@ -28,7 +28,9 @@ export function useMergeWorkspace() {
   });
 
   function handleFilesAdded(newFiles: File[]) {
-    const addedEntries = newFiles.map((file) => createLoadingPdfQueuedFile(file));
+    const addedEntries = newFiles.map((file) =>
+      createLoadingPdfQueuedFile(file),
+    );
     workspace.appendEntries(addedEntries);
 
     addedEntries.forEach((entry) => {

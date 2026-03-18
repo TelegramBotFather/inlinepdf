@@ -57,6 +57,46 @@ describe('home route branding', () => {
     expect(heroImage).toHaveAttribute('src');
     expect(heroImage.getAttribute('src')).toContain('hero-logo-');
   });
+
+  it('shows the InlinePDF title without hero badges or CTA buttons', async () => {
+    renderWithRoot(<HomeRoute />, 'light');
+
+    await screen.findByRole('heading', { name: 'InlinePDF' });
+
+    expect(screen.queryByText('Local-First')).not.toBeInTheDocument();
+    expect(screen.queryByText('On Device')).not.toBeInTheDocument();
+    expect(screen.queryByText('Open Source')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Get Started' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Browse Tools' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders the GitHub source section with the official lockup and source link', async () => {
+    renderWithRoot(<HomeRoute />, 'dark');
+
+    const githubLogo = await screen.findByRole('img', { name: 'GitHub' });
+    const sourceLink = screen.getByRole('link', {
+      name: 'View Source Code',
+    });
+
+    expect(githubLogo).toHaveAttribute('src');
+    expect(githubLogo.getAttribute('src')).toContain("fill='white'");
+    expect(sourceLink).toHaveAttribute(
+      'href',
+      'https://github.com/DG02002/inlinepdf',
+    );
+  });
+
+  it('uses the dark-on-light GitHub lockup in light theme', async () => {
+    renderWithRoot(<HomeRoute />, 'light');
+
+    const githubLogo = await screen.findByRole('img', { name: 'GitHub' });
+
+    expect(githubLogo.getAttribute('src')).toContain("fill='black'");
+  });
 });
 
 describe('header branding', () => {

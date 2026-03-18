@@ -39,6 +39,8 @@ describe('MultiFileToolWorkspace', () => {
     );
 
     expect(screen.getByText('one.pdf')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Clear All' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Clear All' }),
+    ).toBeInTheDocument();
   });
 });

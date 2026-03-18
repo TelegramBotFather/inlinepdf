@@ -1,10 +1,7 @@
 import { takeClientActionFallback } from '~/platform/files/client-action-fallback';
 import { getString } from '~/platform/files/read-form-data';
 
-import {
-  getActionErrorMessage,
-  type ToolActionResult,
-} from './action-result';
+import { getActionErrorMessage, type ToolActionResult } from './action-result';
 
 interface ToolRouteDefinition {
   title: string;

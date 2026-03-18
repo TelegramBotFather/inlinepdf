@@ -54,17 +54,18 @@ export function MultiFileToolWorkspace({
               onRemove={onRemove}
               appendItem={appendItem}
             />
-            {inputFooter ?? (onClearAll ? (
-              <Button
-                variant="outline"
-                disabled={isBusy}
-                onClick={() => {
-                  onClearAll();
-                }}
-              >
-                {clearAllLabel}
-              </Button>
-            ) : null)}
+            {inputFooter ??
+              (onClearAll ? (
+                <Button
+                  variant="outline"
+                  disabled={isBusy}
+                  onClick={() => {
+                    onClearAll();
+                  }}
+                >
+                  {clearAllLabel}
+                </Button>
+              ) : null)}
           </div>
         )
       }

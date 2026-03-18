@@ -48,12 +48,8 @@ function subscribe(onStoreChange: () => void): () => void {
 export function useThemeState(): ThemeState {
   const rootData = useRouteLoaderData<typeof rootLoader>('root');
 
-  return useSyncExternalStore(
-    subscribe,
-    getThemeSnapshot,
-    () => ({
-      preference: rootData?.preference ?? defaultThemePreference,
-      resolvedTheme: rootData?.resolvedTheme ?? defaultResolvedTheme,
-    }),
-  );
+  return useSyncExternalStore(subscribe, getThemeSnapshot, () => ({
+    preference: rootData?.preference ?? defaultThemePreference,
+    resolvedTheme: rootData?.resolvedTheme ?? defaultResolvedTheme,
+  }));
 }

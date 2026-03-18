@@ -20,9 +20,11 @@ interface ConvertImagesToPdfDocumentInput {
   onProgress?: ImageToPdfRunOptions['onProgress'];
 }
 
-export async function convertImagesToPdfDocument(
-  { files, quality, onProgress }: ConvertImagesToPdfDocumentInput,
-): Promise<ImageToPdfResult> {
+export async function convertImagesToPdfDocument({
+  files,
+  quality,
+  onProgress,
+}: ConvertImagesToPdfDocumentInput): Promise<ImageToPdfResult> {
   if (!isImageToPdfQuality(quality)) {
     throw new Error('Select an output quality before converting.');
   }

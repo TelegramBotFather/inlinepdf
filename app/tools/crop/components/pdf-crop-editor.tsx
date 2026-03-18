@@ -312,7 +312,13 @@ export function PdfCropEditor({
     return () => {
       cancellation.cancelled = true;
     };
-  }, [containerSize.height, containerSize.width, immersive, pageNumber, pdfDocument]);
+  }, [
+    containerSize.height,
+    containerSize.width,
+    immersive,
+    pageNumber,
+    pdfDocument,
+  ]);
 
   useEffect(() => {
     if (!aspectRatio || isRendering) {

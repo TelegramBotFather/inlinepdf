@@ -10,9 +10,7 @@ import type {
   ShippingLabelOutputPageSize,
   ShippingLabelSortDirection,
 } from './models';
-import {
-  prepareShippingLabels,
-} from './use-cases/prepare-shipping-labels';
+import { prepareShippingLabels } from './use-cases/prepare-shipping-labels';
 
 interface ShippingLabelsActionPayload {
   file: File;

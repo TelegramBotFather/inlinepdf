@@ -18,7 +18,9 @@ export const IMAGE_TO_PDF_QUALITY_OPTIONS: {
   { value: 'low', label: 'Low' },
 ];
 
-export function getUnsupportedImageMessage(fileName: string | null): string | null {
+export function getUnsupportedImageMessage(
+  fileName: string | null,
+): string | null {
   if (!fileName) {
     return null;
   }
@@ -71,7 +73,9 @@ export function useImageToPdfWorkspace() {
   }
 
   function handleFilesAdded(newFiles: File[]) {
-    const supportedFiles = newFiles.filter((file) => isSupportedImageFile(file));
+    const supportedFiles = newFiles.filter((file) =>
+      isSupportedImageFile(file),
+    );
     const unsupportedFileName =
       newFiles.find((file) => !isSupportedImageFile(file))?.name ?? null;
 

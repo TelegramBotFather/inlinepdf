@@ -120,9 +120,7 @@ export function useOrganizeWorkspace() {
       })
     : null;
   const isLoadingPreview =
-    state.isReadingPdf ||
-    !state.previewSession ||
-    state.pageStates.length < 1;
+    state.isReadingPdf || !state.previewSession || state.pageStates.length < 1;
   const visibleRangeLabel = getOrganizeVisiblePageRangeLabel(
     state.currentPaginationPage,
     PAGES_PER_VIEW,

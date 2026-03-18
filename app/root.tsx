@@ -2,7 +2,6 @@ import { lazy, Suspense } from 'react';
 import {
   href,
   isRouteErrorResponse,
-  Link,
   Links,
   Meta,
   Outlet,
@@ -19,6 +18,7 @@ import rootStylesHref from './app.css?url';
 import { Shell } from './components/layout/shell';
 import { Alert, AlertDescription, AlertTitle } from './components/ui/alert';
 import { Spinner } from './components/ui/spinner';
+import { AppLink } from './shared/navigation/app-link';
 import {
   themeInitScript,
   themedIconPaths,
@@ -39,10 +39,25 @@ export const links: Route.LinksFunction = () => [
   { rel: 'stylesheet', href: rootStylesHref },
 ];
 
-function isAnyFetcherPending(
+function hasPendingMutationFetcher(
   fetchers: ReturnType<typeof useFetchers>,
 ): boolean {
-  return fetchers.some((fetcher) => fetcher.state !== 'idle');
+  return fetchers.some(
+    (fetcher) =>
+      fetcher.state !== 'idle' &&
+      fetcher.formMethod != null &&
+      fetcher.formMethod.toUpperCase() !== 'GET',
+  );
+}
+
+function hasPendingMutationNavigation(
+  navigation: ReturnType<typeof useNavigation>,
+): boolean {
+  return (
+    navigation.state !== 'idle' &&
+    navigation.formMethod != null &&
+    navigation.formMethod.toUpperCase() !== 'GET'
+  );
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -112,12 +127,20 @@ export default function App() {
   const location = useLocation();
   const fetchers = useFetchers();
   const isPending =
-    navigation.state !== 'idle' || isAnyFetcherPending(fetchers);
+    hasPendingMutationNavigation(navigation) ||
+    hasPendingMutationFetcher(fetchers);
+  const isHomeRoute = location.pathname === '/';
+  const isLegalRoute = /^\/(privacy|terms)(\/|$)/.test(location.pathname);
   const isPdfInfoRoute = /^\/info(\/|$)/.test(location.pathname);
   const showGlobalPending = isPending && !isPdfInfoRoute;
 
   return (
-    <Shell>
+    <Shell
+      contentClassName={
+        isHomeRoute || isLegalRoute ? 'w-full max-w-none px-0' : undefined
+      }
+      mainClassName={isHomeRoute || isLegalRoute ? 'py-0' : undefined}
+    >
       {showGlobalPending ? (
         <div aria-live="polite" className="min-h-14">
           <Alert className="mb-6">
@@ -161,20 +184,20 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         </h1>
         <p className="leading-7 text-muted-foreground">{details}</p>
         <div className="flex flex-wrap gap-3">
-          <Link
+          <AppLink
             to={href('/')}
             prefetch="intent"
             className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:brightness-95"
           >
             Go Home
-          </Link>
-          <Link
+          </AppLink>
+          <AppLink
             to={href('/merge')}
             prefetch="intent"
             className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
           >
             Open Merge PDF
-          </Link>
+          </AppLink>
         </div>
         {stack ? (
           <pre className="mt-4 overflow-x-auto rounded-md bg-muted p-4 text-xs">

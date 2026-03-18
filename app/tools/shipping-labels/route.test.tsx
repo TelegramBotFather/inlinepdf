@@ -1,9 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-const {
-  prepareShippingLabelsMock,
-  saveBlobFileMock,
-} = vi.hoisted(() => ({
+const { prepareShippingLabelsMock, saveBlobFileMock } = vi.hoisted(() => ({
   prepareShippingLabelsMock: vi.fn(),
   saveBlobFileMock: vi.fn(),
 }));

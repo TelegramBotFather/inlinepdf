@@ -5,11 +5,15 @@ import { cn } from '~/lib/utils';
 
 export function Shell({
   children,
+  contentClassName,
   mainClassName,
+  mainBackground,
   shellClassName,
 }: {
   children: React.ReactNode;
+  contentClassName?: string;
   mainClassName?: string;
+  mainBackground?: React.ReactNode;
   shellClassName?: string;
 }) {
   return (
@@ -18,7 +22,10 @@ export function Shell({
       <main
         className={cn('min-w-0 flex-1 overflow-x-hidden py-10', mainClassName)}
       >
-        <div className={containerClassName}>{children}</div>
+        {mainBackground}
+        <div className={cn(containerClassName, contentClassName)}>
+          {children}
+        </div>
       </main>
       <Footer />
     </div>

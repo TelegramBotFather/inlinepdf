@@ -1,9 +1,4 @@
-import {
-  startTransition,
-  useCallback,
-  useMemo,
-  useRef,
-} from 'react';
+import { startTransition, useCallback, useMemo, useRef } from 'react';
 
 export function useLatestAsyncId<T>() {
   const activeIdRef = useRef<T | null>(null);
@@ -63,9 +58,12 @@ export function useLatestAsyncToken() {
 }
 
 export function useDeferredDispatch<T>(dispatch: (action: T) => void) {
-  return useCallback((action: T) => {
-    startTransition(() => {
-      dispatch(action);
-    });
-  }, [dispatch]);
+  return useCallback(
+    (action: T) => {
+      startTransition(() => {
+        dispatch(action);
+      });
+    },
+    [dispatch],
+  );
 }

@@ -1,7 +1,4 @@
-import {
-  type ReactNode,
-  useState,
-} from 'react';
+import { type ReactNode, useState } from 'react';
 import { DragOverlay } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';

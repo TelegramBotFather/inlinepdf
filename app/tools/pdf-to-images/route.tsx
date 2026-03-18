@@ -5,7 +5,10 @@ import { createToolRouteModule } from '~/shared/tool-ui/create-tool-route-module
 
 import { pdfToImagesToolDefinition } from './definition';
 import { PdfToImagesToolScreen } from './screen';
-import { convertPdfToImagesArchive, type PdfToImagesResult } from './use-cases/convert-pdf-to-images';
+import {
+  convertPdfToImagesArchive,
+  type PdfToImagesResult,
+} from './use-cases/convert-pdf-to-images';
 
 interface PdfToImagesActionPayload {
   file: File;

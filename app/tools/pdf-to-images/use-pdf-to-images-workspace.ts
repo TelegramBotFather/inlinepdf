@@ -215,7 +215,9 @@ export function usePdfToImagesWorkspace() {
     changeFormat(format: PdfToImagesState['format']) {
       dispatch({ type: 'formatChanged', format });
     },
-    changeMaxDimensionCap(maxDimensionCap: PdfToImagesState['maxDimensionCap']) {
+    changeMaxDimensionCap(
+      maxDimensionCap: PdfToImagesState['maxDimensionCap'],
+    ) {
       dispatch({ type: 'maxDimensionCapChanged', maxDimensionCap });
     },
     changePageRangeInput(value: string) {

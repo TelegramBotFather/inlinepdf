@@ -27,7 +27,14 @@ export function buildShippingLabelsViewModel(args: {
     fileName: string;
   } | null;
 }) {
-  const { brand, selectedFile, isPreparing, localErrorMessage, actionErrorMessage, result } = args;
+  const {
+    brand,
+    selectedFile,
+    isPreparing,
+    localErrorMessage,
+    actionErrorMessage,
+    result,
+  } = args;
   const isBrandAvailable = brand === 'meesho';
 
   return {

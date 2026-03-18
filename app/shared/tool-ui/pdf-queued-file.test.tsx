@@ -59,10 +59,16 @@ describe('pdf queued file helpers', () => {
 describe('useSinglePdfQueuedFileSelection', () => {
   it('loads details for the latest selected file only', async () => {
     let resolveFirst:
-      | ((value: { pageCount: number | null; previewDataUrl: string | null }) => void)
+      | ((value: {
+          pageCount: number | null;
+          previewDataUrl: string | null;
+        }) => void)
       | undefined;
     let resolveSecond:
-      | ((value: { pageCount: number | null; previewDataUrl: string | null }) => void)
+      | ((value: {
+          pageCount: number | null;
+          previewDataUrl: string | null;
+        }) => void)
       | undefined;
 
     readPdfDetailsMock

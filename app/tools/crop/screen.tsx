@@ -107,11 +107,7 @@ function CropAspectField({
         }}
         disabled={disabled}
       >
-        <SelectTrigger
-          id={id}
-          aria-label="Aspect Ratio"
-          className="min-w-48"
-        >
+        <SelectTrigger id={id} aria-label="Aspect Ratio" className="min-w-48">
           <SelectValue placeholder="Select aspect ratio">
             {selectedPresetOption
               ? renderCropPresetLabel(selectedPresetOption.value)

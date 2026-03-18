@@ -18,9 +18,7 @@ interface SubmitMultiFileActionOptions<TPayload> {
 export function useMultiFileActionWorkspace<
   TEntry extends MultiFileActionEntry,
   TResult = undefined,
->(options?: {
-  cleanupEntry?: (entry: TEntry) => void;
-}) {
+>(options?: { cleanupEntry?: (entry: TEntry) => void }) {
   const fetcher = useFetcher<ToolActionResult<TResult>>();
   const queue = useFileQueueState<TEntry>({
     cleanupEntry: options?.cleanupEntry,

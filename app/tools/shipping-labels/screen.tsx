@@ -28,10 +28,7 @@ import { SinglePdfToolWorkspace } from '~/shared/tool-ui/single-pdf-tool-workspa
 import { useSuccessToast } from '~/shared/tool-ui/use-success-toast';
 import { useShippingLabelsWorkspace } from '~/tools/shipping-labels/use-shipping-labels-workspace';
 
-import type {
-  ShippingLabelBrand,
-  ShippingLabelOutputPageSize,
-} from './models';
+import type { ShippingLabelBrand, ShippingLabelOutputPageSize } from './models';
 
 const BRAND_LABELS: Record<ShippingLabelBrand, string> = {
   meesho: 'Meesho',
@@ -39,27 +36,27 @@ const BRAND_LABELS: Record<ShippingLabelBrand, string> = {
   flipkart: 'Flipkart',
 };
 
-const OUTPUT_PAGE_SIZE_DESCRIPTIONS: Record<ShippingLabelOutputPageSize, string> =
-  {
-    auto: 'Use the detected label size with no resizing.',
-    a3: 'Scale each label page to fit on a portrait A3 page.',
-    a4: 'Scale each label page to fit on a portrait A4 page.',
-    a5: 'Scale each label page to fit on a portrait A5 page.',
-    b5: 'Scale each label page to fit on a portrait B5 page.',
-    envelope10:
-      'Scale each label page to fit on an Envelope #10 page.',
-    envelopeChoukei3:
-      'Scale each label page to fit on an Envelope Choukei 3 page.',
-    envelopeDl: 'Scale each label page to fit on an Envelope DL page.',
-    jisB5: 'Scale each label page to fit on a JIS B5 page.',
-    roc16k: 'Scale each label page to fit on a ROC 16K page.',
-    superBA3: 'Scale each label page to fit on a Super B/A3 page.',
-    tabloid: 'Scale each label page to fit on a Tabloid page.',
-    tabloidOversize:
-      'Scale each label page to fit on a Tabloid Oversize page.',
-    legal: 'Scale each label page to fit on a US Legal page.',
-    letter: 'Scale each label page to fit on a US Letter page.',
-  };
+const OUTPUT_PAGE_SIZE_DESCRIPTIONS: Record<
+  ShippingLabelOutputPageSize,
+  string
+> = {
+  auto: 'Use the detected label size with no resizing.',
+  a3: 'Scale each label page to fit on a portrait A3 page.',
+  a4: 'Scale each label page to fit on a portrait A4 page.',
+  a5: 'Scale each label page to fit on a portrait A5 page.',
+  b5: 'Scale each label page to fit on a portrait B5 page.',
+  envelope10: 'Scale each label page to fit on an Envelope #10 page.',
+  envelopeChoukei3:
+    'Scale each label page to fit on an Envelope Choukei 3 page.',
+  envelopeDl: 'Scale each label page to fit on an Envelope DL page.',
+  jisB5: 'Scale each label page to fit on a JIS B5 page.',
+  roc16k: 'Scale each label page to fit on a ROC 16K page.',
+  superBA3: 'Scale each label page to fit on a Super B/A3 page.',
+  tabloid: 'Scale each label page to fit on a Tabloid page.',
+  tabloidOversize: 'Scale each label page to fit on a Tabloid Oversize page.',
+  legal: 'Scale each label page to fit on a US Legal page.',
+  letter: 'Scale each label page to fit on a US Letter page.',
+};
 
 const OUTPUT_PAGE_SIZE_OPTIONS: {
   value: ShippingLabelOutputPageSize;

@@ -7,8 +7,7 @@ export const meeshoShippingLabelsToolDefinition = {
   slug: 'meesho-shipping-labels',
   path: '/meesho-labels',
   title: 'Meesho Labels',
-  shortDescription:
-    'Prepare Meesho label pages from marketplace PDFs.',
+  shortDescription: 'Prepare Meesho label pages from marketplace PDFs.',
   navGroup: 'Prepare',
   icon: File01Icon,
   availability: 'available',

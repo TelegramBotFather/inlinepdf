@@ -1,51 +1,49 @@
-import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group';
-import {
-  setThemePreference,
-  themePreferences,
-  type ThemePreference,
-} from '~/lib/theme';
+import { cn } from '~/lib/utils';
+import { startNativeViewTransition } from '~/lib/view-transition';
+import { setThemePreference, type ThemePreference } from '~/lib/theme';
 import { useThemeState } from '~/hooks/use-theme-state';
 
-const themeOptionLabels: Record<ThemePreference, string> = {
-  light: 'Light',
-  dark: 'Dark',
-  auto: 'Auto',
-};
+const themeOptions = [
+  { label: 'Light', value: 'light' },
+  { label: 'Dark', value: 'dark' },
+  { label: 'Auto', value: 'auto' },
+] as const satisfies readonly {
+  label: string;
+  value: ThemePreference;
+}[];
 
 export function ThemePicker() {
-  const { preference: theme } = useThemeState();
+  const { preference } = useThemeState();
 
-  function handleThemeSelect(nextTheme: ThemePreference) {
-    if (nextTheme === theme) {
+  function handleThemeChange(nextTheme: ThemePreference) {
+    if (nextTheme === preference) {
       return;
     }
 
-    setThemePreference(nextTheme);
+    startNativeViewTransition(() => {
+      setThemePreference(nextTheme);
+    });
   }
 
   return (
-    <ToggleGroup
-      aria-label="Theme Preference"
-      value={[theme]}
-      onValueChange={(nextValue) => {
-        const nextTheme = nextValue[0];
-        if (
-          nextTheme &&
-          themePreferences.includes(nextTheme as ThemePreference)
-        ) {
-          handleThemeSelect(nextTheme as ThemePreference);
-        }
-      }}
-      variant="outline"
-      size="sm"
-      spacing={0}
-      className="rounded-md border border-input bg-background/50 p-0.5 supports-[backdrop-filter]:bg-background/40"
-    >
-      {themePreferences.map((value) => (
-        <ToggleGroupItem key={value} value={value}>
-          {themeOptionLabels[value]}
-        </ToggleGroupItem>
+    <div className="border-input flex h-6 items-center rounded-xl border p-0.5 sm:h-7">
+      {themeOptions.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => {
+            handleThemeChange(option.value);
+          }}
+          className={cn(
+            'min-w-[2.8rem] rounded-lg px-1 py-0.5 text-[10px] font-medium transition-all sm:min-w-12 sm:px-2 sm:text-xs',
+            preference === option.value
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground',
+          )}
+        >
+          {option.label}
+        </button>
       ))}
-    </ToggleGroup>
+    </div>
   );
 }

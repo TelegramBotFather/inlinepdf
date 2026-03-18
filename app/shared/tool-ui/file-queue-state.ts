@@ -6,10 +6,7 @@ interface IdentifiableEntry {
   id: string;
 }
 
-export function appendFileQueueEntries<T>(
-  current: T[],
-  entries: T[],
-): T[] {
+export function appendFileQueueEntries<T>(current: T[], entries: T[]): T[] {
   return [...current, ...entries];
 }
 

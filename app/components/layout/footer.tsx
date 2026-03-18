@@ -1,31 +1,36 @@
-import { href, Link } from 'react-router';
+import { href } from 'react-router';
 
+import { AppLink } from '~/shared/navigation/app-link';
 import { containerClassName } from './container';
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-card">
-      <div
-        className={`${containerClassName} flex flex-col gap-2 py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between`}
-      >
-        <p>Copyright © 2026 InlinePDF. All rights reserved.</p>
-        <p className="flex items-center gap-2">
-          <Link
-            to={href('/privacy')}
-            prefetch="intent"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            Privacy Policy
-          </Link>
-          <span aria-hidden="true">|</span>
-          <Link
-            to={href('/terms')}
-            prefetch="intent"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            Terms of Use
-          </Link>
-        </p>
+    <footer className="border-t bg-muted/50 backdrop-blur-md">
+      <div className={`${containerClassName} py-6`}>
+        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <p className="text-muted-foreground text-center text-sm font-medium">
+            Copyright © 2026 InlinePDF. All rights reserved.
+          </p>
+          <div className="flex items-center gap-4 text-sm font-medium">
+            <AppLink
+              to={href('/privacy')}
+              prefetch="intent"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Privacy Policy
+            </AppLink>
+            <span className="text-muted-foreground/30" aria-hidden="true">
+              |
+            </span>
+            <AppLink
+              to={href('/terms')}
+              prefetch="intent"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Terms of Use
+            </AppLink>
+          </div>
+        </div>
       </div>
     </footer>
   );

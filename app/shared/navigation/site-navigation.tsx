@@ -1,12 +1,13 @@
 import Menu01Icon from '@hugeicons/core-free-icons/Menu01Icon';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { href, Link } from 'react-router';
+import { href } from 'react-router';
 
 import {
   getToolsForNavigationGroup,
   toolNavigationGroups,
 } from '~/tools/catalog/definitions';
 import { Button } from '~/components/ui/button';
+import { AppLink } from '~/shared/navigation/app-link';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -35,7 +36,7 @@ function ToolMenuLink({
 }) {
   return (
     <NavigationMenuLink
-      render={<Link to={path} prefetch="intent" />}
+      render={<AppLink to={path} prefetch="intent" />}
       className="block min-w-64 space-y-1 rounded-2xl"
       closeOnClick
     >
@@ -47,7 +48,7 @@ function ToolMenuLink({
 
 function DesktopToolNavigation() {
   return (
-    <NavigationMenu className="hidden md:flex" align="start">
+    <NavigationMenu className="hidden sm:flex" align="start">
       <NavigationMenuList className="gap-2">
         {toolNavigationGroups.map((group) => {
           const tools = getToolsForNavigationGroup(group);
@@ -82,7 +83,7 @@ function MobileToolNavigation() {
           <Button
             variant="outline"
             size="sm"
-            className="md:hidden"
+            className="sm:hidden"
             aria-label="Open Navigation Menu"
           />
         }
@@ -104,7 +105,7 @@ function MobileToolNavigation() {
               </h2>
               <div className="space-y-2">
                 {getToolsForNavigationGroup(group).map((tool) => (
-                  <Link
+                  <AppLink
                     key={tool.id}
                     to={tool.path}
                     prefetch="intent"
@@ -114,7 +115,7 @@ function MobileToolNavigation() {
                     <p className="text-sm leading-6 text-muted-foreground">
                       {tool.shortDescription}
                     </p>
-                  </Link>
+                  </AppLink>
                 ))}
               </div>
             </section>
@@ -125,20 +126,20 @@ function MobileToolNavigation() {
               Info
             </h2>
             <div className="space-y-2">
-              <Link
+              <AppLink
                 to={href('/privacy')}
                 prefetch="intent"
                 className="block rounded-2xl border border-border bg-card px-4 py-3 transition-colors hover:bg-muted/40"
               >
                 Privacy
-              </Link>
-              <Link
+              </AppLink>
+              <AppLink
                 to={href('/terms')}
                 prefetch="intent"
                 className="block rounded-2xl border border-border bg-card px-4 py-3 transition-colors hover:bg-muted/40"
               >
                 Terms
-              </Link>
+              </AppLink>
             </div>
           </section>
         </div>

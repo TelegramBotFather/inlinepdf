@@ -2,8 +2,11 @@ import { createRequestHandler } from 'react-router';
 
 import { logger } from '../app/lib/observability/logger';
 import {
+  annotateWideRequestLogPolicy,
   createWideRequestEvent,
+  getWideRequestLogLevel,
   getOrCreateRequestId,
+  shouldLogWideRequestEvent,
   setWideRequestOutcome,
   withRequestId,
   annotateWideRequestError,
@@ -60,7 +63,17 @@ export default {
       throw error;
     } finally {
       wideEvent.duration_ms = Date.now() - startTime;
-      logger.info(wideEvent);
+
+      if (shouldLogWideRequestEvent(wideEvent)) {
+        annotateWideRequestLogPolicy(wideEvent);
+
+        if (getWideRequestLogLevel(wideEvent) === 'error') {
+          logger.error(wideEvent);
+        } else {
+          logger.info(wideEvent);
+        }
+      }
+
       deleteRequestEvent(requestId);
     }
   },

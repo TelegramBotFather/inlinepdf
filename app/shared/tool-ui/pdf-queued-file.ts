@@ -66,7 +66,9 @@ export function useSinglePdfQueuedFileSelection() {
         }
 
         setSelectedFileEntry((current) =>
-          current?.id === entry.id ? markPdfQueuedFileUnavailable(current) : current,
+          current?.id === entry.id
+            ? markPdfQueuedFileUnavailable(current)
+            : current,
         );
       });
 

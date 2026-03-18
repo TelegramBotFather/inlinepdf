@@ -208,9 +208,7 @@ export async function prepareImageForPdf(
     mimeType === 'image/jpeg' ? profile.jpegQuality : undefined,
   );
   if (!encodedBlob) {
-    throw new Error(
-      `The current browser could not encode ${mimeType} output.`,
-    );
+    throw new Error(`The current browser could not encode ${mimeType} output.`);
   }
 
   const encodedBytes = toNormalizedBytes(

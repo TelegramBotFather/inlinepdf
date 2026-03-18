@@ -260,9 +260,7 @@ describe('render-pdf-to-images service', () => {
           format: 'webp',
           maxDimensionCap: 5000,
         }),
-      ).rejects.toThrow(
-        'The current browser could not encode WEBP output.',
-      );
+      ).rejects.toThrow('The current browser could not encode WEBP output.');
     } finally {
       canvasHarness.restore();
     }

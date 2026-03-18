@@ -124,7 +124,11 @@ export function useCropWorkspace() {
   };
 
   const handleExport = (mode: CropExportMode) => {
-    if (!state.selectedFile || !state.activePageNumber || !state.documentPreview) {
+    if (
+      !state.selectedFile ||
+      !state.activePageNumber ||
+      !state.documentPreview
+    ) {
       return;
     }
 
