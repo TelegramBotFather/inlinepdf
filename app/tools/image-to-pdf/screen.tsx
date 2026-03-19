@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
 import { MultiFileToolWorkspace } from '~/shared/tool-ui/multi-file-tool-workspace';
 import { useSuccessToast } from '~/shared/tool-ui/use-success-toast';
 
+import { imageToPdfToolDefinition } from './definition';
 import { isImageToPdfQuality } from './use-cases/convert-images-to-pdf';
 import {
   IMAGE_TO_PDF_QUALITY_OPTIONS,
@@ -26,6 +27,7 @@ export function ImageToPdfToolScreen() {
     <MultiFileToolWorkspace
       title="Image to PDF"
       description="Combine JPG and PNG images into one PDF on device."
+      titleIcon={imageToPdfToolDefinition.icon}
       files={workspace.files}
       isBusy={workspace.isConverting}
       emptyState={

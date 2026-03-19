@@ -5,7 +5,10 @@ import {
   isPageSizeSelectId,
 } from '~/platform/pdf/page-size-options';
 import { validatePdfFile } from '~/platform/files/security/file-validation';
-import { loadPdfJsModule } from '~/platform/pdf/load-pdfjs';
+import {
+  cleanupPdfJsPage,
+  openPdfJsDocument,
+} from '~/platform/pdf/pdfjs-session';
 import { normalizedRectToPdfBoundingBox } from '~/tools/crop/domain/coordinate-math';
 
 import {
@@ -485,22 +488,17 @@ export async function prepareShippingLabelPdf(
 
   const sourceBytes = new Uint8Array(await file.arrayBuffer());
   const outputDocument = await PDFDocument.create();
-  const [sourceDocument, pdfjs] = await Promise.all([
+  const [sourceDocument, previewSession] = await Promise.all([
     PDFDocument.load(sourceBytes),
-    loadPdfJsModule(),
+    openPdfJsDocument(sourceBytes),
   ]);
-  const loadingTask = pdfjs.getDocument({ data: sourceBytes });
+  const previewDocument = previewSession.document;
 
   let pagesProcessed = 0;
   let pagesSkipped = 0;
   const preparedLabels: PreparedLabelPage[] = [];
-  type PdfDocumentProxy = Awaited<
-    ReturnType<typeof pdfjs.getDocument>['promise']
-  >;
-  let previewDocument: PdfDocumentProxy | null = null;
 
   try {
-    previewDocument = await loadingTask.promise;
     pagesProcessed = previewDocument.numPages;
 
     for (
@@ -509,65 +507,58 @@ export async function prepareShippingLabelPdf(
       pageNumber += 1
     ) {
       const previewPage = await previewDocument.getPage(pageNumber);
-      const textContent = await previewPage.getTextContent();
-      const anchor = findMeeshoAnchor(textContent.items);
+      try {
+        const textContent = await previewPage.getTextContent();
+        const anchor = findMeeshoAnchor(textContent.items);
 
-      if (!anchor) {
-        pagesSkipped += 1;
-        previewPage.cleanup();
-        continue;
+        if (!anchor) {
+          pagesSkipped += 1;
+          continue;
+        }
+
+        const viewport = previewPage.getViewport({ scale: 1 });
+        const cutLine = Math.min(
+          Math.max(anchor.top + TAX_INVOICE_TOP_OFFSET, 0),
+          viewport.height,
+        );
+        const cropHeight = viewport.height - cutLine;
+
+        if (cropHeight <= 0) {
+          pagesSkipped += 1;
+          continue;
+        }
+
+        const boundingBox = normalizedRectToPdfBoundingBox(
+          {
+            x: 0,
+            y: 0,
+            width: 1,
+            height: cropHeight / viewport.height,
+          },
+          {
+            width: viewport.width,
+            height: viewport.height,
+            viewBox: viewport.viewBox,
+            convertToPdfPoint: (x, y) =>
+              viewport.convertToPdfPoint(x, y) as [number, number],
+          },
+        );
+        const width = boundingBox.right - boundingBox.left;
+        const height = boundingBox.top - boundingBox.bottom;
+        preparedLabels.push({
+          pageNumber,
+          boundingBox,
+          width,
+          height,
+          sku: readSku(textContent.items),
+          pickupPartner: readPickupPartner(textContent.items),
+        });
+      } finally {
+        cleanupPdfJsPage(previewPage);
       }
-
-      const viewport = previewPage.getViewport({ scale: 1 });
-      const cutLine = Math.min(
-        Math.max(anchor.top + TAX_INVOICE_TOP_OFFSET, 0),
-        viewport.height,
-      );
-      const cropHeight = viewport.height - cutLine;
-
-      if (cropHeight <= 0) {
-        pagesSkipped += 1;
-        previewPage.cleanup();
-        continue;
-      }
-
-      const boundingBox = normalizedRectToPdfBoundingBox(
-        {
-          x: 0,
-          y: 0,
-          width: 1,
-          height: cropHeight / viewport.height,
-        },
-        {
-          width: viewport.width,
-          height: viewport.height,
-          viewBox: viewport.viewBox,
-          convertToPdfPoint: (x, y) =>
-            viewport.convertToPdfPoint(x, y) as [number, number],
-        },
-      );
-      const width = boundingBox.right - boundingBox.left;
-      const height = boundingBox.top - boundingBox.bottom;
-      preparedLabels.push({
-        pageNumber,
-        boundingBox,
-        width,
-        height,
-        sku: readSku(textContent.items),
-        pickupPartner: readPickupPartner(textContent.items),
-      });
-      previewPage.cleanup();
     }
   } finally {
-    if (previewDocument?.cleanup) {
-      await previewDocument.cleanup();
-    }
-
-    if (previewDocument?.destroy) {
-      await previewDocument.destroy();
-    }
-
-    void loadingTask.destroy();
+    await previewSession.destroy();
   }
 
   if (preparedLabels.length === 0) {

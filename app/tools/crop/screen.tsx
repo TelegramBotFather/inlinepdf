@@ -39,6 +39,7 @@ import type {
   NormalizedRect,
   PageCropState,
 } from '~/tools/crop/models';
+import { cropToolDefinition } from '~/tools/crop/definition';
 import { ToolWorkspace } from '~/shared/tool-ui/tool-workspace';
 import { useSuccessToast } from '~/shared/tool-ui/use-success-toast';
 import { useCropWorkspace } from '~/tools/crop/use-crop-workspace';
@@ -343,6 +344,7 @@ export function CropToolScreen() {
       <ToolWorkspace
         title="Crop PDF"
         description="Choose a PDF and crop pages one at a time."
+        titleIcon={cropToolDefinition.icon}
         inputPanel={
           <PdfFileSelector
             ariaLabel="Select PDF file for crop"

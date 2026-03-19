@@ -1,8 +1,7 @@
 import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
 import File01Icon from '@hugeicons/core-free-icons/File01Icon';
-import { type ReactNode, useState } from 'react';
-import { DragOverlay } from '@dnd-kit/react';
-import { useSortable } from '@dnd-kit/react/sortable';
+import { type ReactNode } from 'react';
+import { isSortable, useSortable } from '@dnd-kit/react/sortable';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { CspDragDropProvider } from '~/components/dnd/csp-drag-drop-provider';
 import { AspectRatio } from '~/components/ui/aspect-ratio';
@@ -50,24 +49,6 @@ function formatBytes(bytes: number): string {
   return `${mb.toFixed(2)} MB`;
 }
 
-function getProjectedTargetId(
-  items: { id: string }[],
-  sourceId: string,
-  targetIndex: number,
-): string | null {
-  if (targetIndex < 0 || targetIndex >= items.length) {
-    return null;
-  }
-
-  const targetId = items[targetIndex]?.id;
-
-  if (!targetId || targetId === sourceId) {
-    return null;
-  }
-
-  return targetId;
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
@@ -83,35 +64,6 @@ function getEventSourceId(event: unknown): string | null {
 
   return typeof event.operation.source.id === 'string'
     ? event.operation.source.id
-    : null;
-}
-
-function getEventTargetId(event: unknown): string | null {
-  if (
-    !isRecord(event) ||
-    !isRecord(event.operation) ||
-    !isRecord(event.operation.target)
-  ) {
-    return null;
-  }
-
-  return typeof event.operation.target.id === 'string'
-    ? event.operation.target.id
-    : null;
-}
-
-function getEventSortableIndex(event: unknown): number | null {
-  if (
-    !isRecord(event) ||
-    !isRecord(event.operation) ||
-    !isRecord(event.operation.source) ||
-    !isRecord(event.operation.source.sortable)
-  ) {
-    return null;
-  }
-
-  return typeof event.operation.source.sortable.index === 'number'
-    ? event.operation.source.sortable.index
     : null;
 }
 
@@ -219,7 +171,6 @@ interface SortableFileRowProps {
   disabled: boolean;
   showIndexBadge: boolean;
   canReorder: boolean;
-  isOverlay?: boolean;
   onRemove?: (id: string) => void;
 }
 
@@ -229,58 +180,40 @@ function SortableFileRow({
   disabled,
   showIndexBadge,
   canReorder,
-  isOverlay = false,
   onRemove,
 }: SortableFileRowProps) {
-  const { ref, isDragging, isDropTarget } = useSortable({
+  const { ref, isDragging } = useSortable({
     id: entry.id,
     index,
-    disabled: isOverlay || disabled || !canReorder,
+    disabled: disabled || !canReorder,
+    transition: {
+      duration: 250,
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+      idle: false,
+    },
   });
 
   return (
     <li
-      ref={isOverlay ? undefined : ref}
+      ref={ref}
       data-testid="file-queue-item"
       className={cn(
         FILE_ROW_CLASS_NAME,
         canReorder &&
           !disabled &&
-          !isOverlay &&
           'cursor-grab active:cursor-grabbing',
         isDragging && 'ring-2 ring-ring shadow-sm',
-        isDropTarget && 'border-primary/60 ring-2 ring-primary/30',
         disabled && 'opacity-70',
       )}
-      tabIndex={canReorder && !disabled && !isOverlay ? 0 : undefined}
-      aria-label={
-        canReorder && !isOverlay ? `Reorder ${entry.file.name}` : undefined
-      }
+      tabIndex={canReorder && !disabled ? 0 : undefined}
+      aria-label={canReorder ? `Reorder ${entry.file.name}` : undefined}
     >
       <FileQueueRowCard
         entry={entry}
         index={index}
         disabled={disabled}
         showIndexBadge={showIndexBadge}
-        onRemove={isOverlay ? undefined : onRemove}
-      />
-    </li>
-  );
-}
-
-function FileQueueRowOverlay({
-  entry,
-  index,
-  disabled,
-  showIndexBadge,
-}: Omit<SortableFileRowProps, 'isOverlay' | 'onRemove'>) {
-  return (
-    <li className={cn(FILE_ROW_CLASS_NAME, disabled && 'opacity-70')}>
-      <FileQueueRowCard
-        entry={entry}
-        index={index}
-        disabled={disabled}
-        showIndexBadge={showIndexBadge}
+        onRemove={onRemove}
       />
     </li>
   );
@@ -295,41 +228,41 @@ export function FileQueueList({
   onRemove,
   appendItem,
 }: FileQueueListProps) {
-  const [draggedId, setDraggedId] = useState<string | null>(null);
-
   if (files.length === 0) {
     return null;
   }
 
   const canReorder = !!onReorder && files.length > 1;
-  const activeEntry = files.find((entry) => entry.id === draggedId) ?? null;
   const reorderFiles = onReorder;
 
-  function handleDragStart(event: unknown) {
-    setDraggedId(getEventSourceId(event));
-  }
-
   function handleDragEnd(event: unknown) {
-    const sourceId = getEventSourceId(event);
-    setDraggedId(null);
-
     if (
       !canReorder ||
       disabled ||
       !reorderFiles ||
-      typeof sourceId !== 'string'
+      !isRecord(event) ||
+      !isRecord(event.operation) ||
+      event.canceled === true
     ) {
       return;
     }
 
-    const nextIndex = getEventSortableIndex(event);
-    const targetId =
-      getEventTargetId(event) ??
-      (nextIndex === null
-        ? null
-        : getProjectedTargetId(files, sourceId, nextIndex));
+    const source = event.operation.source;
 
-    if (!targetId) {
+    if (!isSortable(source)) {
+      return;
+    }
+
+    const { initialIndex, index } = source;
+
+    if (initialIndex === index) {
+      return;
+    }
+
+    const sourceId = files[initialIndex]?.id;
+    const targetId = files[index]?.id;
+
+    if (!sourceId || !targetId) {
       return;
     }
 
@@ -337,12 +270,12 @@ export function FileQueueList({
   }
 
   return (
-    <section className="space-y-3" aria-label={title}>
-      <CspDragDropProvider
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <section
+      className="isolate space-y-3 [contain:layout_paint]"
+      aria-label={title}
+    >
+      <CspDragDropProvider onDragEnd={handleDragEnd}>
+        <ul className="grid grid-cols-1 gap-3 [contain:layout] sm:grid-cols-2 lg:grid-cols-3">
           {files.map((entry, index) => (
             <SortableFileRow
               key={entry.id}
@@ -356,20 +289,6 @@ export function FileQueueList({
           ))}
           {appendItem}
         </ul>
-
-        <DragOverlay disabled={activeEntry == null}>
-          {activeEntry !== null ? (
-            <ul className="grid w-full max-w-sm">
-              <FileQueueRowOverlay
-                entry={activeEntry}
-                index={files.findIndex((entry) => entry.id === activeEntry.id)}
-                disabled
-                showIndexBadge={showIndexBadge}
-                canReorder={canReorder}
-              />
-            </ul>
-          ) : null}
-        </DragOverlay>
       </CspDragDropProvider>
     </section>
   );

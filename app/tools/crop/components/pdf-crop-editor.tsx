@@ -12,9 +12,12 @@ import ReactCrop, {
   type PixelCrop,
 } from 'react-image-crop';
 
-import { loadPdfJsModule } from '~/platform/pdf/load-pdfjs';
-import type { PdfJsModule } from '~/platform/pdf/load-pdfjs';
 import { Spinner } from '~/components/ui/spinner';
+import {
+  cleanupPdfJsPage,
+  openPdfJsDocument,
+  type PdfJsDocument,
+} from '~/platform/pdf/pdfjs-session';
 import {
   normalizedToPercentRect,
   percentToNormalizedRect,
@@ -36,10 +39,6 @@ interface PdfCropEditorProps {
   showHeader?: boolean;
   onCropChange: (next: NormalizedRect | null) => void;
 }
-
-type PdfDocumentProxyLike = Awaited<
-  ReturnType<PdfJsModule['getDocument']>['promise']
->;
 
 interface RenderedPageDetails {
   width: number;
@@ -178,31 +177,23 @@ export function PdfCropEditor({
 
   useEffect(() => {
     const cancellation = { cancelled: false };
-    let loadedDocument: PdfDocumentProxyLike | null = null;
-    let loadingTask: ReturnType<PdfJsModule['getDocument']> | null = null;
+    let loadedSession:
+      | Awaited<ReturnType<typeof openPdfJsDocument>>
+      | null = null;
 
     setPdfDocument(null);
     setErrorMessage(null);
 
     void (async () => {
       try {
-        const [fileBuffer, pdfjs] = await Promise.all([
-          sourceFile.arrayBuffer(),
-          loadPdfJsModule(),
-        ]);
-        const fileBytes = new Uint8Array(fileBuffer);
-        const copiedBytes = new Uint8Array(fileBytes.byteLength);
-        copiedBytes.set(fileBytes);
-        const task = pdfjs.getDocument({ data: copiedBytes });
-        loadingTask = task;
-        loadedDocument = await task.promise;
+        loadedSession = await openPdfJsDocument(sourceFile);
 
         if (cancellation.cancelled) {
-          await loadedDocument.destroy();
+          await loadedSession.destroy();
           return;
         }
 
-        setPdfDocument(loadedDocument);
+        setPdfDocument(loadedSession.document);
       } catch {
         if (!cancellation.cancelled) {
           setErrorMessage(
@@ -215,12 +206,8 @@ export function PdfCropEditor({
     return () => {
       cancellation.cancelled = true;
 
-      if (loadingTask) {
-        void loadingTask.destroy();
-      }
-
-      if (loadedDocument) {
-        void loadedDocument.destroy();
+      if (loadedSession) {
+        void loadedSession.destroy();
       }
     };
   }, [sourceFile]);
@@ -231,6 +218,12 @@ export function PdfCropEditor({
     }
 
     const cancellation = { cancelled: false };
+    let renderTask:
+      | {
+          cancel?: () => void;
+          promise: Promise<void>;
+        }
+      | null = null;
 
     void (async () => {
       setIsRendering(true);
@@ -238,66 +231,72 @@ export function PdfCropEditor({
 
       try {
         const page = await pdfDocument.getPage(pageNumber);
-        const baseViewport = page.getViewport({ scale: 1 });
-        const canvasPadding = immersive ? 0 : 24;
-        const maxPreviewWidth = Math.max(
-          280,
-          Math.floor(containerSize.width) - canvasPadding,
-        );
-        const maxPreviewHeight = Math.max(
-          280,
-          Math.floor(
-            (containerSize.height || window.innerHeight * 0.72) - canvasPadding,
-          ),
-        );
-        const scaleByWidth = maxPreviewWidth / baseViewport.width;
-        const scaleByHeight = maxPreviewHeight / baseViewport.height;
-        const layoutScale = Math.max(
-          0.1,
-          Math.min(4, scaleByWidth, scaleByHeight),
-        );
-        const deviceRatio = Math.min(
-          Math.max(window.devicePixelRatio || 1, 1),
-          3,
-        );
-        const renderScale = layoutScale * deviceRatio;
-        const layoutViewport = page.getViewport({ scale: layoutScale });
-        const renderViewport = page.getViewport({ scale: renderScale });
+        try {
+          const baseViewport = page.getViewport({ scale: 1 });
+          const canvasPadding = immersive ? 0 : 24;
+          const maxPreviewWidth = Math.max(
+            280,
+            Math.floor(containerSize.width) - canvasPadding,
+          );
+          const maxPreviewHeight = Math.max(
+            280,
+            Math.floor(
+              (containerSize.height || window.innerHeight * 0.72) -
+                canvasPadding,
+            ),
+          );
+          const scaleByWidth = maxPreviewWidth / baseViewport.width;
+          const scaleByHeight = maxPreviewHeight / baseViewport.height;
+          const layoutScale = Math.max(
+            0.1,
+            Math.min(4, scaleByWidth, scaleByHeight),
+          );
+          const deviceRatio = Math.min(
+            Math.max(window.devicePixelRatio || 1, 1),
+            3,
+          );
+          const renderScale = layoutScale * deviceRatio;
+          const layoutViewport = page.getViewport({ scale: layoutScale });
+          const renderViewport = page.getViewport({ scale: renderScale });
 
-        const canvas = canvasRef.current;
-        if (!canvas) {
-          return;
+          const canvas = canvasRef.current;
+          if (!canvas) {
+            return;
+          }
+
+          canvas.width = Math.max(1, Math.floor(renderViewport.width));
+          canvas.height = Math.max(1, Math.floor(renderViewport.height));
+          canvas.style.width = `${String(Math.floor(layoutViewport.width))}px`;
+          canvas.style.height = `${String(Math.floor(layoutViewport.height))}px`;
+
+          const context = canvas.getContext('2d', { alpha: false });
+          if (!context) {
+            throw new Error('Unable to create a canvas context.');
+          }
+
+          context.fillStyle = '#FFFFFF';
+          context.fillRect(0, 0, canvas.width, canvas.height);
+
+          renderTask = page.render({
+            canvas,
+            canvasContext: context,
+            viewport: renderViewport,
+            background: 'rgb(255,255,255)',
+          });
+          await renderTask.promise;
+
+          if (cancellation.cancelled) {
+            return;
+          }
+
+          setPageDetails({
+            width: baseViewport.width,
+            height: baseViewport.height,
+            rotation: baseViewport.rotation,
+          });
+        } finally {
+          cleanupPdfJsPage(page);
         }
-
-        canvas.width = Math.max(1, Math.floor(renderViewport.width));
-        canvas.height = Math.max(1, Math.floor(renderViewport.height));
-        canvas.style.width = `${String(Math.floor(layoutViewport.width))}px`;
-        canvas.style.height = `${String(Math.floor(layoutViewport.height))}px`;
-
-        const context = canvas.getContext('2d', { alpha: false });
-        if (!context) {
-          throw new Error('Unable to create a canvas context.');
-        }
-
-        context.fillStyle = '#FFFFFF';
-        context.fillRect(0, 0, canvas.width, canvas.height);
-
-        await page.render({
-          canvas,
-          canvasContext: context,
-          viewport: renderViewport,
-          background: 'rgb(255,255,255)',
-        }).promise;
-
-        if (cancellation.cancelled) {
-          return;
-        }
-
-        setPageDetails({
-          width: baseViewport.width,
-          height: baseViewport.height,
-          rotation: baseViewport.rotation,
-        });
       } catch {
         if (!cancellation.cancelled) {
           setErrorMessage('Unable to render this page preview.');
@@ -311,6 +310,7 @@ export function PdfCropEditor({
 
     return () => {
       cancellation.cancelled = true;
+      renderTask?.cancel?.();
     };
   }, [
     containerSize.height,

@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
+import { HugeiconsIcon } from '@hugeicons/react';
 
 import { PdfFileSelector } from '~/components/pdf-file-selector';
 
@@ -8,6 +9,7 @@ import { ToolWorkspace } from './tool-workspace';
 interface SinglePdfToolWorkspaceProps {
   title: string;
   description: string;
+  titleIcon?: ComponentProps<typeof HugeiconsIcon>['icon'];
   selectorAriaLabel: string;
   selectedFileEntry: QueuedFile | null;
   isBusy: boolean;
@@ -24,6 +26,7 @@ interface SinglePdfToolWorkspaceProps {
 export function SinglePdfToolWorkspace({
   title,
   description,
+  titleIcon,
   selectorAriaLabel,
   selectedFileEntry,
   isBusy,
@@ -40,6 +43,7 @@ export function SinglePdfToolWorkspace({
     <ToolWorkspace
       title={title}
       description={description}
+      titleIcon={titleIcon}
       helperText={helperText}
       inputPanel={
         selectedFileEntry ? (

@@ -1,7 +1,9 @@
 import { PDFDocument } from 'pdf-lib';
 
-import { loadPdfJsModule } from '~/platform/pdf/load-pdfjs';
-import type { PdfJsModule } from '~/platform/pdf/load-pdfjs';
+import {
+  cleanupPdfJsPage,
+  openPdfJsDocument,
+} from '~/platform/pdf/pdfjs-session';
 import { validatePdfFile } from '~/platform/files/security/file-validation';
 import type { CropResult, CropRunOptions } from '~/tools/crop/models';
 import {
@@ -41,20 +43,13 @@ export async function exportCroppedPdf({
 
   const sourceBytes = new Uint8Array(await file.arrayBuffer());
   const outputDocument = await PDFDocument.create();
-  const [sourceDocument, pdfjs] = await Promise.all([
+  const [sourceDocument, previewSession] = await Promise.all([
     PDFDocument.load(sourceBytes),
-    loadPdfJsModule(),
+    openPdfJsDocument(sourceBytes),
   ]);
-  type PdfDocumentProxy = Awaited<
-    ReturnType<PdfJsModule['getDocument']>['promise']
-  >;
-
-  const loadingTask = pdfjs.getDocument({ data: sourceBytes });
-  let previewDocument: PdfDocumentProxy | null = null;
+  const previewDocument = previewSession.document;
 
   try {
-    previewDocument = await loadingTask.promise;
-
     for (const pageNumber of normalizedPageNumbers) {
       const cropRect = pageCrops[pageNumber];
       if (!cropRect || !hasValidRect(cropRect)) {
@@ -71,34 +66,38 @@ export async function exportCroppedPdf({
 
       const sourcePage = sourceDocument.getPage(pageNumber - 1);
       const previewPage = await previewDocument.getPage(pageNumber);
-      const viewport = previewPage.getViewport({ scale: 1 });
-      const boundingBox = normalizedRectToPdfBoundingBox(cropRect, {
-        width: viewport.width,
-        height: viewport.height,
-        viewBox: viewport.viewBox,
-        convertToPdfPoint: (x, y) =>
-          viewport.convertToPdfPoint(x, y) as [number, number],
-      });
-      const width = boundingBox.right - boundingBox.left;
-      const height = boundingBox.top - boundingBox.bottom;
+      try {
+        const viewport = previewPage.getViewport({ scale: 1 });
+        const boundingBox = normalizedRectToPdfBoundingBox(cropRect, {
+          width: viewport.width,
+          height: viewport.height,
+          viewBox: viewport.viewBox,
+          convertToPdfPoint: (x, y) =>
+            viewport.convertToPdfPoint(x, y) as [number, number],
+        });
+        const width = boundingBox.right - boundingBox.left;
+        const height = boundingBox.top - boundingBox.bottom;
 
-      if (width <= 0 || height <= 0) {
-        throw new Error(
-          `Crop area for page ${String(pageNumber)} is too small.`,
+        if (width <= 0 || height <= 0) {
+          throw new Error(
+            `Crop area for page ${String(pageNumber)} is too small.`,
+          );
+        }
+
+        const embeddedPage = await outputDocument.embedPage(
+          sourcePage,
+          boundingBox,
         );
+        const page = outputDocument.addPage([width, height]);
+        page.drawPage(embeddedPage, {
+          x: 0,
+          y: 0,
+          width,
+          height,
+        });
+      } finally {
+        cleanupPdfJsPage(previewPage);
       }
-
-      const embeddedPage = await outputDocument.embedPage(
-        sourcePage,
-        boundingBox,
-      );
-      const page = outputDocument.addPage([width, height]);
-      page.drawPage(embeddedPage, {
-        x: 0,
-        y: 0,
-        width,
-        height,
-      });
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -109,11 +108,7 @@ export async function exportCroppedPdf({
       cause: error,
     });
   } finally {
-    if (previewDocument?.destroy) {
-      await previewDocument.destroy();
-    }
-
-    void loadingTask.destroy();
+    await previewSession.destroy();
   }
 
   const outputBytes = await outputDocument.save();

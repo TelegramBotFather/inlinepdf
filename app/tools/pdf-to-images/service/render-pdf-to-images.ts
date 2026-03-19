@@ -1,4 +1,7 @@
-import { loadPdfJsModule, type PdfJsModule } from '~/platform/pdf/load-pdfjs';
+import {
+  cleanupPdfJsPage,
+  withPdfJsDocument,
+} from '~/platform/pdf/pdfjs-session';
 import {
   MAX_RENDER_PAGES,
   validatePageCountLimit,
@@ -11,9 +14,6 @@ import type {
   RenderProgress,
   RenderedImageFile,
 } from '~/tools/pdf-to-images/models';
-
-type PdfJsLoadingTask = ReturnType<PdfJsModule['getDocument']>;
-type PdfJsDocument = Awaited<PdfJsLoadingTask['promise']>;
 
 interface RenderPdfToImagesInput {
   file: File;
@@ -36,29 +36,6 @@ const EXTENSION_BY_FORMAT: Record<ImageOutputFormat, string> = {
   jpeg: 'jpeg',
   webp: 'webp',
 };
-
-async function withPdfDocument<T>(
-  file: File,
-  callback: (pdfDocument: PdfJsDocument) => Promise<T>,
-): Promise<T> {
-  await validatePdfFile(file);
-  const [sourceBuffer, pdfjs] = await Promise.all([
-    file.arrayBuffer(),
-    loadPdfJsModule(),
-  ]);
-  const sourceBytes = new Uint8Array(sourceBuffer);
-  const bytes = new Uint8Array(sourceBytes.byteLength);
-  bytes.set(sourceBytes);
-  const loadingTask = pdfjs.getDocument({ data: bytes });
-  const pdfDocument = await loadingTask.promise;
-
-  try {
-    return await callback(pdfDocument);
-  } finally {
-    await pdfDocument.destroy();
-    void loadingTask.destroy();
-  }
-}
 
 function toPixelSize(value: number): number {
   return Math.max(1, Math.round(value));
@@ -126,19 +103,25 @@ async function blobToBytes(blob: Blob): Promise<Uint8Array> {
 export async function readPdfImageBaseResolution(
   file: File,
 ): Promise<PdfImageBaseResolution> {
-  return withPdfDocument(file, async (pdfDocument) => {
+  await validatePdfFile(file);
+
+  return withPdfJsDocument(file, async (pdfDocument) => {
     if (pdfDocument.numPages < 1) {
       throw new Error('This PDF has no pages to convert.');
     }
 
     const firstPage = await pdfDocument.getPage(1);
-    const baseViewport = firstPage.getViewport({ scale: 1 });
+    try {
+      const baseViewport = firstPage.getViewport({ scale: 1 });
 
-    return {
-      pageCount: pdfDocument.numPages,
-      baseWidthPx: toPixelSize(baseViewport.width),
-      baseHeightPx: toPixelSize(baseViewport.height),
-    };
+      return {
+        pageCount: pdfDocument.numPages,
+        baseWidthPx: toPixelSize(baseViewport.width),
+        baseHeightPx: toPixelSize(baseViewport.height),
+      };
+    } finally {
+      cleanupPdfJsPage(firstPage);
+    }
   });
 }
 
@@ -149,7 +132,9 @@ export async function renderPdfToImages({
   pageNumbers,
   onProgress,
 }: RenderPdfToImagesInput): Promise<RenderedImageFile[]> {
-  return withPdfDocument(file, async (pdfDocument) => {
+  await validatePdfFile(file);
+
+  return withPdfJsDocument(file, async (pdfDocument) => {
     if (pdfDocument.numPages < 1) {
       throw new Error('This PDF has no pages to convert.');
     }
@@ -169,49 +154,53 @@ export async function renderPdfToImages({
 
     for (const [index, pageNumber] of selectedPageNumbers.entries()) {
       const page = await pdfDocument.getPage(pageNumber);
-      const baseViewport = page.getViewport({ scale: 1 });
-      const renderScale = computeRenderScale(baseViewport, maxDimensionCap);
-      const viewport = page.getViewport({ scale: renderScale });
-      const canvas = document.createElement('canvas');
-      canvas.width = toPixelSize(viewport.width);
-      canvas.height = toPixelSize(viewport.height);
+      try {
+        const baseViewport = page.getViewport({ scale: 1 });
+        const renderScale = computeRenderScale(baseViewport, maxDimensionCap);
+        const viewport = page.getViewport({ scale: renderScale });
+        const canvas = document.createElement('canvas');
+        canvas.width = toPixelSize(viewport.width);
+        canvas.height = toPixelSize(viewport.height);
 
-      const context = canvas.getContext('2d', { alpha: false });
-      if (!context) {
-        throw new Error(
-          'Unable to initialize canvas context for PDF rendering.',
-        );
+        const context = canvas.getContext('2d', { alpha: false });
+        if (!context) {
+          throw new Error(
+            'Unable to initialize canvas context for PDF rendering.',
+          );
+        }
+
+        context.fillStyle = '#FFFFFF';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        await page.render({
+          canvas,
+          canvasContext: context,
+          viewport,
+          background: 'rgb(255,255,255)',
+        }).promise;
+
+        const blob = await canvasToBlob(canvas, mimeType, quality);
+        if (!blob) {
+          throw new Error(
+            `The current browser could not encode ${format.toUpperCase()} output. Try another format.`,
+          );
+        }
+
+        rendered.push({
+          fileName: `page-${String(pageNumber).padStart(3, '0')}.${extension}`,
+          bytes: await blobToBytes(blob),
+          mimeType,
+          width: canvas.width,
+          height: canvas.height,
+        });
+
+        onProgress?.({
+          currentPage: index + 1,
+          totalPages: selectedPageNumbers.length,
+        });
+      } finally {
+        cleanupPdfJsPage(page);
       }
-
-      context.fillStyle = '#FFFFFF';
-      context.fillRect(0, 0, canvas.width, canvas.height);
-
-      await page.render({
-        canvas,
-        canvasContext: context,
-        viewport,
-        background: 'rgb(255,255,255)',
-      }).promise;
-
-      const blob = await canvasToBlob(canvas, mimeType, quality);
-      if (!blob) {
-        throw new Error(
-          `The current browser could not encode ${format.toUpperCase()} output. Try another format.`,
-        );
-      }
-
-      rendered.push({
-        fileName: `page-${String(pageNumber).padStart(3, '0')}.${extension}`,
-        bytes: await blobToBytes(blob),
-        mimeType,
-        width: canvas.width,
-        height: canvas.height,
-      });
-
-      onProgress?.({
-        currentPage: index + 1,
-        totalPages: selectedPageNumbers.length,
-      });
     }
 
     return rendered;

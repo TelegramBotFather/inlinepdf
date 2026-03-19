@@ -1,5 +1,7 @@
-import { loadPdfJsModule } from '~/platform/pdf/load-pdfjs';
-import type { PdfJsModule } from '~/platform/pdf/load-pdfjs';
+import {
+  cleanupPdfJsPage,
+  openPdfJsDocument,
+} from '~/platform/pdf/pdfjs-session';
 import type { OrganizePreviewSession } from '~/tools/organize/models';
 import {
   MAX_RENDER_PAGES,
@@ -9,9 +11,6 @@ import {
 
 const THUMBNAIL_MAX_WIDTH = 360;
 const THUMBNAIL_MAX_HEIGHT = 480;
-
-type PdfJsLoadingTask = ReturnType<PdfJsModule['getDocument']>;
-type PdfJsDocument = Awaited<PdfJsLoadingTask['promise']>;
 
 function clampScale(scale: number): number {
   if (!Number.isFinite(scale) || scale <= 0) {
@@ -25,23 +24,15 @@ export async function readOrganizePreview(
   file: File,
 ): Promise<OrganizePreviewSession> {
   await validatePdfFile(file);
-  const [sourceBuffer, pdfjs] = await Promise.all([
-    file.arrayBuffer(),
-    loadPdfJsModule(),
-  ]);
-  const sourceBytes = new Uint8Array(sourceBuffer);
-  const bytes = new Uint8Array(sourceBytes.byteLength);
-  bytes.set(sourceBytes);
-  const loadingTask = pdfjs.getDocument({ data: bytes });
-
-  let pdfDocument: PdfJsDocument;
+  let session;
   try {
-    pdfDocument = await loadingTask.promise;
+    session = await openPdfJsDocument(file);
   } catch {
     throw new Error(
       'Unable to read this PDF. It may be password-protected or corrupted.',
     );
   }
+  const pdfDocument = session.document;
 
   try {
     validatePageCountLimit(
@@ -49,8 +40,7 @@ export async function readOrganizePreview(
       `Organize preview supports up to ${String(MAX_RENDER_PAGES)} pages per document.`,
     );
   } catch (error) {
-    await pdfDocument.destroy();
-    void loadingTask.destroy();
+    await session.destroy();
     throw error;
   }
 
@@ -78,38 +68,42 @@ export async function readOrganizePreview(
     }
 
     const page = await pdfDocument.getPage(pageNumber);
-    const baseViewport = page.getViewport({ scale: 1 });
-    const thumbnailScale = clampScale(
-      Math.min(
-        THUMBNAIL_MAX_WIDTH / baseViewport.width,
-        THUMBNAIL_MAX_HEIGHT / baseViewport.height,
-      ),
-    );
-    const viewport = page.getViewport({ scale: thumbnailScale });
+    try {
+      const baseViewport = page.getViewport({ scale: 1 });
+      const thumbnailScale = clampScale(
+        Math.min(
+          THUMBNAIL_MAX_WIDTH / baseViewport.width,
+          THUMBNAIL_MAX_HEIGHT / baseViewport.height,
+        ),
+      );
+      const viewport = page.getViewport({ scale: thumbnailScale });
 
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, Math.floor(viewport.width));
-    canvas.height = Math.max(1, Math.floor(viewport.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.floor(viewport.width));
+      canvas.height = Math.max(1, Math.floor(viewport.height));
 
-    const context = canvas.getContext('2d', { alpha: false });
-    if (!context) {
-      thumbnailCache.set(pageNumber, null);
-      return null;
+      const context = canvas.getContext('2d', { alpha: false });
+      if (!context) {
+        thumbnailCache.set(pageNumber, null);
+        return null;
+      }
+
+      context.fillStyle = '#FFFFFF';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      await page.render({
+        canvas,
+        canvasContext: context,
+        viewport,
+        background: 'rgb(255,255,255)',
+      }).promise;
+
+      const thumbnailDataUrl = canvas.toDataURL('image/png');
+      thumbnailCache.set(pageNumber, thumbnailDataUrl);
+      return thumbnailDataUrl;
+    } finally {
+      cleanupPdfJsPage(page);
     }
-
-    context.fillStyle = '#FFFFFF';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    await page.render({
-      canvas,
-      canvasContext: context,
-      viewport,
-      background: 'rgb(255,255,255)',
-    }).promise;
-
-    const thumbnailDataUrl = canvas.toDataURL('image/png');
-    thumbnailCache.set(pageNumber, thumbnailDataUrl);
-    return thumbnailDataUrl;
   }
 
   async function destroy(): Promise<void> {
@@ -120,8 +114,7 @@ export async function readOrganizePreview(
     isDestroyed = true;
     thumbnailCache.clear();
 
-    await pdfDocument.destroy();
-    void loadingTask.destroy();
+    await session.destroy();
   }
 
   return {

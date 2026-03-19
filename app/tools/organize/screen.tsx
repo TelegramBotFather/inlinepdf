@@ -33,6 +33,7 @@ import {
 } from '~/components/ui/tooltip';
 import type { OrganizePageState } from '~/tools/organize/models';
 import { quarterTurnsToDegrees } from '~/tools/organize/models';
+import { organizeToolDefinition } from '~/tools/organize/definition';
 import { ToolWorkspace } from '~/shared/tool-ui/tool-workspace';
 import { useSuccessToast } from '~/shared/tool-ui/use-success-toast';
 import { buildOrganizePaginationItems } from '~/tools/organize/workspace-state';
@@ -538,6 +539,7 @@ function OrganizeSelectionState({
     <ToolWorkspace
       title="Organize PDF"
       description="Reorder, rotate, and remove pages, then export a new PDF."
+      titleIcon={organizeToolDefinition.icon}
       inputPanel={
         <PdfFileSelector
           ariaLabel="Select PDF file for organizing"
@@ -563,6 +565,7 @@ function OrganizeLoadingState({
     <ToolWorkspace
       title="Organize PDF"
       description="Reorder pages and export a new PDF."
+      titleIcon={organizeToolDefinition.icon}
       inputPanel={fileInfoPanel}
       outputPanel={
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -622,6 +625,7 @@ function OrganizeReadyState({
     <ToolWorkspace
       title="Organize PDF"
       description="Reorder pages and export the updated PDF."
+      titleIcon={organizeToolDefinition.icon}
       inputPanel={fileInfoPanel}
       outputPanel={
         <section className="space-y-4">

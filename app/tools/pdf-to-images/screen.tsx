@@ -26,6 +26,7 @@ import { useSuccessToast } from '~/shared/tool-ui/use-success-toast';
 import { type PageRangeMode } from '~/tools/pdf-to-images/workspace-state';
 import { usePdfToImagesWorkspace } from '~/tools/pdf-to-images/use-pdf-to-images-workspace';
 
+import { pdfToImagesToolDefinition } from './definition';
 import {
   isImageOutputFormat,
   isMaxDimensionCap,
@@ -275,6 +276,7 @@ export function PdfToImagesToolScreen() {
     <SinglePdfToolWorkspace
       title="PDF to Images"
       description="Export PDF pages as PNG, JPEG, or WEBP files in a ZIP archive."
+      titleIcon={pdfToImagesToolDefinition.icon}
       selectorAriaLabel="Select PDF file"
       selectedFileEntry={workspace.selectedFileEntry}
       isBusy={workspace.isConverting}

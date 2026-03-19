@@ -1,4 +1,7 @@
-import { loadPdfJsModule } from '~/platform/pdf/load-pdfjs';
+import {
+  cleanupPdfJsPage,
+  openPdfJsDocument,
+} from '~/platform/pdf/pdfjs-session';
 import type { CropDocumentPreview, CropPagePreview } from '~/tools/crop/models';
 import {
   isSecurityValidationError,
@@ -20,17 +23,10 @@ function clampScale(scale: number): number {
 
 export async function readPdfPages(file: File): Promise<CropDocumentPreview> {
   await validatePdfFile(file);
-  const [sourceBuffer, pdfjs] = await Promise.all([
-    file.arrayBuffer(),
-    loadPdfJsModule(),
-  ]);
-  const originalBytes = new Uint8Array(sourceBuffer);
-  const bytes = new Uint8Array(originalBytes.byteLength);
-  bytes.set(originalBytes);
-  const loadingTask = pdfjs.getDocument({ data: bytes });
+  const session = await openPdfJsDocument(file);
+  const { document: pdfDocument } = session;
 
   try {
-    const pdfDocument = await loadingTask.promise;
     const pages: CropPagePreview[] = [];
 
     try {
@@ -45,46 +41,49 @@ export async function readPdfPages(file: File): Promise<CropDocumentPreview> {
         pageNumber += 1
       ) {
         const page = await pdfDocument.getPage(pageNumber);
-        const baseViewport = page.getViewport({ scale: 1 });
-        const thumbnailScale = clampScale(
-          Math.min(
-            THUMBNAIL_MAX_WIDTH / baseViewport.width,
-            THUMBNAIL_MAX_HEIGHT / baseViewport.height,
-          ),
-        );
-        const thumbnailViewport = page.getViewport({ scale: thumbnailScale });
-        const canvas = document.createElement('canvas');
-        canvas.width = Math.max(1, Math.floor(thumbnailViewport.width));
-        canvas.height = Math.max(1, Math.floor(thumbnailViewport.height));
+        try {
+          const baseViewport = page.getViewport({ scale: 1 });
+          const thumbnailScale = clampScale(
+            Math.min(
+              THUMBNAIL_MAX_WIDTH / baseViewport.width,
+              THUMBNAIL_MAX_HEIGHT / baseViewport.height,
+            ),
+          );
+          const thumbnailViewport = page.getViewport({ scale: thumbnailScale });
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.floor(thumbnailViewport.width));
+          canvas.height = Math.max(1, Math.floor(thumbnailViewport.height));
 
-        const context = canvas.getContext('2d', { alpha: false });
-        let thumbnailDataUrl: string | null = null;
+          const context = canvas.getContext('2d', { alpha: false });
+          let thumbnailDataUrl: string | null = null;
 
-        if (context) {
-          context.fillStyle = '#FFFFFF';
-          context.fillRect(0, 0, canvas.width, canvas.height);
+          if (context) {
+            context.fillStyle = '#FFFFFF';
+            context.fillRect(0, 0, canvas.width, canvas.height);
 
-          await page.render({
-            canvas,
-            canvasContext: context,
-            viewport: thumbnailViewport,
-            background: 'rgb(255,255,255)',
-          }).promise;
+            await page.render({
+              canvas,
+              canvasContext: context,
+              viewport: thumbnailViewport,
+              background: 'rgb(255,255,255)',
+            }).promise;
 
-          thumbnailDataUrl = canvas.toDataURL('image/png');
+            thumbnailDataUrl = canvas.toDataURL('image/png');
+          }
+
+          pages.push({
+            pageNumber,
+            width: baseViewport.width,
+            height: baseViewport.height,
+            rotation: baseViewport.rotation,
+            thumbnailDataUrl,
+          });
+        } finally {
+          cleanupPdfJsPage(page);
         }
-
-        pages.push({
-          pageNumber,
-          width: baseViewport.width,
-          height: baseViewport.height,
-          rotation: baseViewport.rotation,
-          thumbnailDataUrl,
-        });
       }
     } finally {
-      await pdfDocument.destroy();
-      void loadingTask.destroy();
+      await session.destroy();
     }
 
     return {

@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
+import { HugeiconsIcon } from '@hugeicons/react';
 
 import { Button } from '~/components/ui/button';
 
@@ -8,6 +9,7 @@ import { ToolWorkspace } from './tool-workspace';
 interface MultiFileToolWorkspaceProps {
   title: string;
   description: string;
+  titleIcon?: ComponentProps<typeof HugeiconsIcon>['icon'];
   files: QueuedFile[];
   isBusy: boolean;
   emptyState: ReactNode;
@@ -25,6 +27,7 @@ interface MultiFileToolWorkspaceProps {
 export function MultiFileToolWorkspace({
   title,
   description,
+  titleIcon,
   files,
   isBusy,
   emptyState,
@@ -42,6 +45,7 @@ export function MultiFileToolWorkspace({
     <ToolWorkspace
       title={title}
       description={description}
+      titleIcon={titleIcon}
       inputPanel={
         files.length === 0 ? (
           emptyState

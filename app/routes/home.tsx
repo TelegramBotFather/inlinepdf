@@ -12,19 +12,8 @@ import { ThemedBrandImage } from '~/components/branding/themed-brand-image';
 import { ThemedGitHubLockup } from '~/components/branding/themed-github-lockup';
 import { AppLink } from '~/shared/navigation/app-link';
 import { buttonVariants } from '~/components/ui/button-variants';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card';
 import { cn } from '~/lib/utils';
-import {
-  implementedToolDefinitions,
-  toolNavigationGroups,
-  type ToolNavigationGroup,
-} from '~/tools/catalog/definitions';
+import { implementedToolDefinitions } from '~/tools/catalog/definitions';
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -49,20 +38,26 @@ const toolIconBySlug: Partial<Record<string, typeof File01Icon>> = {
   'flipkart-shipping-labels': File01Icon,
 } as const;
 
-const navigationGroupDescriptions: Record<ToolNavigationGroup, string> = {
-  Organize: 'Reorder pages and adjust document structure.',
-  Convert: 'Move between PDF and image formats on device.',
-  Prepare: 'Prepare label pages with marketplace-specific rules.',
-  Inspect: 'Review document metadata and font details on device.',
-};
+const generalTools = implementedToolDefinitions.filter(
+  (tool) => tool.navGroup !== 'Prepare',
+);
 
-/** Groups shown in the general PDF tools section (excludes Prepare). */
-const pdfToolGroups: readonly ToolNavigationGroup[] =
-  toolNavigationGroups.filter((g) => g !== 'Prepare');
+const shippingLabelTools = implementedToolDefinitions.filter(
+  (tool) => tool.navGroup === 'Prepare',
+);
 
-const groupColumnClassName: Partial<Record<ToolNavigationGroup, string>> = {
-  Organize: 'md:col-span-2',
-} as const;
+const generalToolSortOrder = [
+  'info',
+  'merge',
+  'organize',
+  'crop',
+  'image-to-pdf',
+  'pdf-to-images',
+] as const;
+
+const orderedGeneralTools = generalToolSortOrder
+  .map((slug) => generalTools.find((tool) => tool.slug === slug))
+  .filter((tool) => tool != null);
 
 function ToolCard({
   description,
@@ -76,18 +71,16 @@ function ToolCard({
   title: string;
 }) {
   return (
-    <AppLink to={path} prefetch="intent" className="block h-full">
-      <div className="bg-muted/35 hover:bg-muted/55 rounded-xl border px-4 py-3 transition-colors">
-        <div className="flex items-start gap-3">
-          <span className="bg-background flex size-9 shrink-0 items-center justify-center rounded-lg border">
-            <HugeiconsIcon icon={icon} size={18} strokeWidth={1.8} />
-          </span>
-          <div className="space-y-1">
-            <p className="text-sm font-medium leading-snug">{title}</p>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              {description}
-            </p>
-          </div>
+    <AppLink to={path} prefetch="intent" className="group block h-full">
+      <div className="flex h-full flex-col items-center rounded-2xl border border-border/70 bg-background px-6 py-6 text-center transition-colors duration-200 hover:bg-muted/20">
+        <span className="bg-muted/45 mb-5 flex size-14 shrink-0 items-center justify-center rounded-2xl border border-border/60">
+          <HugeiconsIcon icon={icon} size={26} strokeWidth={1.8} />
+        </span>
+        <div className="min-w-0 space-y-2">
+          <p className="text-base font-semibold tracking-tight">{title}</p>
+          <p className="text-muted-foreground mx-auto max-w-[24ch] text-sm leading-6">
+            {description}
+          </p>
         </div>
       </div>
     </AppLink>
@@ -98,7 +91,7 @@ export default function HomeRoute() {
   return (
     <div className="flex w-full flex-col">
       {/* ── HERO ──────────────────────────────────────────────── */}
-      <section className="from-muted/35 to-background bg-linear-to-b">
+      <section>
         <div className="mx-auto flex w-full max-w-5xl flex-col items-center px-4 py-16 text-center sm:px-12 sm:py-24">
           <ThemedBrandImage
             alt="InlinePDF logo"
@@ -122,94 +115,52 @@ export default function HomeRoute() {
         id="tools"
         className="mx-auto w-full max-w-5xl scroll-mt-24 px-4 pb-16 pt-0 sm:px-12 sm:pb-20"
       >
-        <div className="mb-8">
+        <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Everything runs locally
+            PDF tools for everyday work
           </h2>
           <p className="text-muted-foreground mt-3 max-w-3xl text-lg leading-relaxed">
-            A focused set of PDF tools that process files on device. Files are
-            never sent to a server.
+            Clean, focused tools for merging, organizing, converting, and
+            checking PDFs on device. Fast to use, simple to understand.
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {pdfToolGroups.map((group, idx) => {
-            const tools = implementedToolDefinitions.filter(
-              (tool) => tool.navGroup === group,
-            );
-
-            return (
-              <Card
-                key={group}
-                className={cn(
-                  'border-border/70 bg-background/90',
-                  idx === 0 && groupColumnClassName[group],
-                )}
-              >
-                <CardHeader className="border-b pb-6">
-                  <p className="text-muted-foreground text-xs font-medium tracking-[0.2em] uppercase">
-                    Tool Group {String(idx + 1).padStart(2, '0')}
-                  </p>
-                  <CardTitle className="text-2xl tracking-tight sm:text-3xl">
-                    {group}
-                  </CardTitle>
-                  <CardDescription className="text-base leading-relaxed">
-                    {navigationGroupDescriptions[group]}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div
-                    className={cn(
-                      'grid gap-3',
-                      tools.length > 2 ? 'sm:grid-cols-3' : 'sm:grid-cols-1',
-                    )}
-                  >
-                    {tools.map((tool) => (
-                      <ToolCard
-                        key={tool.id}
-                        description={tool.shortDescription}
-                        icon={toolIconBySlug[tool.slug] ?? File01Icon}
-                        path={tool.path}
-                        title={tool.title}
-                      />
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {orderedGeneralTools.map((tool) => (
+            <ToolCard
+              key={tool.id}
+              description={tool.shortDescription}
+              icon={toolIconBySlug[tool.slug] ?? File01Icon}
+              path={tool.path}
+              title={tool.title}
+            />
+          ))}
         </div>
       </section>
 
       {/* ── RETAILER TOOLS ────────────────────────────────────── */}
       <section className="mx-auto w-full max-w-5xl px-4 pb-16 sm:px-12 sm:pb-20">
-        <Card className="border-border/70 from-muted/25 to-background bg-linear-to-b">
-          <CardHeader>
-            <CardTitle className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Shipping label tools
-            </CardTitle>
-            <CardDescription className="max-w-3xl text-base leading-relaxed">
-              Prepare shipping label pages from marketplace PDFs. Each tool
-              follows platform-specific page rules so label pages are ready to
-              print.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {implementedToolDefinitions
-                .filter((tool) => tool.navGroup === 'Prepare')
-                .map((tool) => (
-                  <ToolCard
-                    key={tool.id}
-                    description={tool.shortDescription}
-                    icon={toolIconBySlug[tool.slug] ?? File01Icon}
-                    path={tool.path}
-                    title={tool.title}
-                  />
-                ))}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Shipping label tools
+          </h2>
+          <p className="text-muted-foreground mt-3 text-lg leading-relaxed">
+            Marketplace-specific tools for preparing label pages with the right
+            page order and layout before printing.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {shippingLabelTools.map((tool) => (
+            <ToolCard
+              key={tool.id}
+              description={tool.shortDescription}
+              icon={toolIconBySlug[tool.slug] ?? File01Icon}
+              path={tool.path}
+              title={tool.title}
+            />
+          ))}
+        </div>
       </section>
 
       {/* ── OPEN SOURCE / GITHUB ──────────────────────────────── */}

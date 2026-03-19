@@ -1,6 +1,9 @@
 import { PDFDocument } from 'pdf-lib';
 
-import { loadPdfJsModule } from '~/platform/pdf/load-pdfjs';
+import {
+  cleanupPdfJsPage,
+  openPdfJsDocument,
+} from '~/platform/pdf/pdfjs-session';
 import { validatePdfFile } from '~/platform/files/security/file-validation';
 import type { PdfInfoResult } from '~/tools/info/models';
 
@@ -214,8 +217,9 @@ async function readFontsAndRawMetadata(pdfBytes: Uint8Array): Promise<{
   infoDictionary: Record<string, string>;
   rawXmpMetadata: string | null;
 }> {
-  const pdfjs = await loadPdfJsModule();
-  const loadingTask = pdfjs.getDocument({ data: pdfBytes });
+  const session = await openPdfJsDocument(pdfBytes);
+  const pdfjs = session.module;
+  const document = session.document;
 
   const internalNames = new Set<string>();
   const fontFamilies = new Set<string>();
@@ -223,8 +227,6 @@ async function readFontsAndRawMetadata(pdfBytes: Uint8Array): Promise<{
   let rawXmpMetadata: string | null;
 
   try {
-    const document = await loadingTask.promise;
-
     try {
       const metadata = await document.getMetadata();
       infoDictionary = normalizeObjectToStringMap(metadata.info);
@@ -242,52 +244,51 @@ async function readFontsAndRawMetadata(pdfBytes: Uint8Array): Promise<{
 
     for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
       const page = await document.getPage(pageNumber);
-      const operatorList = await page.getOperatorList();
-      const fontRefNames = isPdfOperatorListLike(operatorList)
-        ? getFontRefNamesFromOperatorList(operatorList, pdfjs.OPS.setFont)
-        : [];
+      try {
+        const operatorList = await page.getOperatorList();
+        const fontRefNames = isPdfOperatorListLike(operatorList)
+          ? getFontRefNamesFromOperatorList(operatorList, pdfjs.OPS.setFont)
+          : [];
 
-      for (const fontRefName of fontRefNames) {
-        internalNames.add(fontRefName);
+        for (const fontRefName of fontRefNames) {
+          internalNames.add(fontRefName);
 
-        if (!page.commonObjs.has(fontRefName)) {
-          continue;
-        }
-
-        try {
-          const fontObject: unknown = page.commonObjs.get(fontRefName);
-          for (const fontName of readFontObjectFontNames(fontObject)) {
-            fontFamilies.add(fontName);
+          if (!page.commonObjs.has(fontRefName)) {
+            continue;
           }
-        } catch {
-          // Ignore unresolved font object entries and continue reading metadata.
-        }
-      }
 
-      const textContent = await page.getTextContent();
-
-      for (const item of textContent.items) {
-        if (!('fontName' in item)) {
-          continue;
-        }
-
-        internalNames.add(item.fontName);
-
-        if (Object.hasOwn(textContent.styles, item.fontName)) {
-          const style = textContent.styles[item.fontName];
-          for (const fontName of readCandidateFontNames(style.fontFamily)) {
-            fontFamilies.add(fontName);
+          try {
+            const fontObject: unknown = page.commonObjs.get(fontRefName);
+            for (const fontName of readFontObjectFontNames(fontObject)) {
+              fontFamilies.add(fontName);
+            }
+          } catch {
+            // Ignore unresolved font object entries and continue reading metadata.
           }
         }
-      }
 
-      page.cleanup();
+        const textContent = await page.getTextContent();
+
+        for (const item of textContent.items) {
+          if (!('fontName' in item)) {
+            continue;
+          }
+
+          internalNames.add(item.fontName);
+
+          if (Object.hasOwn(textContent.styles, item.fontName)) {
+            const style = textContent.styles[item.fontName];
+            for (const fontName of readCandidateFontNames(style.fontFamily)) {
+              fontFamilies.add(fontName);
+            }
+          }
+        }
+      } finally {
+        cleanupPdfJsPage(page);
+      }
     }
-
-    await document.cleanup();
-    await document.destroy();
   } finally {
-    await loadingTask.destroy();
+    await session.destroy();
   }
 
   return {

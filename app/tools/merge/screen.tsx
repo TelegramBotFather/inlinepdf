@@ -3,6 +3,7 @@ import { Button } from '~/components/ui/button';
 import { MultiFileToolWorkspace } from '~/shared/tool-ui/multi-file-tool-workspace';
 import { useSuccessToast } from '~/shared/tool-ui/use-success-toast';
 
+import { mergeToolDefinition } from './definition';
 import { useMergeWorkspace } from './use-merge-workspace';
 
 export function MergeToolScreen() {
@@ -14,6 +15,7 @@ export function MergeToolScreen() {
     <MultiFileToolWorkspace
       title="Merge PDF"
       description="Combine PDFs in the order you choose."
+      titleIcon={mergeToolDefinition.icon}
       files={workspace.files}
       isBusy={workspace.isMerging}
       emptyState={

@@ -1,5 +1,5 @@
 import Add01Icon from '@hugeicons/core-free-icons/Add01Icon';
-import SelectFilesIcon from '@hugeicons/core-free-icons/FileUploadIcon';
+import SelectFilesIcon from '@hugeicons/core-free-icons/FileAddIcon';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { type ChangeEvent, type DragEvent, useRef, useState } from 'react';
 

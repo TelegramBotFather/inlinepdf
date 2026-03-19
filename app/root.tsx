@@ -19,6 +19,7 @@ import { Shell } from './components/layout/shell';
 import { Alert, AlertDescription, AlertTitle } from './components/ui/alert';
 import { Spinner } from './components/ui/spinner';
 import { AppLink } from './shared/navigation/app-link';
+import { cn } from './lib/utils';
 import {
   themeInitScript,
   themedIconPaths,
@@ -139,7 +140,11 @@ export default function App() {
       contentClassName={
         isHomeRoute || isLegalRoute ? 'w-full max-w-none px-0' : undefined
       }
-      mainClassName={isHomeRoute || isLegalRoute ? 'py-0' : undefined}
+      mainClassName={cn(
+        isHomeRoute || isLegalRoute ? 'py-0' : undefined,
+        isHomeRoute &&
+          'from-muted/35 via-background to-background bg-linear-to-b',
+      )}
     >
       {showGlobalPending ? (
         <div aria-live="polite" className="min-h-14">

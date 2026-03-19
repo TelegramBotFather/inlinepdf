@@ -3,6 +3,7 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 interface ToolWorkspaceProps {
   title: string;
   description: string;
+  titleIcon?: unknown;
   helperText?: string;
   inputPanel?: React.ReactNode;
   optionsPanel?: React.ReactNode;
@@ -14,6 +15,7 @@ interface ToolWorkspaceProps {
 export function ToolWorkspace({
   title,
   description,
+  titleIcon: _titleIcon,
   helperText,
   inputPanel,
   optionsPanel,
@@ -24,9 +26,11 @@ export function ToolWorkspace({
   return (
     <section className="space-y-6">
       <header className="space-y-2">
-        <h1 className="scroll-m-20 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
-          {title}
-        </h1>
+        <div>
+          <h1 className="scroll-m-20 text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+            {title}
+          </h1>
+        </div>
         <p className="text-lg text-muted-foreground">{description}</p>
         {helperText ? (
           <p className="text-sm text-muted-foreground">{helperText}</p>

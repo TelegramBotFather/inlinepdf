@@ -1,3 +1,5 @@
+import type { ComponentProps } from 'react';
+
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';
@@ -76,12 +78,14 @@ interface ShippingLabelsToolScreenProps {
   brand: ShippingLabelBrand;
   title: string;
   description: string;
+  titleIcon?: ComponentProps<typeof SinglePdfToolWorkspace>['titleIcon'];
 }
 
 export function ShippingLabelsToolScreen({
   brand,
   title,
   description,
+  titleIcon,
 }: ShippingLabelsToolScreenProps) {
   const workspace = useShippingLabelsWorkspace(brand);
   const selectedOutputPageSizeOption = OUTPUT_PAGE_SIZE_OPTIONS.find(
@@ -94,6 +98,7 @@ export function ShippingLabelsToolScreen({
     <SinglePdfToolWorkspace
       title={title}
       description={description}
+      titleIcon={titleIcon}
       selectorAriaLabel="Select a PDF file to prepare label pages"
       selectedFileEntry={workspace.selectedFileEntry}
       isBusy={workspace.isPreparing}
