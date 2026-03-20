@@ -68,18 +68,18 @@ InlinePDF is released under the MIT License.
 
 ### Acknowledgments
 
-**PDF.js:** PDF rendering and parsing are powered by Mozilla's `pdfjs-dist`. ([License](https://github.com/mozilla/pdf.js/blob/master/LICENSE))
+- **PDF.js:** PDF rendering and parsing are powered by Mozilla's `pdfjs-dist`. ([License](https://github.com/mozilla/pdf.js/blob/master/LICENSE))
 
-**pdf-lib:** PDF creation and document manipulation are powered by `pdf-lib`. ([License](https://github.com/Hopding/pdf-lib/blob/master/LICENSE.md))
+- **pdf-lib:** PDF creation and document manipulation are powered by `pdf-lib`. ([License](https://github.com/Hopding/pdf-lib/blob/master/LICENSE.md))
 
-**React + React Router + Vite:** Application runtime and UI delivery are built with React, React Router, and Vite. ([License](https://github.com/facebook/react/blob/main/LICENSE), [License](https://github.com/remix-run/react-router/blob/main/LICENSE.md), [License](https://github.com/vitejs/vite/blob/main/LICENSE))
+- **React + React Router + Vite:** Application runtime and UI delivery are built with React, React Router, and Vite. ([License](https://github.com/facebook/react/blob/main/LICENSE), [License](https://github.com/remix-run/react-router/blob/main/LICENSE.md), [License](https://github.com/vitejs/vite/blob/main/LICENSE))
 
-**Tailwind CSS + shadcn/ui + Base UI:** Design system and component primitives are built with Tailwind CSS, shadcn, and Base UI. ([License](https://github.com/tailwindlabs/tailwindcss/blob/master/LICENSE), [License](https://github.com/shadcn-ui/ui/blob/main/LICENSE.md), [License](https://github.com/mui/base-ui/blob/master/LICENSE))
+- **Tailwind CSS + shadcn/ui + Base UI:** Design system and component primitives are built with Tailwind CSS, shadcn, and Base UI. ([License](https://github.com/tailwindlabs/tailwindcss/blob/master/LICENSE), [License](https://github.com/shadcn-ui/ui/blob/main/LICENSE.md), [License](https://github.com/mui/base-ui/blob/master/LICENSE))
 
-**dnd-kit:** Drag-and-drop interactions for file and page workflows are powered by `@dnd-kit`. ([License](https://github.com/clauderic/dnd-kit/blob/master/LICENSE))
+- **dnd-kit:** Drag-and-drop interactions for file and page workflows are powered by `@dnd-kit`. ([License](https://github.com/clauderic/dnd-kit/blob/master/LICENSE))
 
-**JSZip:** ZIP export workflows are powered by `jszip`. ([License](https://github.com/Stuk/jszip/blob/main/LICENSE.markdown))
+- **JSZip:** ZIP export workflows are powered by `jszip`. ([License](https://github.com/Stuk/jszip/blob/main/LICENSE.markdown))
 
-**Hugeicons:** Product iconography uses `@hugeicons/core-free-icons` and `@hugeicons/react`. ([License](https://github.com/hugeicons/hugeicons-react/blob/main/LICENSE))
+- **Hugeicons:** Product iconography uses `@hugeicons/core-free-icons` and `@hugeicons/react`. ([License](https://github.com/hugeicons/hugeicons-react/blob/main/LICENSE))
 
-**Cloudflare Workers:** Deployment and edge delivery are hosted on Cloudflare Workers.
+- **Cloudflare Workers:** Deployment and edge delivery are hosted on Cloudflare Workers.
