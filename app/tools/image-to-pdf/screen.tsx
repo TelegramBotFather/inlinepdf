@@ -27,7 +27,7 @@ export function ImageToPdfToolScreen() {
   return (
     <MultiFileToolWorkspace
       title="Image to PDF"
-      description="Combine JPG and PNG images into one PDF on device."
+      description="Combine JPG and PNG images into one PDF locally."
       titleIcon={imageToPdfToolDefinition.icon}
       files={workspace.files}
       isBusy={workspace.isConverting}
@@ -47,7 +47,7 @@ export function ImageToPdfToolScreen() {
             ariaLabel="Select image files"
             onSelect={workspace.handleFilesAdded}
             disabled={workspace.isConverting}
-            buttonLabel="Add More Images"
+            buttonLabel="Add Images"
           />
         </li>
       }
@@ -89,9 +89,9 @@ export function ImageToPdfToolScreen() {
               })}
             </RadioGroup>
             <FieldDescription>
-              PNG files stay PNG in the PDF (lossless format). Medium and Low
-              reduce image dimensions for smaller output. JPEG files also use
-              stronger lossy compression at Medium and Low.
+              PNG files stay lossless in the PDF. Medium and Low reduce image
+              dimensions for smaller files. JPEG files also use stronger
+              compression at Medium and Low.
             </FieldDescription>
           </FieldSet>
         ) : null

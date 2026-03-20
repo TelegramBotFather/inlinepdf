@@ -19,7 +19,7 @@ const routeModule = createToolRouteModule<
   ImageToPdfResult
 >({
   definition: imageToPdfToolDefinition,
-  errorMessage: 'Unable to create a PDF from the selected images.',
+  errorMessage: 'Unable to create a PDF from these images.',
   parseInput({ formData, fallbackPayload }) {
     const files = getFiles(formData, 'files[]');
     return {
@@ -34,7 +34,7 @@ const routeModule = createToolRouteModule<
     saveBlobFile(result.blob, result.fileName);
   },
   getSuccessMessage(result) {
-    return `PDF prepared with ${String(result.pagesExported)} page${result.pagesExported === 1 ? '' : 's'}.`;
+    return `PDF ready with ${String(result.pagesExported)} page${result.pagesExported === 1 ? '' : 's'}.`;
   },
 });
 

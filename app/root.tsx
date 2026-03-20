@@ -120,17 +120,17 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = 'Unexpected error';
-  let details = 'An unexpected error occurred.';
+  let message = 'Something went wrong';
+  let details = 'The page could not be loaded.';
   let stack: string | undefined;
   let status: number | undefined;
 
   if (isRouteErrorResponse(error)) {
     status = error.status;
-    message = error.status === 404 ? 'Page not found' : 'Unexpected error';
+    message = error.status === 404 ? 'Page not found' : 'Something went wrong';
     details =
       error.status === 404
-        ? 'The requested page could not be found.'
+        ? 'The page may have moved or no longer be available.'
         : error.statusText;
   } else if (import.meta.env.DEV && error instanceof Error) {
     details = error.message;
@@ -141,7 +141,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     <Shell>
       <section className="w-full space-y-4 rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm">
         <p className="text-sm text-muted-foreground">
-          {status ? String(status) : 'Unexpected Error'}
+          {status ? String(status) : 'Error'}
         </p>
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
           {message}

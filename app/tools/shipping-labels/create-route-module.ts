@@ -39,7 +39,7 @@ export function createShippingLabelRouteModule(
     ShippingLabelPreparationSummary
   >({
     definition: toolDefinition,
-    errorMessage: 'Unable to prepare label pages.',
+    errorMessage: 'Unable to prepare labels.',
     parseInput({ formData, fallbackPayload }) {
       const file = getFile(formData, 'file') ?? fallbackPayload?.file;
       return {
@@ -78,7 +78,7 @@ export function createShippingLabelRouteModule(
       saveBlobFile(result.blob, result.fileName);
     },
     getSuccessMessage(result) {
-      return `Prepared ${String(result.labelsPrepared)} label${result.labelsPrepared === 1 ? '' : 's'} on ${String(result.outputPagesCreated)} page${result.outputPagesCreated === 1 ? '' : 's'}.`;
+      return `PDF ready with ${String(result.labelsPrepared)} label${result.labelsPrepared === 1 ? '' : 's'} on ${String(result.outputPagesCreated)} page${result.outputPagesCreated === 1 ? '' : 's'}.`;
     },
     mapSuccessResult(result) {
       return {

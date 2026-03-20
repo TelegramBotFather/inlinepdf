@@ -290,7 +290,7 @@ describe('prepareShippingLabelPdf', () => {
         brand: 'meesho',
         outputPageSize: 'auto',
       }),
-    ).rejects.toThrow('No Meesho label pages were found in this PDF.');
+    ).rejects.toThrow('No Meesho labels were found in this PDF.');
   });
 
   it('sorts prepared label pages by SKU when SKU sorting is enabled', async () => {
@@ -637,7 +637,10 @@ describe('prepareShippingLabelPdf', () => {
   });
 
   it('rejects Amazon uploads when the second page does not contain Amazon text', async () => {
-    const file = await createPdfFile('not-amazon.pdf', [[288, 432], [288, 432]]);
+    const file = await createPdfFile('not-amazon.pdf', [
+      [288, 432],
+      [288, 432],
+    ]);
     const { loadingTask } = createPdfJsLoadingTask([
       {
         width: 288,
@@ -658,7 +661,7 @@ describe('prepareShippingLabelPdf', () => {
         outputPageSize: 'auto',
       }),
     ).rejects.toThrow(
-      'This file does not appear to be a supported Amazon label PDF.',
+      'This PDF does not appear to be an Amazon label PDF. Page 2 needs to include the word Amazon.',
     );
   });
 
@@ -749,7 +752,7 @@ describe('prepareShippingLabelPdf', () => {
         outputPageSize: 'auto',
       }),
     ).rejects.toThrow(
-      'This file does not appear to be a supported Flipkart label PDF.',
+      'This PDF does not appear to be a Flipkart label PDF.',
     );
   });
 });

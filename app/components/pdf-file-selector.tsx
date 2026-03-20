@@ -55,6 +55,8 @@ export function PdfFileSelector({
 }: PdfFileSelectorProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragActive, setIsDragActive] = useState(false);
+  const isImageSelector = accept.includes('image');
+  const fileTypeLabel = isImageSelector ? 'images' : 'PDF files';
 
   function commitSelection(fileList: FileList | null) {
     if (disabled) {
@@ -78,13 +80,11 @@ export function PdfFileSelector({
     }
   }
 
-  const defaultDropzoneTitle = 'Add Files';
+  const defaultDropzoneTitle = isImageSelector ? 'Add Images' : 'Add PDF Files';
   const defaultDropzoneDescription = (
     <>
-      Drop {accept.includes('image') ? 'images' : 'PDF files'} here, or{' '}
-      <span className="font-semibold underline underline-offset-4">
-        browse files
-      </span>
+      Drop {fileTypeLabel} here, or{' '}
+      <span className="font-semibold underline underline-offset-4">browse</span>
       .
     </>
   );
@@ -115,7 +115,7 @@ export function PdfFileSelector({
           onClick={openPicker}
         >
           <HugeiconsIcon icon={Add01Icon} size={18} />
-          {buttonLabel ?? 'Add More PDF Files'}
+          {buttonLabel ?? (isImageSelector ? 'Add Images' : 'Add PDF Files')}
         </Button>
       ) : variant === 'tile' ? (
         <Button
@@ -135,7 +135,8 @@ export function PdfFileSelector({
                 <HugeiconsIcon icon={Add01Icon} size={20} />
               </div>
               <p className="text-sm font-semibold tracking-tight sm:text-base">
-                {buttonLabel ?? 'Add More Files'}
+                {buttonLabel ??
+                  (isImageSelector ? 'Add Images' : 'Add PDF Files')}
               </p>
             </CardContent>
           </Card>

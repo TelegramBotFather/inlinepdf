@@ -8,7 +8,7 @@ export async function readPdfInfoForFile({
 }): Promise<PdfInfoResult> {
   const firstFile = files.at(0);
   if (!firstFile) {
-    throw new Error('Select a PDF file before reading details.');
+    throw new Error('Select a PDF file before reading PDF details.');
   }
 
   return readPdfInfo(firstFile);

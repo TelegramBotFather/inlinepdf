@@ -26,7 +26,7 @@ export async function convertImagesToPdfDocument({
   onProgress,
 }: ConvertImagesToPdfDocumentInput): Promise<ImageToPdfResult> {
   if (!isImageToPdfQuality(quality)) {
-    throw new Error('Select an output quality before converting.');
+    throw new Error('Choose a quality setting before converting.');
   }
 
   const input: ConvertImagesToPdfInput = {

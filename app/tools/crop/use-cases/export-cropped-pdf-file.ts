@@ -28,10 +28,7 @@ function normalizeSelectedPages(pageNumbers: number[]): number[] {
     .sort((a, b) => a - b);
 }
 
-function readPdfPoint(
-  point: unknown,
-  pageNumber: number,
-): [number, number] {
+function readPdfPoint(point: unknown, pageNumber: number): [number, number] {
   if (
     Array.isArray(point) &&
     point.length >= 2 &&
@@ -42,7 +39,7 @@ function readPdfPoint(
   }
 
   throw new Error(
-    `Unable to map crop coordinates for page ${String(pageNumber)}.`,
+    `Unable to read crop coordinates for page ${String(pageNumber)}.`,
   );
 }
 
@@ -56,7 +53,7 @@ export async function exportCroppedPdf({
   const normalizedPageNumbers = normalizeSelectedPages(selectedPages);
 
   if (normalizedPageNumbers.length === 0) {
-    throw new Error('Select at least one page to crop.');
+    throw new Error('Select at least one page before cropping.');
   }
 
   const sourceBytes = new Uint8Array(await file.arrayBuffer());
@@ -98,7 +95,7 @@ export async function exportCroppedPdf({
 
         if (width <= 0 || height <= 0) {
           throw new Error(
-            `Crop area for page ${String(pageNumber)} is too small.`,
+            `The crop area for page ${String(pageNumber)} is too small.`,
           );
         }
 
@@ -122,7 +119,7 @@ export async function exportCroppedPdf({
       throw error;
     }
 
-    throw new Error('Unable to crop this PDF. Try another file.', {
+    throw new Error('Unable to crop this PDF. Try a different file.', {
       cause: error,
     });
   } finally {

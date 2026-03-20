@@ -23,11 +23,11 @@ export async function cropPdfDocument({
   }
 
   if (!cropRect || !hasValidRect(cropRect)) {
-    throw new Error('Set a valid crop area before exporting.');
+    throw new Error('Set a valid crop area before exporting the PDF.');
   }
 
   if (!mode || !pageNumber || !totalPages) {
-    throw new Error('Missing crop settings. Please try again.');
+    throw new Error('The crop settings are missing. Try again.');
   }
 
   return mode === 'allWithOriginalOthers'

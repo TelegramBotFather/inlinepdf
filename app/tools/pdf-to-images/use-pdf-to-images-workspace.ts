@@ -144,7 +144,7 @@ export function usePdfToImagesWorkspace() {
           return;
         }
 
-        const fallback = 'Unable to read PDF resolution.';
+        const fallback = 'Unable to read the PDF page size.';
         dispatchDeferred({
           type: 'baseResolutionFailed',
           message: error instanceof Error ? error.message : fallback,

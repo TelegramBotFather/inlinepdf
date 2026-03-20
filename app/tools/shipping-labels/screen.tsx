@@ -126,7 +126,7 @@ export function ShippingLabelsToolScreen({
       title={title}
       description={description}
       titleIcon={titleIcon}
-      selectorAriaLabel="Select a PDF file to prepare label pages"
+      selectorAriaLabel="Select a PDF file to prepare labels"
       selectedFileEntry={workspace.selectedFileEntry}
       isBusy={workspace.isPreparing}
       onSelectFile={workspace.handleFileSelection}
@@ -144,10 +144,10 @@ export function ShippingLabelsToolScreen({
           <div className="space-y-8 xl:pl-2">
             <section className="space-y-4">
               <div className="space-y-1">
-                <h2 className="text-xl font-semibold tracking-tight">Output</h2>
+                <h2 className="text-xl font-semibold tracking-tight">Layout</h2>
                 <p className="text-sm text-muted-foreground">
-                  Choose the paper size, then set how many {BRAND_LABELS[brand]}{' '}
-                  labels should fit on each sheet.
+                  Choose the paper size, then choose how many{' '}
+                  {BRAND_LABELS[brand]} labels to place on each sheet.
                 </p>
               </div>
 
@@ -179,7 +179,7 @@ export function ShippingLabelsToolScreen({
                             ? renderOutputPageSizeLabel(
                                 selectedOutputPageSizeOption.value,
                               )
-                            : 'Select page size'}
+                            : 'Choose paper size'}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent align="start">
@@ -226,7 +226,7 @@ export function ShippingLabelsToolScreen({
                           <SelectValue>
                             {selectedLabelsPerPage
                               ? `${String(selectedLabelsPerPage)} per sheet`
-                              : 'Select count'}
+                              : 'Choose labels per page'}
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent align="start">
@@ -244,7 +244,7 @@ export function ShippingLabelsToolScreen({
                         {workspace.labelsPerPageOptions.at(-1) === 1
                           ? ''
                           : 's'}{' '}
-                        fit on this page size before the text becomes too small.
+                        fit on this paper size before text becomes too small.
                       </FieldDescription>
                     </div>
                   ) : null}
@@ -255,7 +255,7 @@ export function ShippingLabelsToolScreen({
                 <FieldSet className="max-w-xl">
                   <FieldLegend variant="label">Sorting</FieldLegend>
                   <FieldDescription>
-                    Optional sorting rules for the prepared label order.
+                    Choose an optional sort order for prepared labels.
                   </FieldDescription>
                   <FieldGroup className="max-w-md gap-4">
                     {workspace.showPickupPartnerSort ? (
@@ -276,8 +276,7 @@ export function ShippingLabelsToolScreen({
                             Sort by pickup partner
                           </FieldLabel>
                           <FieldDescription>
-                            Group labels by detected pickup partner in one fixed
-                            order.
+                            Group labels by detected pickup partner.
                           </FieldDescription>
                         </FieldContent>
                       </Field>
@@ -299,7 +298,7 @@ export function ShippingLabelsToolScreen({
                             Sort by SKU
                           </FieldLabel>
                           <FieldDescription>
-                            Order labels by detected SKU in one fixed order.
+                            Order labels by detected SKU.
                           </FieldDescription>
                         </FieldContent>
                       </Field>
@@ -315,7 +314,7 @@ export function ShippingLabelsToolScreen({
                     size={18}
                     strokeWidth={2}
                   />
-                  <AlertTitle>Unable to complete action</AlertTitle>
+                  <AlertTitle>Unable to continue</AlertTitle>
                   <AlertDescription>{workspace.errorMessage}</AlertDescription>
                 </Alert>
               ) : null}
@@ -341,7 +340,7 @@ export function ShippingLabelsToolScreen({
           <section className="space-y-8 border-t border-border/70 pt-8">
             <section className="space-y-4">
               <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                Task Summary
+                Summary
               </h3>
               <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2 xl:grid-cols-4">
                 <div className="space-y-1">

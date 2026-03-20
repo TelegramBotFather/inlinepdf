@@ -43,12 +43,12 @@ export async function exportOrganizedPdf({
   await validatePdfFile(file);
   const validPages = toValidSourcePageNumbers(pages);
   if (validPages.length < 1) {
-    throw new Error('No pages are available to organize.');
+    throw new Error('This PDF has no pages to organize.');
   }
 
   const activePages = validPages.filter((page) => !page.isDeleted);
   if (activePages.length < 1) {
-    throw new Error('Restore at least one page before exporting.');
+    throw new Error('Include at least one page before exporting.');
   }
 
   const sourceBytes = new Uint8Array(await file.arrayBuffer());
@@ -60,7 +60,7 @@ export async function exportOrganizedPdf({
   );
   if (outOfRangePage) {
     throw new Error(
-      `Page ${String(outOfRangePage.sourcePageNumber)} is outside the document range.`,
+      `Page ${String(outOfRangePage.sourcePageNumber)} is outside this PDF.`,
     );
   }
 

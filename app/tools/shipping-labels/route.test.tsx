@@ -20,7 +20,7 @@ vi.mock('./use-cases/prepare-shipping-labels', () => ({
   }) => {
     if (!input.file) {
       return Promise.reject(
-        new Error('Select a PDF file before preparing label pages.'),
+        new Error('Select a PDF file before preparing labels.'),
       );
     }
 
@@ -41,7 +41,7 @@ describe('shipping labels route clientAction', () => {
     {
       ...amazonShippingLabelsToolDefinition,
       title: 'Meesho Labels',
-      shortDescription: 'Prepare Meesho label pages from marketplace PDFs.',
+      shortDescription: 'Prepare Meesho labels from marketplace PDFs.',
     },
     'meesho',
   ).clientAction;
@@ -60,7 +60,7 @@ describe('shipping labels route clientAction', () => {
 
     expect(result).toEqual({
       ok: false,
-      message: 'Select a PDF file before preparing label pages.',
+      message: 'Select a PDF file before preparing labels.',
     });
   });
 
@@ -73,7 +73,7 @@ describe('shipping labels route clientAction', () => {
     formData.set('outputPageSize', 'a4');
     formData.set('labelsPerPage', '4');
     prepareShippingLabelsMock.mockRejectedValueOnce(
-      new Error('Choose 4 or fewer labels per a4 page for Amazon labels.'),
+      new Error('Choose 4 or fewer labels per A4 page for Amazon labels.'),
     );
 
     const result = await amazonClientAction({
@@ -82,11 +82,11 @@ describe('shipping labels route clientAction', () => {
 
     expect(result).toEqual({
       ok: false,
-      message: 'Choose 4 or fewer labels per a4 page for Amazon labels.',
+      message: 'Choose 4 or fewer labels per A4 page for Amazon labels.',
     });
   });
 
-  it('returns a zero-label error when no label pages are found', async () => {
+  it('returns a zero-label error when no labels are found', async () => {
     const formData = new FormData();
     formData.set(
       'file',
@@ -95,7 +95,7 @@ describe('shipping labels route clientAction', () => {
     formData.set('outputPageSize', 'auto');
     formData.set('labelsPerPage', '1');
     prepareShippingLabelsMock.mockRejectedValueOnce(
-      new Error('No Meesho label pages were found in this PDF.'),
+      new Error('No Meesho labels were found in this PDF.'),
     );
 
     const result = await meeshoClientAction({
@@ -104,7 +104,7 @@ describe('shipping labels route clientAction', () => {
 
     expect(result).toEqual({
       ok: false,
-      message: 'No Meesho label pages were found in this PDF.',
+      message: 'No Meesho labels were found in this PDF.',
     });
   });
 
@@ -154,7 +154,7 @@ describe('shipping labels route clientAction', () => {
     expect(firstCall?.file).toBeInstanceOf(File);
     expect(result).toEqual({
       ok: true,
-      message: 'Prepared 8 labels on 2 pages.',
+      message: 'PDF ready with 8 labels on 2 pages.',
       result: {
         pagesProcessed: 10,
         labelsPrepared: 8,

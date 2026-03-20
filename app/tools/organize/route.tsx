@@ -38,7 +38,7 @@ const routeModule = createToolRouteModule<
     saveBlobFile(result.blob, result.fileName);
   },
   getSuccessMessage(result) {
-    return `Organized PDF prepared with ${String(result.pagesExported)} page${result.pagesExported === 1 ? '' : 's'}.`;
+    return `PDF ready with ${String(result.pagesExported)} page${result.pagesExported === 1 ? '' : 's'}.`;
   },
 });
 

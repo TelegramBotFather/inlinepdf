@@ -18,7 +18,7 @@ const routeModule = createToolRouteModule<
   MergeResult
 >({
   definition: mergeToolDefinition,
-  errorMessage: 'Unable to merge the selected PDF files.',
+  errorMessage: 'Unable to merge these PDF files.',
   parseInput({ formData, fallbackPayload }) {
     const files = getFiles(formData, 'files[]');
     return {
@@ -32,7 +32,7 @@ const routeModule = createToolRouteModule<
     saveBlobFile(result.blob, result.fileName);
   },
   getSuccessMessage() {
-    return 'Merged PDF prepared.';
+    return 'Merged PDF ready.';
   },
 });
 

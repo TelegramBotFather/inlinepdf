@@ -136,7 +136,7 @@ export function useCropWorkspace() {
     if (!cropRect || !hasValidRect(cropRect)) {
       dispatch({
         type: 'localErrorSet',
-        message: 'Set a valid crop area before exporting.',
+        message: 'Set a valid crop area before exporting the PDF.',
       });
       return;
     }

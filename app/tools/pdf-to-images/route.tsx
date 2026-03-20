@@ -48,7 +48,7 @@ const routeModule = createToolRouteModule<
   PdfToImagesResult
 >({
   definition: pdfToImagesToolDefinition,
-  errorMessage: 'Unable to export PDF pages as images.',
+  errorMessage: 'Unable to export images from this PDF.',
   parseInput({ formData, fallbackPayload }) {
     const file = getFile(formData, 'file') ?? fallbackPayload?.file;
     const format =
@@ -80,7 +80,7 @@ const routeModule = createToolRouteModule<
     saveBlobFile(result.blob, result.fileName);
   },
   getSuccessMessage(result) {
-    return `Image archive prepared with ${String(result.pageCount)} file${result.pageCount === 1 ? '' : 's'}.`;
+    return `ZIP file ready with ${String(result.pageCount)} image${result.pageCount === 1 ? '' : 's'}.`;
   },
 });
 

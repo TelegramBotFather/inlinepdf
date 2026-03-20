@@ -31,7 +31,7 @@ export async function exportCroppedPdfFromSelection(
   }
 
   if (!isCropNewRunOptions(options) || !hasValidRect(options.cropRect)) {
-    throw new Error('Set a valid crop area before exporting.');
+    throw new Error('Set a valid crop area before exporting the PDF.');
   }
 
   const pageNumber = Math.max(1, options.pageNumber);

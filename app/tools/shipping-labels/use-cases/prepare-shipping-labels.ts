@@ -2,6 +2,7 @@ import { PDFDocument } from 'pdf-lib';
 
 import {
   getPageSizeDimensionsInPoints,
+  getStandardPageSizeOption,
   isPageSizeSelectId,
 } from '~/platform/pdf/page-size-options';
 import { validatePdfFile } from '~/platform/files/security/file-validation';
@@ -205,7 +206,7 @@ function parseLabelsPerPage(value: string | null | undefined): number {
 
   const parsedValue = Number.parseInt(value, 10);
   if (!Number.isFinite(parsedValue) || parsedValue < 1) {
-    throw new Error('Choose a valid labels-per-page value.');
+    throw new Error('Choose a valid value for Labels per page.');
   }
 
   return parsedValue;
@@ -229,11 +230,11 @@ export async function prepareShippingLabels({
   skuDirection,
 }: PrepareShippingLabelsInput): Promise<ShippingLabelPreparationResult> {
   if (!file) {
-    throw new Error('Select a PDF file before preparing label pages.');
+    throw new Error('Select a PDF file before preparing labels.');
   }
 
   if (!isShippingLabelOutputPageSize(outputPageSize)) {
-    throw new Error('Select an output page size.');
+    throw new Error('Choose a paper size before preparing labels.');
   }
 
   const sortOptions = getShippingLabelSortOptions(brand);
@@ -669,7 +670,7 @@ export async function prepareShippingLabelPdf(
 
             if (!validation.isAmazonPdf) {
               throw new Error(
-                'This file does not appear to be a supported Amazon label PDF.',
+                'This PDF does not appear to be an Amazon label PDF. Page 2 needs to include the word Amazon.',
               );
             }
           }
@@ -743,7 +744,7 @@ export async function prepareShippingLabelPdf(
 
           if (!validation.isFlipkartPdf) {
             throw new Error(
-              'This file does not appear to be a supported Flipkart label PDF.',
+              'This PDF does not appear to be a Flipkart label PDF.',
             );
           }
         }
@@ -799,7 +800,7 @@ export async function prepareShippingLabelPdf(
 
   if (preparedLabels.length === 0) {
     throw new Error(
-      `No ${options.brand.slice(0, 1).toUpperCase()}${options.brand.slice(1)} label pages were found in this PDF.`,
+      `No ${options.brand.slice(0, 1).toUpperCase()}${options.brand.slice(1)} labels were found in this PDF.`,
     );
   }
 
@@ -844,8 +845,12 @@ export async function prepareShippingLabelPdf(
     });
 
     if (labelsPerPage > maxLabelsPerPage) {
+      const pageSizeLabel = getStandardPageSizeOption(
+        options.outputPageSize,
+      ).label;
+      const brandLabel = `${options.brand.slice(0, 1).toUpperCase()}${options.brand.slice(1)}`;
       throw new Error(
-        `Choose ${String(maxLabelsPerPage)} or fewer labels per ${options.outputPageSize.toUpperCase()} page for ${options.brand.slice(0, 1).toUpperCase()}${options.brand.slice(1)} labels.`,
+        `Choose ${String(maxLabelsPerPage)} or fewer labels per ${pageSizeLabel} page for ${brandLabel} labels.`,
       );
     }
 
@@ -856,7 +861,7 @@ export async function prepareShippingLabelPdf(
     });
 
     if (!layout) {
-      throw new Error('Unable to fit labels on the selected paper size.');
+      throw new Error('The selected paper size does not fit these labels.');
     }
 
     for (

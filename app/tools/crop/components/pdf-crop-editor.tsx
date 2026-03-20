@@ -387,10 +387,10 @@ export function PdfCropEditor({
           <p className="text-sm font-medium">{`Page ${String(pageNumber)}`}</p>
           <p className="text-xs text-muted-foreground">
             {errorMessage
-              ? 'Preview unavailable.'
+              ? 'Preview not available.'
               : pageDetails
                 ? `${formatPageInfo(pageDetails)} · ${String(pageDetails.rotation)}° rotation`
-                : 'Preparing page preview...'}
+                : 'Loading page preview...'}
           </p>
         </header>
       ) : null}

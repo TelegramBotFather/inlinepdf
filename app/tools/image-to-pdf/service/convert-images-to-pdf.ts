@@ -106,7 +106,7 @@ async function loadImageElement(file: File): Promise<HTMLImageElement> {
 
     image.onerror = () => {
       URL.revokeObjectURL(objectUrl);
-      reject(new Error(`Unable to decode image file: ${file.name}`));
+      reject(new Error(`The image could not be read: ${file.name}.`));
     };
 
     image.src = objectUrl;
@@ -188,9 +188,7 @@ export async function prepareImageForPdf(
     alpha: mimeType === 'image/png',
   });
   if (!context) {
-    throw new Error(
-      'Unable to initialize canvas context for image conversion.',
-    );
+    throw new Error('The browser could not prepare the image for conversion.');
   }
 
   if (mimeType === 'image/jpeg') {
@@ -208,7 +206,9 @@ export async function prepareImageForPdf(
     mimeType === 'image/jpeg' ? profile.jpegQuality : undefined,
   );
   if (!encodedBlob) {
-    throw new Error(`The current browser could not encode ${mimeType} output.`);
+    throw new Error(
+      `The browser could not encode ${mimeType} output. Try a different image or quality setting.`,
+    );
   }
 
   const encodedBytes = toNormalizedBytes(
@@ -229,7 +229,7 @@ export async function convertImagesToPdf(
   dependencies: Partial<ConvertImagesToPdfDependencies> = {},
 ): Promise<ImageToPdfResult> {
   if (!files.length) {
-    throw new Error('Select at least one image to convert.');
+    throw new Error('Select at least one image before converting.');
   }
 
   await validateFiles(files, {

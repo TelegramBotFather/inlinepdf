@@ -94,7 +94,7 @@ function MobileToolNavigation() {
         <SheetHeader className="border-b border-border">
           <SheetTitle>InlinePDF</SheetTitle>
           <SheetDescription>
-            Local-first PDF tools that process files on device.
+            PDF tools that process files locally.
           </SheetDescription>
         </SheetHeader>
         <div className="flex flex-1 flex-col gap-8 overflow-y-auto px-6 py-6">

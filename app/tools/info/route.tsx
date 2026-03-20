@@ -18,7 +18,7 @@ const routeModule = createToolRouteModule<
   PdfInfoResult
 >({
   definition: infoToolDefinition,
-  errorMessage: 'Unable to read PDF information.',
+  errorMessage: 'Unable to read PDF details.',
   parseInput({ formData, fallbackPayload }) {
     const file = getFile(formData, 'file') ?? fallbackPayload?.file;
     return { files: file ? [file] : [] };

@@ -25,7 +25,7 @@ export function getUnsupportedImageMessage(
     return null;
   }
 
-  return `Only JPG and PNG images are supported. Unsupported: ${fileName}.`;
+  return `Only JPG and PNG images are supported. ${fileName} is not supported.`;
 }
 
 export function getImageToPdfWorkspaceViewModel(args: {
@@ -41,7 +41,7 @@ export function getImageToPdfWorkspaceViewModel(args: {
     canConvert: fileCount > 0 && !isConverting,
     convertButtonLabel: isConverting ? 'Converting...' : 'Create PDF',
     errorMessage: localErrorMessage ?? actionErrorMessage,
-    helperText: isConverting ? 'Converting images...' : null,
+    helperText: isConverting ? 'Creating PDF...' : null,
   };
 }
 
@@ -113,7 +113,7 @@ export function useImageToPdfWorkspace() {
           );
         })
         .catch(() => {
-          updateEntryMetadata(entry.id, 'Dimensions unavailable');
+          updateEntryMetadata(entry.id, 'Size unavailable');
         });
     });
   }

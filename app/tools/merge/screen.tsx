@@ -35,7 +35,7 @@ export function MergeToolScreen() {
             ariaLabel="Select PDF files"
             onSelect={workspace.handleFilesAdded}
             disabled={workspace.isMerging}
-            buttonLabel="Add More Files"
+            buttonLabel="Add PDF Files"
           />
         </li>
       }
@@ -48,7 +48,7 @@ export function MergeToolScreen() {
             disabled={workspace.isMerging}
             onClick={workspace.handleClearAll}
           >
-            Clear All
+            Clear Files
           </Button>
           <Button
             disabled={!workspace.canMerge}

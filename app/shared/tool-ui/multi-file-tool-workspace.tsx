@@ -39,7 +39,7 @@ export function MultiFileToolWorkspace({
   onReorder,
   onRemove,
   onClearAll,
-  clearAllLabel = 'Clear All',
+  clearAllLabel = 'Clear Files',
 }: MultiFileToolWorkspaceProps) {
   return (
     <ToolWorkspace

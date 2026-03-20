@@ -96,7 +96,7 @@ const routeModule = createToolRouteModule<
     saveBlobFile(result.blob, result.fileName);
   },
   getSuccessMessage() {
-    return 'Cropped PDF prepared.';
+    return 'Cropped PDF ready.';
   },
 });
 

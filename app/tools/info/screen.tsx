@@ -9,7 +9,7 @@ export function PdfInfoToolScreen() {
   return (
     <SinglePdfToolWorkspace
       title="PDF Info"
-      description="Review metadata, info dictionary fields, and font details."
+      description="Review metadata, document info, and font details."
       titleIcon={infoToolDefinition.icon}
       selectorAriaLabel="Select PDF file"
       selectedFileEntry={workspace.selectedFileEntry}
@@ -84,7 +84,7 @@ export function PdfInfoToolScreen() {
                 </pre>
               ) : (
                 <p className="text-sm leading-6 text-muted-foreground">
-                  No XMP metadata present.
+                  No XMP metadata found.
                 </p>
               )}
             </section>

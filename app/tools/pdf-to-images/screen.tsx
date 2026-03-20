@@ -127,7 +127,7 @@ function PdfToImagesOptionsPanel({
             id={maxDimensionCapLabelId}
             htmlFor={maxDimensionCapInputId}
           >
-            Max dimension cap
+            Maximum image size
           </FieldLabel>
           <Select
             value={String(maxDimensionCap)}
@@ -144,7 +144,7 @@ function PdfToImagesOptionsPanel({
               aria-labelledby={maxDimensionCapLabelId}
               className="w-full"
             >
-              <SelectValue placeholder="Select max dimension" />
+              <SelectValue placeholder="Choose image size" />
             </SelectTrigger>
             <SelectContent align="start">
               {MAX_DIMENSION_CAP_OPTIONS.map((option) => (
@@ -177,7 +177,7 @@ function PdfToImagesOptionsPanel({
               aria-labelledby={pageRangeModeLabelId}
               className="w-full"
             >
-              <SelectValue placeholder="Select pages" />
+              <SelectValue placeholder="Choose pages" />
             </SelectTrigger>
             <SelectContent align="start">
               <SelectItem value="all">All pages</SelectItem>
@@ -203,7 +203,7 @@ function PdfToImagesOptionsPanel({
               placeholder="e.g. 1-3, 5, 9-12"
             />
             <FieldDescription>
-              Use comma-separated pages and ranges.
+              Use commas for separate pages and hyphens for ranges.
             </FieldDescription>
             <FieldError>
               {selectedPageCount === null
@@ -230,7 +230,7 @@ function PdfToImagesResolutionPreview({
 }) {
   if (isReadingResolution) {
     return (
-      <p className="text-sm text-muted-foreground">Reading PDF resolution...</p>
+      <p className="text-sm text-muted-foreground">Reading PDF page size...</p>
     );
   }
 
@@ -240,7 +240,7 @@ function PdfToImagesResolutionPreview({
 
   return (
     <div className="space-y-2 rounded-xl border border-border p-4">
-      <p className="text-sm font-medium">Output resolution preview</p>
+      <p className="text-sm font-medium">Image size preview</p>
       <dl className="space-y-1 text-sm">
         <div className="flex items-center justify-between gap-3">
           <dt className="text-muted-foreground">Pages</dt>
@@ -251,18 +251,18 @@ function PdfToImagesResolutionPreview({
           </dd>
         </div>
         <div className="flex items-center justify-between gap-3">
-          <dt className="text-muted-foreground">Base PDF (72 DPI points)</dt>
+          <dt className="text-muted-foreground">PDF page size (72 DPI)</dt>
           <dd>{`${String(resolutionInfo.baseWidthPx)} x ${String(resolutionInfo.baseHeightPx)} px`}</dd>
         </div>
         <div className="flex items-center justify-between gap-3">
-          <dt className="text-muted-foreground">Selected (Maximum quality)</dt>
+          <dt className="text-muted-foreground">Estimated output size</dt>
           <dd>{`${String(resolutionInfo.scaledWidthPx)} x ${String(resolutionInfo.scaledHeightPx)} px`}</dd>
         </div>
       </dl>
       <p className="text-xs text-muted-foreground">
-        {`Maximum quality targets a ~${String(MAX_QUALITY_LONG_EDGE_TARGET_PX)} px long edge, capped at ${String(maxDimensionCap)} px.`}{' '}
-        Resolution preview is based on page 1; page sizes can vary in some PDFs.
-        {` Effective render scale on page 1: ${resolutionInfo.effectiveScale.toFixed(2)}x.`}
+        {`Maximum quality targets a long edge of about ${String(MAX_QUALITY_LONG_EDGE_TARGET_PX)} px, capped at ${String(maxDimensionCap)} px.`}{' '}
+        This preview is based on page 1. Page sizes can vary across a PDF.
+        {` Page 1 render scale: ${resolutionInfo.effectiveScale.toFixed(2)}x.`}
       </p>
     </div>
   );
@@ -276,7 +276,7 @@ export function PdfToImagesToolScreen() {
   return (
     <SinglePdfToolWorkspace
       title="PDF to Images"
-      description="Export PDF pages as PNG, JPEG, or WEBP files in a ZIP archive."
+      description="Export PDF pages as PNG, JPEG, or WEBP files in a ZIP file."
       titleIcon={pdfToImagesToolDefinition.icon}
       selectorAriaLabel="Select PDF file"
       selectedFileEntry={workspace.selectedFileEntry}
@@ -329,9 +329,7 @@ export function PdfToImagesToolScreen() {
               {workspace.isConverting ? (
                 <Spinner data-icon="inline-start" />
               ) : null}
-              {workspace.isConverting
-                ? 'Converting...'
-                : 'Export Image Archive'}
+              {workspace.isConverting ? 'Converting...' : 'Export Images'}
             </Button>
           </div>
         ) : null

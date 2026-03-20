@@ -67,7 +67,7 @@ function FileQueueRowCard({
   const pageText =
     entry.metadataText ??
     (entry.pageCount === null
-      ? 'Pages unavailable'
+      ? 'Page count unavailable'
       : `${String(entry.pageCount)} page${entry.pageCount === 1 ? '' : 's'}`);
 
   return (
@@ -180,9 +180,7 @@ function SortableFileRow({
       data-testid="file-queue-item"
       className={cn(
         FILE_ROW_CLASS_NAME,
-        canReorder &&
-          !disabled &&
-          'cursor-grab active:cursor-grabbing',
+        canReorder && !disabled && 'cursor-grab active:cursor-grabbing',
         isDragging && 'ring-2 ring-ring shadow-sm',
         disabled && 'opacity-70',
       )}

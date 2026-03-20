@@ -74,7 +74,7 @@ export function validateImageFile(
   if (!mimeType) {
     return Promise.reject(
       new SecurityValidationError(
-        `Only JPG and PNG images are supported: ${file.name}`,
+        `Only JPG and PNG images are supported. ${file.name} is not supported.`,
       ),
     );
   }
@@ -101,7 +101,7 @@ export function validatePageCountLimit(
   maxPageCount = MAX_RENDER_PAGES,
 ): void {
   if (!Number.isInteger(pageCount) || pageCount < 0) {
-    throw new SecurityValidationError('Page count is not valid.');
+    throw new SecurityValidationError('The page count is not valid.');
   }
 
   if (pageCount > maxPageCount) {

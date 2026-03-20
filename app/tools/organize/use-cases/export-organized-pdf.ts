@@ -36,7 +36,7 @@ export async function organizePdfDocument(
 ): Promise<OrganizeResult> {
   const sourceFile = files.at(0);
   if (!sourceFile) {
-    throw new Error('Select a PDF file before organizing.');
+    throw new Error('Select a PDF file before organizing pages.');
   }
 
   if (!isOrganizeRunOptions(options)) {

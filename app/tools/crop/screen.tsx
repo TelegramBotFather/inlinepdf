@@ -97,7 +97,7 @@ function CropAspectField({
         htmlFor={id}
         className="whitespace-nowrap text-muted-foreground"
       >
-        Aspect
+        Aspect ratio
       </FieldLabel>
       <Select
         value={preset}
@@ -108,8 +108,8 @@ function CropAspectField({
         }}
         disabled={disabled}
       >
-        <SelectTrigger id={id} aria-label="Aspect Ratio" className="min-w-48">
-          <SelectValue placeholder="Select aspect ratio">
+        <SelectTrigger id={id} aria-label="Aspect ratio" className="min-w-48">
+          <SelectValue placeholder="Choose aspect ratio">
             {selectedPresetOption
               ? renderCropPresetLabel(selectedPresetOption.value)
               : null}
@@ -277,7 +277,7 @@ function CropActionBar({
 
       {errorMessage ? (
         <Alert variant="destructive">
-          <AlertTitle>Unable to crop page</AlertTitle>
+          <AlertTitle>Unable to continue</AlertTitle>
           <AlertDescription>{errorMessage}</AlertDescription>
         </Alert>
       ) : null}
@@ -307,7 +307,7 @@ function CropPreviewPanel({
       <div className="flex h-full items-center justify-center">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Spinner className="h-4 w-4" />
-          <p>Reading PDF and preparing crop preview...</p>
+          <p>Loading crop preview...</p>
         </div>
       </div>
     );
@@ -345,7 +345,7 @@ export function CropToolScreen() {
     return (
       <ToolWorkspace
         title="Crop PDF"
-        description="Choose a PDF and crop pages one at a time."
+        description="Choose a PDF, then crop one page at a time."
         titleIcon={cropToolDefinition.icon}
         inputPanel={
           <PdfFileSelector

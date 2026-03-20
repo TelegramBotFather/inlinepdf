@@ -30,14 +30,14 @@ describe('getImageToPdfWorkspaceViewModel', () => {
     expect(viewModel.canConvert).toBe(false);
     expect(viewModel.convertButtonLabel).toBe('Converting...');
     expect(viewModel.errorMessage).toBe('local error');
-    expect(viewModel.helperText).toBe('Converting images...');
+    expect(viewModel.helperText).toBe('Creating PDF...');
   });
 });
 
 describe('getUnsupportedImageMessage', () => {
   it('builds the unsupported file message when needed', () => {
     expect(getUnsupportedImageMessage('bad.gif')).toBe(
-      'Only JPG and PNG images are supported. Unsupported: bad.gif.',
+      'Only JPG and PNG images are supported. bad.gif is not supported.',
     );
   });
 

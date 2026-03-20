@@ -46,11 +46,11 @@ export function buildShippingLabelsViewModel(args: {
   return {
     errorMessage: localErrorMessage ?? actionErrorMessage,
     helperText: isPreparing
-      ? 'Scanning pages and preparing label pages...'
+      ? 'Reading pages and preparing labels...'
       : undefined,
     isBrandAvailable,
     prepareButtonDisabled: !selectedFile || isPreparing,
-    prepareButtonLabel: isPreparing ? 'Preparing...' : 'Prepare Labels',
+    prepareButtonLabel: isPreparing ? 'Preparing...' : 'Prepare PDF',
     showPickupPartnerSort: sortOptions.pickupPartner,
     showSkuSort: sortOptions.sku,
     showSortingSection: hasVisibleSortOptions,
@@ -132,7 +132,7 @@ export function useShippingLabelsWorkspace(brand: ShippingLabelBrand) {
   function handlePrepare() {
     if (!workspace.selectedFileEntry) {
       workspace.setLocalErrorMessage(
-        'Select a PDF file before preparing label pages.',
+        'Select a PDF file before preparing labels.',
       );
       return;
     }

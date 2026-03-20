@@ -195,7 +195,7 @@ function OrganizePageCardContent({
                       size="icon-sm"
                       disabled={disabled || !isSelected || !onRemove}
                       className={OVERLAY_ICON_BUTTON_CLASS}
-                      aria-label={`Remove page ${String(displayPageNumber)}`}
+                      aria-label={`Exclude page ${String(displayPageNumber)}`}
                       data-dnd-interactive="true"
                       onClick={() => {
                         onRemove?.(page.id);
@@ -229,7 +229,7 @@ function OrganizePageCardContent({
               />
             ) : (
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                Preview unavailable
+                Preview not available
               </div>
             )}
           </AspectRatio>
@@ -237,7 +237,7 @@ function OrganizePageCardContent({
           {page.isDeleted ? (
             <div className="absolute inset-0 z-10 flex items-end justify-center bg-background/40 pb-3">
               <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-medium">
-                Excluded from export
+                Excluded
               </span>
             </div>
           ) : null}
@@ -330,7 +330,7 @@ function OrganizeSummaryBar({
   return (
     <div className="flex flex-wrap items-center justify-between gap-2">
       <p className="text-sm text-muted-foreground">
-        {`${String(selectedPageCount)} selected · ${String(excludedPageCount)} removed`}
+        {`${String(selectedPageCount)} included · ${String(excludedPageCount)} excluded`}
       </p>
       <p className="text-sm text-muted-foreground">{visibleRangeLabel}</p>
     </div>
@@ -538,7 +538,7 @@ function OrganizeSelectionState({
   return (
     <ToolWorkspace
       title="Organize PDF"
-      description="Reorder, rotate, and remove pages, then export a new PDF."
+      description="Choose a PDF, then reorder, rotate, or exclude pages."
       titleIcon={organizeToolDefinition.icon}
       inputPanel={
         <PdfFileSelector
@@ -564,13 +564,13 @@ function OrganizeLoadingState({
   return (
     <ToolWorkspace
       title="Organize PDF"
-      description="Reorder pages and export a new PDF."
+      description="Loading pages so you can reorder them."
       titleIcon={organizeToolDefinition.icon}
       inputPanel={fileInfoPanel}
       outputPanel={
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Spinner className="h-4 w-4" />
-          <span>Reading PDF and preparing pages...</span>
+          <span>Loading pages...</span>
         </div>
       }
       errorMessage={errorMessage}
@@ -624,7 +624,7 @@ function OrganizeReadyState({
   return (
     <ToolWorkspace
       title="Organize PDF"
-      description="Reorder pages and export the updated PDF."
+      description="Reorder, rotate, or exclude pages, then export a new PDF."
       titleIcon={organizeToolDefinition.icon}
       inputPanel={fileInfoPanel}
       outputPanel={
@@ -658,7 +658,7 @@ function OrganizeReadyState({
           <div className="flex justify-end pt-1">
             <Button disabled={!canExport} onClick={onExport}>
               {isExporting ? <Spinner data-icon="inline-start" /> : null}
-              {isExporting ? 'Organizing...' : 'Export PDF'}
+              {isExporting ? 'Exporting...' : 'Export PDF'}
             </Button>
           </div>
         </section>
