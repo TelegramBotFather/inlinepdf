@@ -97,6 +97,36 @@ describe('organizeWorkspaceReducer', () => {
       'page-1',
     ]);
   });
+
+  it('deselects every page through the workspace reducer', () => {
+    const loadedState = organizeWorkspaceReducer(
+      organizeWorkspaceReducer(initialOrganizeWorkspaceState, {
+        type: 'fileSelectionStarted',
+        file: new File(['pdf'], 'source.pdf', { type: 'application/pdf' }),
+        entry: createQueuedFile(),
+      }),
+      {
+        type: 'previewSessionLoaded',
+        entryId: 'file-1',
+        previewSession: createPreviewSession(3),
+      },
+    );
+
+    const partiallySelectedState = organizeWorkspaceReducer(loadedState, {
+      type: 'pageSelectionToggled',
+      pageId: 'page-2',
+    });
+
+    const deselectedState = organizeWorkspaceReducer(partiallySelectedState, {
+      type: 'allPagesDeselected',
+    });
+
+    expect(deselectedState.pageStates.map((page) => page.isDeleted)).toEqual([
+      true,
+      true,
+      true,
+    ]);
+  });
 });
 
 describe('organize workspace helpers', () => {

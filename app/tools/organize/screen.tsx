@@ -138,11 +138,11 @@ function OrganizePageCardContent({
       aria-pressed={isSelected}
       aria-label={`${isSelected ? 'Deselect' : 'Select'} page ${String(displayPageNumber)}`}
       className={cn(
-        'group/page relative overflow-hidden rounded-2xl p-3 text-left outline-none transition-all',
+        'group/page relative overflow-hidden rounded-2xl border p-2 text-left outline-none transition-all',
         'focus-visible:ring-2 focus-visible:ring-ring/60',
         isSelected
-          ? 'border-2 border-primary bg-accent/20 ring-2 ring-primary/20 shadow-sm'
-          : 'border-2 border-transparent bg-muted/25 hover:bg-muted/45',
+          ? 'border-sky-500 bg-sky-500/5 ring-2 ring-sky-400/45 ring-offset-1 ring-offset-background shadow-sm dark:border-sky-400 dark:bg-sky-400/10 dark:ring-sky-300/50'
+          : 'border-border/80 bg-muted/20 hover:border-border hover:bg-muted/35',
         disabled && 'pointer-events-none opacity-70',
       )}
       onClick={() => {
@@ -155,9 +155,16 @@ function OrganizePageCardContent({
         }
       }}
     >
+      <div
+        className={cn(
+          'pointer-events-none absolute inset-0 rounded-[inherit] transition-all',
+          isSelected ? 'bg-sky-500/10 dark:bg-sky-400/10' : 'bg-transparent',
+        )}
+      />
+
       <AspectRatio
         ratio={displayAspectRatio}
-        className="relative overflow-hidden rounded-xl bg-background"
+        className="relative z-10 overflow-hidden rounded-xl bg-background"
       >
         {page.thumbnailStatus === 'loading' ? (
           <div className="relative z-10 flex h-full items-center justify-center">
@@ -182,20 +189,28 @@ function OrganizePageCardContent({
           className={cn(
             'pointer-events-none absolute inset-0 z-20 transition-all',
             isSelected
-              ? 'bg-primary/10 ring-1 ring-inset ring-primary/50'
+              ? 'bg-slate-900/6 dark:bg-slate-50/6'
               : 'bg-transparent',
           )}
         />
 
         <div className="pointer-events-none absolute inset-x-3 bottom-3 z-30 flex justify-center">
-          <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/75">
+          <span
+            className={cn(
+              'rounded-full px-3 py-1 text-xs font-medium shadow-sm backdrop-blur',
+              'supports-[backdrop-filter]:bg-background/75',
+              isSelected
+                ? 'bg-sky-50/95 text-sky-700 ring-1 ring-sky-200 dark:bg-sky-950/85 dark:text-sky-100 dark:ring-sky-700/70'
+                : 'bg-background/90 text-foreground',
+            )}
+          >
             {`Page ${String(displayPageNumber)}`}
           </span>
         </div>
 
         {isSelected ? (
           <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
-            <div className="flex size-12 items-center justify-center rounded-full border border-primary/20 bg-background/90 text-foreground shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/80">
+            <div className="flex size-12 items-center justify-center rounded-full border border-sky-200 bg-background/90 text-sky-600 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/80 dark:border-sky-700 dark:text-sky-300">
               <HugeiconsIcon icon={Tick02Icon} strokeWidth={2.2} />
             </div>
           </div>
@@ -423,7 +438,7 @@ function OrganizePageGrid({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         {visiblePages.map((page, index) => (
           <SortableOrganizePageCard
             key={page.id}
@@ -544,6 +559,7 @@ interface OrganizeReadyStateProps {
   onNextPage: () => void;
   onDragReorder: (sourceId: string, targetId: string) => void;
   onToggleSelected: (pageId: string) => void;
+  onDeselectAllPages: () => void;
   onExport: () => void;
 }
 
@@ -564,6 +580,7 @@ function OrganizeReadyState({
   onNextPage,
   onDragReorder,
   onToggleSelected,
+  onDeselectAllPages,
   onExport,
 }: OrganizeReadyStateProps) {
   return (
@@ -598,7 +615,14 @@ function OrganizeReadyState({
             />
           </TooltipProvider>
 
-          <div className="flex justify-end pt-1">
+          <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+            <Button
+              variant="outline"
+              disabled={selectedPageCount < 1 || isExporting}
+              onClick={onDeselectAllPages}
+            >
+              Unselect all
+            </Button>
             <Button disabled={!canExport} onClick={onExport}>
               {isExporting ? <Spinner data-icon="inline-start" /> : null}
               {isExporting ? 'Exporting...' : 'Export PDF'}
@@ -676,6 +700,9 @@ export function OrganizeToolScreen() {
       }}
       onToggleSelected={(pageId) => {
         workspace.togglePageSelected(pageId);
+      }}
+      onDeselectAllPages={() => {
+        workspace.deselectAllPages();
       }}
       onExport={() => {
         workspace.handleExport();

@@ -34,6 +34,7 @@ export type OrganizeWorkspaceAction =
   | { type: 'paginationPageSet'; page: number }
   | { type: 'paginationOffset'; offset: number; totalPaginationPages: number }
   | { type: 'pageSelectionToggled'; pageId: string }
+  | { type: 'allPagesDeselected' }
   | { type: 'pageRotated'; pageId: string }
   | { type: 'pageRemoved'; pageId: string }
   | { type: 'pagesReordered'; sourceId: string; targetId: string }
@@ -230,6 +231,15 @@ export function organizeWorkspaceReducer(
               }
             : page,
         ),
+      };
+    case 'allPagesDeselected':
+      return {
+        ...state,
+        localErrorMessage: null,
+        pageStates: state.pageStates.map((page) => ({
+          ...page,
+          isDeleted: true,
+        })),
       };
     case 'pageRotated':
       return {

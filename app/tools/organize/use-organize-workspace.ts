@@ -348,6 +348,9 @@ export function useOrganizeWorkspace() {
     togglePageSelected(pageId: string) {
       dispatch({ type: 'pageSelectionToggled', pageId });
     },
+    deselectAllPages() {
+      dispatch({ type: 'allPagesDeselected' });
+    },
     rotatePage(pageId: string) {
       dispatch({ type: 'pageRotated', pageId });
     },
