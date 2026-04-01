@@ -1,3 +1,4 @@
+import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -5,6 +6,7 @@ import {
   removeFileQueueEntryById,
   reorderFileQueueEntriesById,
   updateFileQueueEntryById,
+  useFileQueueState,
 } from '~/shared/tool-ui/file-queue-state';
 
 describe('file queue state helpers', () => {
@@ -42,5 +44,31 @@ describe('file queue state helpers', () => {
 
     expect(removed.removedEntry?.id).toBe('c');
     expect(removed.nextEntries.map((entry) => entry.id)).toEqual(['b', 'a']);
+  });
+
+  it('updates the queue snapshot immediately for same-tick submits', () => {
+    const { result } = renderHook(() =>
+      useFileQueueState<{ id: string; value: number }>(),
+    );
+
+    act(() => {
+      result.current.appendEntries([
+        { id: 'a', value: 1 },
+        { id: 'b', value: 2 },
+        { id: 'c', value: 3 },
+      ]);
+
+      result.current.reorderEntries('a', 'c');
+
+      expect(result.current.getEntriesSnapshot().map((entry) => entry.id)).toEqual(
+        ['b', 'c', 'a'],
+      );
+    });
+
+    expect(result.current.entries.map((entry) => entry.id)).toEqual([
+      'b',
+      'c',
+      'a',
+    ]);
   });
 });

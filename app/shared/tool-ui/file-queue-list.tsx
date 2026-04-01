@@ -1,8 +1,8 @@
 import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
 import File01Icon from '@hugeicons/core-free-icons/File01Icon';
-import { type ReactNode } from 'react';
+import { type ReactNode, useRef } from 'react';
 import type { DragDropEventHandlers } from '@dnd-kit/react';
-import { isSortableOperation, useSortable } from '@dnd-kit/react/sortable';
+import { useSortable } from '@dnd-kit/react/sortable';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { CspDragDropProvider } from '~/components/dnd/csp-drag-drop-provider';
 import { AspectRatio } from '~/components/ui/aspect-ratio';
@@ -30,6 +30,71 @@ interface FileQueueListProps {
   onReorder?: (activeId: string, overId: string) => void;
   onRemove?: (id: string) => void;
   appendItem?: ReactNode;
+}
+
+function getProjectedTargetId(
+  items: { id: string }[],
+  sourceId: string,
+  targetIndex: number,
+): string | null {
+  if (targetIndex < 0 || targetIndex >= items.length) {
+    return null;
+  }
+
+  const targetId = items[targetIndex]?.id;
+
+  if (!targetId || targetId === sourceId) {
+    return null;
+  }
+
+  return targetId;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function getEventSourceId(event: unknown): string | null {
+  if (
+    !isRecord(event) ||
+    !isRecord(event.operation) ||
+    !isRecord(event.operation.source)
+  ) {
+    return null;
+  }
+
+  return typeof event.operation.source.id === 'string'
+    ? event.operation.source.id
+    : null;
+}
+
+function getEventTargetId(event: unknown): string | null {
+  if (
+    !isRecord(event) ||
+    !isRecord(event.operation) ||
+    !isRecord(event.operation.target)
+  ) {
+    return null;
+  }
+
+  return typeof event.operation.target.id === 'string'
+    ? event.operation.target.id
+    : null;
+}
+
+function getEventSortableIndex(event: unknown): number | null {
+  if (
+    !isRecord(event) ||
+    !isRecord(event.operation) ||
+    !isRecord(event.operation.source) ||
+    !isRecord(event.operation.source.sortable)
+  ) {
+    return null;
+  }
+
+  return typeof event.operation.source.sortable.index === 'number'
+    ? event.operation.source.sortable.index
+    : null;
 }
 
 const FILE_ROW_CLASS_NAME =
@@ -214,32 +279,110 @@ export function FileQueueList({
 
   const canReorder = !!onReorder && files.length > 1;
   const reorderFiles = onReorder;
+  const lastReorderRef = useRef<string | null>(null);
+
+  function resolveTargetId(event: unknown) {
+    const sourceId = getEventSourceId(event);
+    const nextIndex = getEventSortableIndex(event);
+    const targetId =
+      getEventTargetId(event) ??
+      (nextIndex === null
+        ? null
+        : getProjectedTargetId(files, sourceId ?? '', nextIndex));
+
+    return { sourceId, targetId };
+  }
+
+  function reorderFromEvent(event: unknown) {
+    const { sourceId, targetId } = resolveTargetId(event);
+
+    if (!sourceId || !targetId || sourceId === targetId || !reorderFiles) {
+      console.debug('file-queue-list:reorderFromEvent:ignored', {
+        sourceId,
+        targetId,
+      });
+      return;
+    }
+
+    const signature = `${sourceId}->${targetId}`;
+    if (lastReorderRef.current === signature) {
+      return;
+    }
+
+    lastReorderRef.current = signature;
+    console.debug('file-queue-list:reorderFromEvent:apply', {
+      sourceId,
+      targetId,
+    });
+    reorderFiles(sourceId, targetId);
+  }
+
+  const handleDragStart: NonNullable<DragDropEventHandlers['onDragStart']> = (
+    event,
+  ) => {
+    lastReorderRef.current = null;
+    console.debug('file-queue-list:dragStart', {
+      files: files.map((file) => ({
+        id: file.id,
+        name: file.file.name,
+      })),
+      sourceId: getEventSourceId(event),
+      sourceIndex: getEventSortableIndex(event),
+    });
+  };
+
+  const handleDragOver: NonNullable<DragDropEventHandlers['onDragOver']> = (
+    event,
+  ) => {
+    console.debug('file-queue-list:dragOver:raw', {
+      files: files.map((file) => ({
+        id: file.id,
+        name: file.file.name,
+      })),
+      sourceId: getEventSourceId(event),
+      targetId: getEventTargetId(event),
+      sortableIndex: getEventSortableIndex(event),
+      operation: event.operation,
+    });
+
+    if (!canReorder || disabled || !reorderFiles) {
+      return;
+    }
+
+    reorderFromEvent(event);
+  };
 
   const handleDragEnd: NonNullable<DragDropEventHandlers['onDragEnd']> = (
     event,
   ) => {
+    console.debug('file-queue-list:dragEnd:raw', {
+      canceled: event.canceled,
+      files: files.map((file) => ({
+        id: file.id,
+        name: file.file.name,
+      })),
+      sourceId: getEventSourceId(event),
+      targetId: getEventTargetId(event),
+      sortableIndex: getEventSortableIndex(event),
+      operation: event.operation,
+    });
+
     if (!canReorder || disabled || !reorderFiles || event.canceled) {
+      lastReorderRef.current = null;
       return;
     }
 
-    if (!isSortableOperation(event.operation)) {
-      return;
-    }
-
-    const { source, target } = event.operation;
-    const sourceId = source && typeof source.id === 'string' ? source.id : null;
-    const targetId = target && typeof target.id === 'string' ? target.id : null;
-
-    if (!sourceId || !targetId || sourceId === targetId) {
-      return;
-    }
-
-    reorderFiles(sourceId, targetId);
+    reorderFromEvent(event);
+    lastReorderRef.current = null;
   };
 
   return (
     <section className="isolate space-y-3" aria-label={title}>
-      <CspDragDropProvider onDragEnd={handleDragEnd}>
+      <CspDragDropProvider
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+      >
         <ul
           className={
             listClassName ??

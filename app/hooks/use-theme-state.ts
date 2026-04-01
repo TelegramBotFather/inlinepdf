@@ -14,6 +14,10 @@ import {
 } from '~/lib/theme';
 
 let cachedSnapshot: ThemeState | null = null;
+const defaultServerSnapshot: ThemeState = {
+  preference: defaultThemePreference,
+  resolvedTheme: defaultResolvedTheme,
+};
 
 function getThemeSnapshot(): ThemeState {
   const nextSnapshot = readThemeStateFromDocument();
@@ -47,9 +51,7 @@ function subscribe(onStoreChange: () => void): () => void {
 
 export function useThemeState(): ThemeState {
   const rootData = useRouteLoaderData<typeof rootLoader>('root');
+  const serverSnapshot: ThemeState = rootData ?? defaultServerSnapshot;
 
-  return useSyncExternalStore(subscribe, getThemeSnapshot, () => ({
-    preference: rootData?.preference ?? defaultThemePreference,
-    resolvedTheme: rootData?.resolvedTheme ?? defaultResolvedTheme,
-  }));
+  return useSyncExternalStore(subscribe, getThemeSnapshot, () => serverSnapshot);
 }

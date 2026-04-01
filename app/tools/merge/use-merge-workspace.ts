@@ -49,14 +49,16 @@ export function useMergeWorkspace() {
   }
 
   function handleMerge() {
-    if (!viewModel.canMerge) {
+    const entries = workspace.getEntriesSnapshot();
+
+    if (workspace.isBusy || entries.length < 2) {
       return;
     }
 
     workspace.submitAction({
-      payload: { files: workspace.entries.map((entry) => entry.file) },
+      payload: { files: entries.map((entry) => entry.file) },
       writeFormData(formData) {
-        workspace.entries.forEach((entry) => {
+        entries.forEach((entry) => {
           formData.append('files[]', entry.file);
         });
       },

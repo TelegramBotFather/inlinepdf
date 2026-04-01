@@ -119,17 +119,19 @@ export function useImageToPdfWorkspace() {
   }
 
   function handleConvert() {
-    if (!viewModel.canConvert) {
+    const entries = workspace.getEntriesSnapshot();
+
+    if (workspace.isBusy || entries.length < 1) {
       return;
     }
 
     workspace.submitAction({
       payload: {
-        files: workspace.entries.map((entry) => entry.file),
+        files: entries.map((entry) => entry.file),
         quality,
       },
       writeFormData(formData) {
-        workspace.entries.forEach((entry) => {
+        entries.forEach((entry) => {
           formData.append('files[]', entry.file);
         });
         formData.set('quality', quality);

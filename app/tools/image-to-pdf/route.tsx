@@ -21,9 +21,9 @@ const routeModule = createToolRouteModule<
   definition: imageToPdfToolDefinition,
   errorMessage: 'Unable to create a PDF from these images.',
   parseInput({ formData, fallbackPayload }) {
-    const files = getFiles(formData, 'files[]');
+    const files = fallbackPayload?.files ?? getFiles(formData, 'files[]');
     return {
-      files: files.length > 0 ? files : (fallbackPayload?.files ?? []),
+      files,
       quality: getString(formData, 'quality') ?? fallbackPayload?.quality ?? '',
     };
   },

@@ -20,9 +20,9 @@ const routeModule = createToolRouteModule<
   definition: mergeToolDefinition,
   errorMessage: 'Unable to merge these PDF files.',
   parseInput({ formData, fallbackPayload }) {
-    const files = getFiles(formData, 'files[]');
+    const files = fallbackPayload?.files ?? getFiles(formData, 'files[]');
     return {
-      files: files.length > 0 ? files : (fallbackPayload?.files ?? []),
+      files,
     };
   },
   execute({ files }) {

@@ -51,12 +51,17 @@ export function useFileQueueState<T extends IdentifiableEntry>(options?: {
   cleanupEntry?: (entry: T) => void;
 }) {
   const cleanupEntry = options?.cleanupEntry;
-  const [entries, setEntries] = useState<T[]>([]);
+  const [entries, setEntriesState] = useState<T[]>([]);
   const entriesRef = useRef<T[]>([]);
 
   useEffect(() => {
     entriesRef.current = entries;
   }, [entries]);
+
+  function commitEntries(nextEntries: T[]) {
+    entriesRef.current = nextEntries;
+    setEntriesState(nextEntries);
+  }
 
   useEffect(
     () => () => {
@@ -73,43 +78,49 @@ export function useFileQueueState<T extends IdentifiableEntry>(options?: {
 
   return {
     entries,
+    getEntriesSnapshot() {
+      return entriesRef.current;
+    },
     appendEntries(entriesToAdd: T[]) {
-      setEntries((current) => appendFileQueueEntries(current, entriesToAdd));
+      commitEntries(appendFileQueueEntries(entriesRef.current, entriesToAdd));
     },
     clearEntries() {
-      setEntries((current) => {
-        if (cleanupEntry) {
-          current.forEach((entry) => {
-            cleanupEntry(entry);
-          });
-        }
+      if (cleanupEntry) {
+        entriesRef.current.forEach((entry) => {
+          cleanupEntry(entry);
+        });
+      }
 
-        return [];
-      });
+      commitEntries([]);
     },
     removeEntry(entryId: string) {
-      setEntries((current) => {
-        const { nextEntries, removedEntry } = removeFileQueueEntryById(
-          current,
-          entryId,
-        );
+      const { nextEntries, removedEntry } = removeFileQueueEntryById(
+        entriesRef.current,
+        entryId,
+      );
 
-        if (removedEntry && cleanupEntry) {
-          cleanupEntry(removedEntry);
-        }
+      if (removedEntry && cleanupEntry) {
+        cleanupEntry(removedEntry);
+      }
 
-        return nextEntries;
-      });
+      commitEntries(nextEntries);
     },
     reorderEntries(activeId: string, overId: string) {
-      setEntries((current) =>
-        reorderFileQueueEntriesById(current, activeId, overId),
+      console.debug('file-queue-state:reorderEntries', {
+        activeId,
+        overId,
+        currentOrder: entriesRef.current.map((entry) => entry.id),
+      });
+      commitEntries(
+        reorderFileQueueEntriesById(entriesRef.current, activeId, overId),
       );
     },
-    setEntries,
+    setEntries(nextEntries: T[]) {
+      commitEntries(nextEntries);
+    },
     updateEntry(entryId: string, updater: (entry: T) => T) {
-      setEntries((current) =>
-        updateFileQueueEntryById(current, entryId, updater),
+      commitEntries(
+        updateFileQueueEntryById(entriesRef.current, entryId, updater),
       );
     },
   };

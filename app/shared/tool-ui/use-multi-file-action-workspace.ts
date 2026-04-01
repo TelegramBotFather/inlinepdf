@@ -83,6 +83,7 @@ export function useMultiFileActionWorkspace<
     entries: queue.entries,
     errorMessage,
     fetcher,
+    getEntriesSnapshot: queue.getEntriesSnapshot,
     isBusy,
     localErrorMessage,
     removeEntry,
