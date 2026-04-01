@@ -26,12 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
-import {
-  STANDARD_PAGE_SIZE_IDS,
-  getStandardPageSizeOption,
-  isStandardPageSizeId,
-} from '~/platform/pdf/page-size-options';
-import { PageSizeOptionLabel } from '~/shared/tool-ui/page-size-option-label';
 import { PdfCropEditor } from '~/tools/crop/components/pdf-crop-editor';
 import type {
   CropDocumentPreview,
@@ -44,14 +38,8 @@ import { ToolWorkspace } from '~/shared/tool-ui/tool-workspace';
 import { useSuccessToast } from '~/shared/tool-ui/use-success-toast';
 import { useCropWorkspace } from '~/tools/crop/use-crop-workspace';
 
-const PAGE_SIZE_PRESET_OPTIONS = STANDARD_PAGE_SIZE_IDS.map((value) => ({
-  value,
-  label: getStandardPageSizeOption(value).label,
-}));
-
 const PRESET_OPTIONS: { value: CropPreset; label: string }[] = [
   { value: 'free', label: 'Freeform' },
-  ...PAGE_SIZE_PRESET_OPTIONS,
   { value: '1:1', label: '1:1' },
   { value: '4:3', label: '4:3' },
   { value: '16:9', label: '16:9' },
@@ -62,10 +50,6 @@ function isCropPreset(value: string): value is CropPreset {
 }
 
 function renderCropPresetLabel(value: CropPreset) {
-  if (isStandardPageSizeId(value)) {
-    return <PageSizeOptionLabel {...getStandardPageSizeOption(value)} />;
-  }
-
   return (
     PRESET_OPTIONS.find((option) => option.value === value)?.label ?? value
   );
@@ -115,7 +99,11 @@ function CropAspectField({
               : null}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent align="end">
+        <SelectContent
+          align="end"
+          className="z-[85]"
+          positionerClassName="z-[85]"
+        >
           {PRESET_OPTIONS.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               {renderCropPresetLabel(option.value)}
